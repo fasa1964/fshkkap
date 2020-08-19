@@ -15,8 +15,18 @@ public:
     explicit FSHKWindow(QWidget *parent = 0);
     ~FSHKWindow();
 
+
+private slots:
+    void actionCloseClicked();
+    void actionInfoClicked();
+
+
 private:
     Ui::FSHKWindow *ui;
+
+
+    void readSettings();
+    void writeSettings();
 };
 
 #endif // FSHKWINDOW_H
