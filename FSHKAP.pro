@@ -25,10 +25,23 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        fshkwindow.cpp
+        fshkwindow.cpp \
+    appwidget.cpp \
+    classbetrieb.cpp \
+    classfrage.cpp \
+    classlehrling.cpp \
+    classprojekt.cpp \
+    classskills.cpp
 
 HEADERS += \
-        fshkwindow.h
+        fshkwindow.h \
+    appwidget.h \
+    classbetrieb.h \
+    classfrage.h \
+    classlehrling.h \
+    classprojekt.h \
+    classskills.h
 
 FORMS += \
-        fshkwindow.ui
+        fshkwindow.ui \
+    appwidget.ui

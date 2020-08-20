@@ -11,11 +11,14 @@
 
 class ClassSkills
 {
+    //Q_ENUMS(CriteriaTypes)
+
 public:
     ClassSkills();
 
     // Evaluation criteria
-    enum Criteria{ projectNode, identifierNode };
+    enum class CriteriaTypes { projectNode, identifierNode };
+
 
     int getNr() const;
     void setNr(int nr);
@@ -32,10 +35,6 @@ public:
     QMap<QString, ClassProjekt> getProjektMap() const;
     void setProjektMap(const QMap<QString, ClassProjekt> &value);
 
-    bool addProjekt(const ClassProjekt &pro);
-    void insertProjekt(ClassProjekt pro);
-    bool removeProjekt(const ClassProjekt &pro);
-
     QDateTime getCreatedDate() const;
     void setCreatedDate(const QDateTime &createdDate);
 
@@ -49,9 +48,10 @@ public:
 
     bool isEvaluated();
 
-    // Evaluation criteria
-    void setCriteria (Criteria criteria);
-    Criteria criteria() const;
+    /// !brief Evaluation criteria
+    void setEvaluationType(const CriteriaTypes &type);
+    void setEvaluationType(int index);
+    int getEvaluationType() const;
 
     static QStringList supportedCriteria(){
         QStringList list;
@@ -59,8 +59,7 @@ public:
         return list;
     }
 
-    Criteria convert(int index);
-    int index (Criteria criteria);
+
 
 private:
 
@@ -70,8 +69,7 @@ private:
     QDate m_date;
     QDateTime m_createdDate;
     int m_wert;
-    Criteria m_criteria;
-
+    CriteriaTypes m_evaluationType;
 
     QMap<QString, ClassProjekt> projektMap;
 

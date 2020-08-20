@@ -2,6 +2,11 @@
 #define FSHKWINDOW_H
 
 #include <QMainWindow>
+#include <QLabel>
+
+
+#include <appwidget.h>
+
 
 namespace Ui {
 class FSHKWindow;
@@ -24,6 +29,8 @@ private slots:
 private:
     Ui::FSHKWindow *ui;
 
+    AppWidget *appwidget;
+    void setApplicationLabel();
 
     void readSettings();
     void writeSettings();

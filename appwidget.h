@@ -12,7 +12,7 @@ class AppWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit AppWidget(QWidget *parent = 0);
+    explicit AppWidget(const QString &NAME, const QString &VERSION, QWidget *parent = 0);
     ~AppWidget();
 
 private:

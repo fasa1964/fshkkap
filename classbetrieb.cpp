@@ -69,22 +69,22 @@ void ClassBetrieb::setAzubiMap(const QMap<QString, ClassLehrling> &azubiMap)
     m_azubiMap = azubiMap;
 }
 
-bool ClassBetrieb::removeLehrling(const ClassLehrling &azu)
-{
-    bool status = false;
-    QString aKey = azu.getKey();
+//bool ClassBetrieb::removeLehrling(const ClassLehrling &azu)
+//{
+//    bool status = false;
+//    QString aKey = azu.getKey();
 
-    int result = azubiMap().remove(aKey);
-    if(result != 0)
-        status = true;
+//    int result = azubiMap().remove(aKey);
+//    if(result != 0)
+//        status = true;
 
-    return status;
-}
+//    return status;
+//}
 
-int ClassBetrieb::countLehrling()
-{
-    return azubiMap().size();
-}
+//int ClassBetrieb::countLehrling()
+//{
+//    return azubiMap().size();
+//}
 
 QDataStream &operator<<(QDataStream &out, const ClassBetrieb &dat)
 {

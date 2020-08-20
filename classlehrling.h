@@ -53,16 +53,6 @@ public:
     QMap<QString, ClassSkills> getSkillMap() const;
     void setSkillMap(const QMap<QString, ClassSkills> &skillMap);
 
-    bool skillContain(ClassSkills skill);
-//    bool skillIsUpToDate(ClassSkills skill);
-
-    void insertSkill(ClassSkills skill);
-
-    QMap<QString, QVariant> getColorMap() const;
-    void setColorMap(const QMap<QString, QVariant> &colorMap);
-
-    QColor getColor(const QString &key);
-
 private:
     int m_nr;
     QString m_firstname;
@@ -77,7 +67,6 @@ private:
     QString m_note;
 
     QMap<QString, ClassSkills> m_skillMap;
-    QMap<QString, QVariant> m_colorMap;
 
 
 };

@@ -4,12 +4,19 @@
 #include <QSettings>
 #include <QMessageBox>
 
+
+
 FSHKWindow::FSHKWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::FSHKWindow)
 {
     ui->setupUi(this);
     readSettings();
+    appwidget = new AppWidget(qApp->applicationName(), qApp->applicationVersion(), this);
+    appwidget->hide();
+
+    setApplicationLabel();
+
 
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
     connect(ui->actionInfo, &QAction::triggered, this, &FSHKWindow::actionInfoClicked);
@@ -29,6 +36,13 @@ void FSHKWindow::actionCloseClicked()
 void FSHKWindow::actionInfoClicked()
 {
     QMessageBox::information(this, tr("Info"), tr("Not available yet!"));
+}
+
+void FSHKWindow::setApplicationLabel()
+{
+    this->takeCentralWidget();
+    appwidget->show();
+    setCentralWidget(appwidget);
 }
 
 

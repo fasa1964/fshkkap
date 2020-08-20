@@ -30,8 +30,8 @@ public:
      QMap<QString, ClassLehrling> azubiMap() const;
      void setAzubiMap(const QMap<QString, ClassLehrling> &azubiMap);
 
-     bool removeLehrling(const ClassLehrling &azu);
-     int countLehrling();
+//     bool removeLehrling(const ClassLehrling &azu);
+//     int countLehrling();
 
 private:
      int m_nr;

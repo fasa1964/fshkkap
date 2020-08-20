@@ -66,8 +66,6 @@ public:
     int getDuration() const;
     void setDuration(int duration);
 
-    QStringList identifierList();
-
 private:
 
     QString m_name;

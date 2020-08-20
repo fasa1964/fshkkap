@@ -7,8 +7,10 @@ ClassSkills::ClassSkills()
     m_identifier = "";
     m_wert = 0;
     m_date = QDate();
-    m_criteria = Criteria::projectNode;
+    m_evaluationType = CriteriaTypes::projectNode;
+
 }
+
 
 QString ClassSkills::name() const
 {
@@ -50,34 +52,6 @@ void ClassSkills::setProjektMap(const QMap<QString, ClassProjekt> &value)
     projektMap = value;
 }
 
-bool ClassSkills::addProjekt(const ClassProjekt &pro)
-{
-    QString key = pro.name()+"."+pro.identifier();
-    if(projektMap.keys().contains(key))
-        return false;
-    else
-        projektMap.insert(key, pro);
-
-    return true;
-}
-
-void ClassSkills::insertProjekt( ClassProjekt pro)
-{
-    projektMap.insert(pro.getKey(), pro);
-}
-
-
-
-bool ClassSkills::removeProjekt(const ClassProjekt &pro)
-{
-    QString key = pro.name()+"."+pro.identifier();
-    int result = projektMap.remove(key);
-
-    if(result == 0)
-        return false;
-
-    return true;
-}
 
 QDateTime ClassSkills::getCreatedDate() const
 {
@@ -145,38 +119,32 @@ bool ClassSkills::isEvaluated()
     return status;
 }
 
-void ClassSkills::setCriteria(ClassSkills::Criteria criteria)
+void ClassSkills::setEvaluationType(const CriteriaTypes &type)
 {
-    m_criteria = criteria;
+    m_evaluationType = type;
 }
 
-ClassSkills::Criteria ClassSkills::criteria() const
+void ClassSkills::setEvaluationType(int index)
 {
-    return m_criteria;
-}
-
-ClassSkills::Criteria ClassSkills::convert(int index)
-{
-    Criteria cr;
     if(index == 0)
-        cr = Criteria::projectNode;
+        m_evaluationType = CriteriaTypes::projectNode;
 
     if(index == 1)
-        cr = Criteria::identifierNode;
+        m_evaluationType = CriteriaTypes::identifierNode;
 
-    return cr;
 }
 
-int ClassSkills::index(ClassSkills::Criteria criteria)
+int ClassSkills::getEvaluationType() const
 {
-    int in = -1;
+    int index = -1;
 
-    if(criteria == Criteria::projectNode)
-        in = 0;
-    if(criteria == Criteria::identifierNode)
-        in = 1;
+    if(m_evaluationType == CriteriaTypes::projectNode)
+        index = 0;
 
-    return in;
+    if(m_evaluationType == CriteriaTypes::identifierNode)
+        index = 1;
+
+    return index;
 }
 
 
@@ -193,7 +161,7 @@ void ClassSkills::setNr(int nr)
 QDataStream &operator<<(QDataStream &out, const ClassSkills &dat)
 {
     out << dat.getNr() << dat.name() << dat.identifier() << dat.date() << dat.getWert() <<
-           dat.getCreatedDate() << dat.getProjektMap() << dat.criteria();
+           dat.getCreatedDate() << dat.getProjektMap() << dat.getEvaluationType();
     return out;
 }
 
@@ -206,9 +174,9 @@ QDataStream &operator>>(QDataStream &in, ClassSkills &dat)
     QDateTime createdDate;
     int wert;
     QMap<QString, ClassProjekt> pMap;
-    int criteriaIndex;
+    int evalType;
 
-    in >> nr >> name >> identifier >> date >> wert >> createdDate >> pMap >> criteriaIndex;
+    in >> nr >> name >> identifier >> date >> wert >> createdDate >> pMap >> evalType;
 
     dat.setNr( nr );
     dat.setName( name );
@@ -217,7 +185,7 @@ QDataStream &operator>>(QDataStream &in, ClassSkills &dat)
     dat.setDate( date );
     dat.setCreatedDate( createdDate );
     dat.setProjektMap( pMap );
-    dat.setCriteria(dat.convert(criteriaIndex));
+    dat.setEvaluationType(evalType);
 
     return in;
 }

@@ -140,40 +140,6 @@ void ClassLehrling::setSkillMap(const QMap<QString, ClassSkills> &skillMap)
     m_skillMap = skillMap;
 }
 
-bool ClassLehrling::skillContain(ClassSkills skill)
-{
-    QMapIterator<QString, ClassSkills> it(getSkillMap());
-    while (it.hasNext()) {
-        it.next();
-        ClassSkills s = it.value();
-        if(s.getKey() == skill.getKey())
-            return true;
-    }
-
-    return false;
-}
-
-void ClassLehrling::insertSkill(ClassSkills skill)
-{
-    m_skillMap.insert(skill.getKey(), skill);
-}
-
-QMap<QString, QVariant> ClassLehrling::getColorMap() const
-{
-    return m_colorMap;
-}
-
-void ClassLehrling::setColorMap(const QMap<QString, QVariant> &colorMap)
-{
-    m_colorMap = colorMap;
-}
-
-QColor ClassLehrling::getColor(const QString &key)
-{
-    QVariant var = getColorMap().value(key);
-    return var.value<QColor>();
-}
-
 
 QString ClassLehrling::note() const
 {

@@ -1,11 +1,16 @@
 #include "fshkwindow.h"
 #include <QApplication>
+#include <QGuiApplication>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    FSHKWindow w;
-    w.show();
+    QApplication app(argc, argv);
 
-    return a.exec();
+    QGuiApplication::setApplicationName("FSHK-AP");
+    QGuiApplication::setApplicationVersion("1.0");
+
+    FSHKWindow window;
+    window.show();
+
+    return app.exec();
 }
