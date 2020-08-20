@@ -31,7 +31,8 @@ SOURCES += \
     classfrage.cpp \
     classlehrling.cpp \
     classprojekt.cpp \
-    classskills.cpp
+    classskills.cpp \
+    formcompany.cpp
 
 HEADERS += \
         fshkwindow.h \
@@ -40,8 +41,10 @@ HEADERS += \
     classfrage.h \
     classlehrling.h \
     classprojekt.h \
-    classskills.h
+    classskills.h \
+    formcompany.h
 
 FORMS += \
         fshkwindow.ui \
-    appwidget.ui
+    appwidget.ui \
+    formcompany.ui

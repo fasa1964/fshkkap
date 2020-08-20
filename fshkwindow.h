@@ -25,6 +25,10 @@ private slots:
     void actionCloseClicked();
     void actionInfoClicked();
 
+    void actionCompanyClicked();
+    void actionApprenticeClicked();
+    void actionProjectClicked();
+
 
 private:
     Ui::FSHKWindow *ui;

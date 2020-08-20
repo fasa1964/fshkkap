@@ -20,6 +20,9 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
 
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
     connect(ui->actionInfo, &QAction::triggered, this, &FSHKWindow::actionInfoClicked);
+    connect(ui->actionCompany, &QAction::triggered, this, &FSHKWindow::actionCompanyClicked);
+    connect(ui->actionApprentice, &QAction::triggered, this, &FSHKWindow::actionApprenticeClicked);
+    connect(ui->actionProjects, &QAction::triggered, this, &FSHKWindow::actionProjectClicked);
 }
 
 FSHKWindow::~FSHKWindow()
@@ -36,6 +39,21 @@ void FSHKWindow::actionCloseClicked()
 void FSHKWindow::actionInfoClicked()
 {
     QMessageBox::information(this, tr("Info"), tr("Not available yet!"));
+}
+
+void FSHKWindow::actionCompanyClicked()
+{
+
+}
+
+void FSHKWindow::actionApprenticeClicked()
+{
+
+}
+
+void FSHKWindow::actionProjectClicked()
+{
+
 }
 
 void FSHKWindow::setApplicationLabel()
