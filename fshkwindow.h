@@ -7,6 +7,9 @@
 
 #include <appwidget.h>
 
+#include <classbetrieb.h>
+#include <formcompany.h>
+
 
 namespace Ui {
 class FSHKWindow;
@@ -29,12 +32,25 @@ private slots:
     void actionApprenticeClicked();
     void actionProjectClicked();
 
+    // Signal from Forms
+    void formHasClosed();
+
+    // Signal from FormsCompany
+    void saveCompanyMap(const QMap<int, ClassBetrieb> &cMap);
+
 
 private:
     Ui::FSHKWindow *ui;
 
     AppWidget *appwidget;
     void setApplicationLabel();
+
+    FormBetrieb *formCompany;
+    QMap<int, ClassBetrieb> companyMap;
+
+    void readDatas(const QString &filename);
+    bool saveDatas(const QString &filename);
+
 
     void readSettings();
     void writeSettings();

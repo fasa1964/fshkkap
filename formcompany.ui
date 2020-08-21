@@ -76,19 +76,12 @@
    <item row="1" column="0">
     <widget class="QFrame" name="frame_2">
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Box</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="0" colspan="3">
-       <widget class="QLineEdit" name="nameEdit">
-        <property name="placeholderText">
-         <string>Name</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="palette">
@@ -146,8 +139,12 @@
         </property>
        </spacer>
       </item>
-      <item row="6" column="0" colspan="3">
-       <widget class="QTableWidget" name="lehrlingTableWidget"/>
+      <item row="1" column="0" colspan="3">
+       <widget class="QLineEdit" name="nameEdit">
+        <property name="placeholderText">
+         <string>Name</string>
+        </property>
+       </widget>
       </item>
       <item row="4" column="0" colspan="3">
        <widget class="QLineEdit" name="phoneEdit">
@@ -163,6 +160,9 @@
         </property>
        </widget>
       </item>
+      <item row="6" column="0" colspan="3">
+       <widget class="QTableWidget" name="apprenticeTableWidget"/>
+      </item>
       <item row="0" column="1">
        <widget class="QSpinBox" name="nrBox">
         <property name="readOnly">
@@ -176,15 +176,8 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="3">
-       <widget class="QLineEdit" name="strasseEdit">
-        <property name="placeholderText">
-         <string>Straße</string>
-        </property>
-       </widget>
-      </item>
       <item row="7" column="0" colspan="3">
-       <widget class="QPushButton" name="deleteLehrlingButton">
+       <widget class="QPushButton" name="deleteApprenticeButton">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -237,6 +230,13 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0" colspan="3">
+       <widget class="QLineEdit" name="strasseEdit">
+        <property name="placeholderText">
+         <string>Straße</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -249,7 +249,7 @@
       </sizepolicy>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Box</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
@@ -310,7 +310,7 @@
        </widget>
       </item>
       <item row="1" column="0" colspan="2">
-       <widget class="QTableWidget" name="betriebeTableWidget"/>
+       <widget class="QTableWidget" name="companyTableWidget"/>
       </item>
      </layout>
     </widget>
@@ -318,7 +318,7 @@
    <item row="2" column="0" colspan="2">
     <widget class="QFrame" name="frame_3">
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Box</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
@@ -471,9 +471,9 @@
   <tabstop>phoneEdit</tabstop>
   <tabstop>saveButton</tabstop>
   <tabstop>closeButton</tabstop>
-  <tabstop>betriebeTableWidget</tabstop>
-  <tabstop>lehrlingTableWidget</tabstop>
-  <tabstop>deleteLehrlingButton</tabstop>
+  <tabstop>companyTableWidget</tabstop>
+  <tabstop>apprenticeTableWidget</tabstop>
+  <tabstop>deleteApprenticeButton</tabstop>
   <tabstop>nrBox</tabstop>
   <tabstop>sortBox</tabstop>
   <tabstop>changeButton</tabstop>

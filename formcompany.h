@@ -19,45 +19,38 @@ public:
     explicit FormBetrieb(QWidget *parent = nullptr);
     ~FormBetrieb();
 
-    QMap<int, ClassBetrieb> betriebMap() const;
-    void setBetriebMap(const QMap<int, ClassBetrieb> &betriebMap);
-
-    void updateBetriebTable(const QMap<int, ClassBetrieb> &bMap);
-    void setLastModified(const QDateTime &date);
+    QMap<int, ClassBetrieb> companyMap() const;
+    void setCompanyMap(const QMap<int, ClassBetrieb> &companyMap);
 
 signals:
-    void saveBetriebMap(const QMap<int, ClassBetrieb> &bMap);
-    void betriebRemoved(const ClassBetrieb &company);
-    void azubiRemoved(const ClassLehrling &azu, const ClassBetrieb &company);
-
+    void companyFormClosed();
+    void saveCompanyMap(const QMap<int, ClassBetrieb> &bMap);
 
 private slots:
+    void closeButtonClicked();
     void createButtonClicked();
     void deleteButtonClicked();
     void changeButtonClicked();
     void saveButtonClicked();
-    void deleteLehrlingButtonClicked();
-
-    void betriebTableClicked(QTableWidgetItem *item);
-    void lehrlingTableClicked(QTableWidgetItem *item);
 
     void sortBoxTextChanged(const QString &text);
+    void companyTableItemClicked(QTableWidgetItem *item);
 
 private:
     Ui::FormBetrieb *ui;
 
-    bool changeBetrieb;
-    ClassBetrieb selectedBetrieb;
-    QMap<int, ClassBetrieb> m_betriebMap;
+    ClassBetrieb selectedCompany;
+    QMap<int, ClassBetrieb> m_companyMap;
 
-    ClassLehrling selectedLehrling;
-    void updateLehrlingTable(const QMap<QString, ClassLehrling> &azubiMap);
+    void updateCompanyTable(const QMap<int, ClassBetrieb> bMap);
+    void updateApprenticeTable(const QMap<QString, ClassLehrling> aMap);
 
     ClassBetrieb readFromForm();
-    void setBetriebToForm(const ClassBetrieb company);
-    void setFormTextColor(QColor color);
+    void setCompanyToForm(const ClassBetrieb &company);
     void setFormReadOnly(bool status);
+    void setFormTextColor(QColor color);
     void clearForm();
+
 };
 
 #endif // FORMBETRIEB_H

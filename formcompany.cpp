@@ -1,5 +1,5 @@
-#include "formbetrieb.h"
-#include "ui_formbetrieb.h"
+#include "formcompany.h"
+#include "ui_formcompany.h"
 
 #include <QMessageBox>
 #include <QDebug>
@@ -9,27 +9,23 @@ FormBetrieb::FormBetrieb(QWidget *parent) :
     ui(new Ui::FormBetrieb)
 {
     ui->setupUi(this);
-    setFormReadOnly(true);
 
-    changeBetrieb = false;
-    selectedBetrieb = ClassBetrieb();
-    selectedLehrling = ClassLehrling();
+    setFormReadOnly(true);
+    selectedCompany = ClassBetrieb();
 
     QStringList labels;
     labels << "Alle" << "Betriebe mit Auszubildenden";
     ui->sortBox->addItems(labels);
 
-    connect(ui->closeButton, &QPushButton::clicked, this, &FormBetrieb::close);
+    connect(ui->closeButton, &QPushButton::clicked, this, &FormBetrieb::closeButtonClicked);
     connect(ui->deleteButton, &QPushButton::clicked, this, &FormBetrieb::deleteButtonClicked);
     connect(ui->createButton, &QPushButton::clicked, this, &FormBetrieb::createButtonClicked);
     connect(ui->changeButton, &QPushButton::clicked, this, &FormBetrieb::changeButtonClicked);
     connect(ui->saveButton, &QPushButton::clicked, this, &FormBetrieb::saveButtonClicked);
-    connect(ui->deleteLehrlingButton, &QPushButton::clicked, this, &FormBetrieb::deleteLehrlingButtonClicked);
 
-    connect(ui->betriebeTableWidget, &QTableWidget::itemClicked , this, &FormBetrieb::betriebTableClicked);
-    connect(ui->lehrlingTableWidget, &QTableWidget::itemClicked , this, &FormBetrieb::lehrlingTableClicked);
+    connect(ui->sortBox, &QComboBox::currentTextChanged, this, &FormBetrieb::sortBoxTextChanged);
+    connect(ui->companyTableWidget, &QTableWidget::itemClicked, this, &FormBetrieb::companyTableItemClicked);
 
-    connect(ui->sortBox, &QComboBox::currentTextChanged , this, &FormBetrieb::sortBoxTextChanged);
 }
 
 FormBetrieb::~FormBetrieb()
@@ -37,47 +33,71 @@ FormBetrieb::~FormBetrieb()
     delete ui;
 }
 
+void FormBetrieb::closeButtonClicked()
+{
+
+
+    close();
+    emit companyFormClosed();
+}
+
 void FormBetrieb::createButtonClicked()
 {
-    setFormReadOnly(false);
     clearForm();
-    ui->nrBox->setValue( betriebMap().size()+1 );
+    setFormReadOnly(false);
     ui->nameEdit->setFocus();
+
+    selectedCompany = ClassBetrieb();
+    ui->nrBox->setValue(m_companyMap.size()+1);
 
     ui->saveButton->setEnabled(true);
     ui->createButton->setEnabled(false);
     ui->deleteButton->setEnabled(false);
     ui->changeButton->setEnabled(false);
-    ui->deleteLehrlingButton->setEnabled(false);
+    ui->deleteApprenticeButton->setEnabled(false);
 }
 
 void FormBetrieb::deleteButtonClicked()
 {
-    int result = QMessageBox::question(this, tr("Löschen Betrieb"), tr("Soll das Löschen unwiderruflich fortgesetz werden?"),
+    if(selectedCompany.name().isEmpty())
+        return;
+
+    int result = QMessageBox::information(this, tr("Löschen Betrieb"), tr("Der Betrieb: ")+ selectedCompany.name()
+                                          + tr("\nwird unwiderruflich gelöscht!"),
                                        QMessageBox::Yes | QMessageBox::Abort);
     if(result == QMessageBox::Abort)
         return;
 
-    m_betriebMap.remove(selectedBetrieb.nr());
-    emit betriebRemoved(selectedBetrieb);
-    updateBetriebTable(m_betriebMap);
+    if(m_companyMap.remove(selectedCompany.nr()) == 0){
+        QMessageBox::information(this, tr("Löschen Betrieb"), tr("Fehler beim Löschen. Bitte starten sie das Programm neu!"));
+        return;
+    }
 
-    saveBetriebMap(betriebMap());
+    updateCompanyTable(m_companyMap);
     clearForm();
-    selectedBetrieb = ClassBetrieb();
+    if(!m_companyMap.isEmpty()){
+        selectedCompany = m_companyMap.values().first();
+        setCompanyToForm(selectedCompany);
+    }
+
+    emit saveCompanyMap(m_companyMap);
 
 }
 
 void FormBetrieb::changeButtonClicked()
 {
-    changeBetrieb = true;
+
+    if(selectedCompany.name().isEmpty())
+        return;
+
     setFormReadOnly(false);
     ui->nameEdit->setFocus();
 
-    ui->changeButton->setEnabled(false);
-    ui->deleteButton->setEnabled(false);
-    ui->createButton->setEnabled(false);
     ui->saveButton->setEnabled(true);
+    ui->createButton->setEnabled(false);
+    ui->deleteButton->setEnabled(false);
+    ui->changeButton->setEnabled(false);
+    ui->deleteApprenticeButton->setEnabled(false);
 }
 
 void FormBetrieb::saveButtonClicked()
@@ -90,134 +110,110 @@ void FormBetrieb::saveButtonClicked()
         return;
     }
 
-    if(changeBetrieb && selectedBetrieb.azubiMap().size() > 0)
-        company.setAzubiMap( selectedBetrieb.azubiMap());
+    m_companyMap.insert(company.nr(), company);
+    updateCompanyTable(m_companyMap);
+    emit saveCompanyMap(m_companyMap);
 
+    selectedCompany = company;
 
-    m_betriebMap.insert(company.nr(), company);
-    updateBetriebTable(m_betriebMap);
-    emit saveBetriebMap(m_betriebMap);
-
-    selectedBetrieb = company;
-    changeBetrieb = false;
     setFormReadOnly(true);
+    setCompanyToForm(selectedCompany);
 
     ui->saveButton->setEnabled(false);
     ui->createButton->setEnabled(true);
     ui->deleteButton->setEnabled(true);
     ui->changeButton->setEnabled(true);
-    ui->deleteLehrlingButton->setEnabled(false);
-}
+    ui->deleteApprenticeButton->setEnabled(false);
 
-void FormBetrieb::deleteLehrlingButtonClicked()
-{
-
-    QString vn = selectedLehrling.firstname()+ ","+ selectedLehrling.surname();
-
-    int result = QMessageBox::information(this, tr("Löschen Lehrling"), tr("Der Auszubildende : ")+vn+"\n"+
-                                          tr("wird nur vom Betrieb entfernt!"),
-                                       QMessageBox::Yes | QMessageBox::Abort);
-    if(result == QMessageBox::Abort)
-        return;
-
-    QMap<QString, ClassLehrling> aMap;
-    aMap = selectedBetrieb.azubiMap();
-    aMap.remove(selectedLehrling.getKey());
-    selectedBetrieb.setAzubiMap(aMap);
-    m_betriebMap.insert(selectedBetrieb.nr(), selectedBetrieb);
-
-    emit azubiRemoved(selectedLehrling, selectedBetrieb);
-    emit saveBetriebMap(betriebMap());
-    updateLehrlingTable(selectedBetrieb.azubiMap());
-}
-
-void FormBetrieb::betriebTableClicked(QTableWidgetItem *item)
-{
-    int row = item->row();
-    int nr = ui->betriebeTableWidget->item(row, 0)->text().toInt();
-    selectedBetrieb = m_betriebMap.value(nr);
-    changeBetrieb = false;
-
-    setBetriebToForm(selectedBetrieb);
-    setFormReadOnly(true);
-
-    updateLehrlingTable(selectedBetrieb.azubiMap());
-    selectedLehrling = ClassLehrling();
-
-    ui->saveButton->setEnabled(false);
-    ui->createButton->setEnabled(true);
-    ui->deleteButton->setEnabled(true);
-    ui->changeButton->setEnabled(true);
-    ui->deleteLehrlingButton->setEnabled(false);
-
-}
-
-void FormBetrieb::lehrlingTableClicked(QTableWidgetItem *item)
-{
-    if(selectedBetrieb.nr() == 0)
-        return;
-
-    if(!changeBetrieb)
-        return;
-
-    int row = item->row();
-    QString key = ui->lehrlingTableWidget->item(row, 0)->text();
-    selectedLehrling = selectedBetrieb.azubiMap().value(key);
-
-    ui->deleteLehrlingButton->setEnabled(true);
 }
 
 void FormBetrieb::sortBoxTextChanged(const QString &text)
 {
-    if(text == "Alle"){
-        updateBetriebTable(betriebMap());
-        setBetriebToForm(betriebMap().values().first());
-    }
+    if(companyMap().isEmpty() || text.isEmpty())
+        return;
 
-    if(text == "Betriebe mit Auszubildenden"){
-        QMap<int, ClassBetrieb> sortMap;
-        QMapIterator<int, ClassBetrieb> it(betriebMap());
-        while (it.hasNext()) {
-            it.next();
-            ClassBetrieb betrieb = it.value();
-            if(!betrieb.azubiMap().isEmpty())
-                sortMap.insert(betrieb.nr(), betrieb);
-
-        }
-
-        if(!sortMap.isEmpty()){
-            updateBetriebTable(sortMap);
-            setBetriebToForm(sortMap.values().first());
-        }
-    }
 }
 
-void FormBetrieb::updateLehrlingTable(const QMap<QString, ClassLehrling> &azubiMap)
+void FormBetrieb::companyTableItemClicked(QTableWidgetItem *item)
 {
-    ui->lehrlingTableWidget->clear();
-    ui->lehrlingTableWidget->setColumnCount(2);
-    ui->lehrlingTableWidget->setRowCount(azubiMap.size());
+    clearForm();
+    int key = ui->companyTableWidget->item(item->row(),0)->text().toInt();
+    selectedCompany = m_companyMap.value(key);
+    setCompanyToForm(selectedCompany);
+    setFormReadOnly(true);
+}
+
+void FormBetrieb::updateCompanyTable(const QMap<int, ClassBetrieb> bMap)
+{
+    ui->companyTableWidget->clear();
+    ui->companyTableWidget->setColumnCount(2);
+    ui->companyTableWidget->setRowCount(bMap.size());
+
+    QStringList headers;
+    headers << "Nr" << "Name";
+    ui->companyTableWidget->setHorizontalHeaderLabels(headers);
+
+    int row = 0;
+    QMapIterator<int, ClassBetrieb> it(bMap);
+    while (it.hasNext()) {
+       it.next();
+       QString nrs = QString::number(it.key(),10);
+
+       QTableWidgetItem *itemNr = new QTableWidgetItem(nrs);
+       QTableWidgetItem *itemName = new QTableWidgetItem(it.value().name());
+
+       ui->companyTableWidget->setItem(row,0, itemNr);
+       ui->companyTableWidget->setItem(row,1, itemName);
+
+       row++;
+    }
+
+    ui->companyTableWidget->resizeColumnToContents(0);
+    ui->companyTableWidget->resizeColumnToContents(1);
+}
+
+void FormBetrieb::updateApprenticeTable(const QMap<QString, ClassLehrling> aMap)
+{
+    ui->apprenticeTableWidget->clear();
+    ui->apprenticeTableWidget->setColumnCount(2);
+    ui->apprenticeTableWidget->setRowCount(aMap.size());
 
     QStringList headers;
     headers << "Kennung" << "Klasse";
-    ui->lehrlingTableWidget->setHorizontalHeaderLabels(headers);
+    ui->apprenticeTableWidget->setHorizontalHeaderLabels(headers);
 
     int row = 0;
-    QMapIterator<QString, ClassLehrling> it(azubiMap);
+    QMapIterator<QString, ClassLehrling> it(aMap);
     while (it.hasNext()) {
        it.next();
 
        QTableWidgetItem *itemKennung = new QTableWidgetItem(it.value().getKey());
        QTableWidgetItem *itemKlasse = new QTableWidgetItem(it.value().educationClass());
 
-       ui->lehrlingTableWidget->setItem(row,0, itemKennung);
-       ui->lehrlingTableWidget->setItem(row,1, itemKlasse);
+       ui->apprenticeTableWidget->setItem(row,0, itemKennung);
+       ui->apprenticeTableWidget->setItem(row,1, itemKlasse);
 
        row++;
     }
 
-    ui->lehrlingTableWidget->resizeColumnToContents(0);
-    ui->lehrlingTableWidget->resizeColumnToContents(1);
+    ui->apprenticeTableWidget->resizeColumnToContents(0);
+    ui->apprenticeTableWidget->resizeColumnToContents(1);
+}
+
+QMap<int, ClassBetrieb> FormBetrieb::companyMap() const
+{
+    return m_companyMap;
+}
+
+void FormBetrieb::setCompanyMap(const QMap<int, ClassBetrieb> &companyMap)
+{
+    m_companyMap = companyMap;
+    if(!m_companyMap.isEmpty()){
+        updateCompanyTable(m_companyMap);
+        selectedCompany = m_companyMap.values().first();
+        setCompanyToForm(selectedCompany);
+    }
+
 }
 
 ClassBetrieb FormBetrieb::readFromForm()
@@ -232,7 +228,7 @@ ClassBetrieb FormBetrieb::readFromForm()
     return company;
 }
 
-void FormBetrieb::setBetriebToForm(const ClassBetrieb company)
+void FormBetrieb::setCompanyToForm(const ClassBetrieb &company)
 {
     ui->nrBox->setValue(company.nr());
     ui->nameEdit->setText(company.name());
@@ -241,7 +237,28 @@ void FormBetrieb::setBetriebToForm(const ClassBetrieb company)
     ui->phoneEdit->setText(company.phone());
 
     if(!company.azubiMap().isEmpty())
-        updateLehrlingTable(company.azubiMap());
+       updateApprenticeTable(company.azubiMap());
+
+
+    ui->saveButton->setEnabled(false);
+    ui->createButton->setEnabled(true);
+    ui->deleteButton->setEnabled(true);
+    ui->changeButton->setEnabled(true);
+    ui->deleteApprenticeButton->setEnabled(false);
+}
+
+
+void FormBetrieb::setFormReadOnly(bool status)
+{
+    ui->nameEdit->setReadOnly(status);
+    ui->strasseEdit->setReadOnly(status);
+    ui->ortEdit->setReadOnly(status);
+    ui->phoneEdit->setReadOnly(status);
+
+    if(!status)
+        setFormTextColor(QColor(0,85,127));
+    else
+        setFormTextColor(Qt::black);
 
 }
 
@@ -259,69 +276,6 @@ void FormBetrieb::setFormTextColor(QColor color)
 
 }
 
-QMap<int, ClassBetrieb> FormBetrieb::betriebMap() const
-{
-    return m_betriebMap;
-}
-
-void FormBetrieb::setBetriebMap(const QMap<int, ClassBetrieb> &betriebMap)
-{
-    m_betriebMap = betriebMap;
-
-    if(!betriebMap.isEmpty())
-        setBetriebToForm(betriebMap.values().first());
-
-}
-
-void FormBetrieb::updateBetriebTable(const QMap<int, ClassBetrieb> &bMap)
-{
-    ui->betriebeTableWidget->clear();
-    ui->betriebeTableWidget->setColumnCount(2);
-    ui->betriebeTableWidget->setRowCount(bMap.size());
-
-    QStringList headers;
-    headers << "Nr" << "Name";
-    ui->betriebeTableWidget->setHorizontalHeaderLabels(headers);
-
-    int row = 0;
-    QMapIterator<int, ClassBetrieb> it(bMap);
-    while (it.hasNext()) {
-       it.next();
-       QString nrs = QString::number(it.key(),10);
-
-       QTableWidgetItem *itemNr = new QTableWidgetItem(nrs);
-       QTableWidgetItem *itemName = new QTableWidgetItem(it.value().name());
-
-       ui->betriebeTableWidget->setItem(row,0, itemNr);
-       ui->betriebeTableWidget->setItem(row,1, itemName);
-
-       row++;
-    }
-
-    ui->betriebeTableWidget->resizeColumnToContents(0);
-    ui->betriebeTableWidget->resizeColumnToContents(1);
-}
-
-void FormBetrieb::setLastModified(const QDateTime &date)
-{
-    ui->lastChangeEdit->setDateTime(date);
-}
-
-void FormBetrieb::setFormReadOnly(bool status)
-{
-    ui->nameEdit->setReadOnly(status);
-    ui->strasseEdit->setReadOnly(status);
-    ui->ortEdit->setReadOnly(status);
-    ui->phoneEdit->setReadOnly(status);
-
-    if(!status)
-        setFormTextColor(QColor(0,85,127));
-    else
-        setFormTextColor(Qt::black);
-
-    //ui->lehrlingTableWidget->setEnabled(!status);
-}
-
 void FormBetrieb::clearForm()
 {
     ui->nrBox->setValue(0);
@@ -329,5 +283,10 @@ void FormBetrieb::clearForm()
     ui->strasseEdit->clear();
     ui->ortEdit->clear();
     ui->phoneEdit->clear();
-    ui->lehrlingTableWidget->clear();
+    ui->apprenticeTableWidget->clear();
 }
+
+
+
+
+
