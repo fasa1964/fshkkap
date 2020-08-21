@@ -36,7 +36,6 @@ FormBetrieb::~FormBetrieb()
 void FormBetrieb::closeButtonClicked()
 {
 
-
     close();
     emit companyFormClosed();
 }
@@ -72,6 +71,10 @@ void FormBetrieb::deleteButtonClicked()
         QMessageBox::information(this, tr("Löschen Betrieb"), tr("Fehler beim Löschen. Bitte starten sie das Programm neu!"));
         return;
     }
+
+    if(selectedCompany.azubiMap().size() > 0)
+        emit apprenticeRemoved(selectedCompany.azubiMap().values(), selectedCompany);
+
 
     updateCompanyTable(m_companyMap);
     clearForm();
@@ -267,7 +270,6 @@ void FormBetrieb::setCompanyToForm(const ClassBetrieb &company)
     ui->changeButton->setEnabled(true);
     ui->deleteApprenticeButton->setEnabled(false);
 }
-
 
 void FormBetrieb::setFormReadOnly(bool status)
 {

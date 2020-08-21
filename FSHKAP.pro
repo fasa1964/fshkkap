@@ -48,3 +48,6 @@ FORMS += \
         fshkwindow.ui \
     appwidget.ui \
     formcompany.ui
+
+RESOURCES += \
+    images.qrc
