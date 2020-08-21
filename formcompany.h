@@ -42,6 +42,11 @@ private:
     ClassBetrieb selectedCompany;
     QMap<int, ClassBetrieb> m_companyMap;
 
+    /// !brief when delete a company
+    /// a nr will be missing. This function
+    /// wille discover the missing nr.
+    int getNextKey();
+
     void updateCompanyTable(const QMap<int, ClassBetrieb> bMap);
     void updateApprenticeTable(const QMap<QString, ClassLehrling> aMap);
 

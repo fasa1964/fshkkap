@@ -48,7 +48,7 @@ void FormBetrieb::createButtonClicked()
     ui->nameEdit->setFocus();
 
     selectedCompany = ClassBetrieb();
-    ui->nrBox->setValue(m_companyMap.size()+1);
+    ui->nrBox->setValue(getNextKey());
 
     ui->saveButton->setEnabled(true);
     ui->createButton->setEnabled(false);
@@ -143,6 +143,24 @@ void FormBetrieb::companyTableItemClicked(QTableWidgetItem *item)
     setFormReadOnly(true);
 }
 
+/// !brief When delete a company from list.
+/// A consecutive numbering will be missing.
+/// This function will discover the missing nr.
+int FormBetrieb::getNextKey()
+{
+    int nr = m_companyMap.size() + 1;
+    int row = 0;
+    for(int i = 1; i < m_companyMap.size(); i++){
+        if(i != ui->companyTableWidget->item(row, 0)->text().toInt() ){
+            nr = i;
+            break;
+        }
+        row++;
+    }
+
+    return nr;
+}
+
 void FormBetrieb::updateCompanyTable(const QMap<int, ClassBetrieb> bMap)
 {
     ui->companyTableWidget->clear();
@@ -164,6 +182,9 @@ void FormBetrieb::updateCompanyTable(const QMap<int, ClassBetrieb> bMap)
 
        ui->companyTableWidget->setItem(row,0, itemNr);
        ui->companyTableWidget->setItem(row,1, itemName);
+
+       itemName->setFlags(Qt::ItemIsEnabled);
+       itemNr->setFlags(Qt::ItemIsEnabled);
 
        row++;
     }
