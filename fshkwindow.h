@@ -10,6 +10,8 @@
 #include <classbetrieb.h>
 #include <formcompany.h>
 
+#include<classlehrling.h>
+
 
 namespace Ui {
 class FSHKWindow;
@@ -37,7 +39,7 @@ private slots:
 
     // Signal from FormsCompany
     void saveCompanyMap(const QMap<int, ClassBetrieb> &cMap);
-
+    void apprenticeRemoved(const QList<ClassLehrling> &azuList, const ClassBetrieb &company);
 
 private:
     Ui::FSHKWindow *ui;
@@ -47,6 +49,8 @@ private:
 
     FormBetrieb *formCompany;
     QMap<int, ClassBetrieb> companyMap;
+
+    QMap<QString,ClassLehrling> apprenticeMap;
 
     void readDatas(const QString &filename);
     bool saveDatas(const QString &filename);

@@ -18,8 +18,6 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
 
     readDatas("Betriebe.dat");
 
-
-
     appwidget = new AppWidget(qApp->applicationName(), qApp->applicationVersion(), this);
     appwidget->hide();
 
@@ -76,10 +74,22 @@ void FSHKWindow::formHasClosed()
     setApplicationLabel();
 }
 
+
 void FSHKWindow::saveCompanyMap(const QMap<int, ClassBetrieb> &cMap)
 {
     companyMap = cMap;
     saveDatas("Betriebe.dat");
+}
+
+void FSHKWindow::apprenticeRemoved(const QList<ClassLehrling> &azuList, const ClassBetrieb &company)
+{
+    foreach (ClassLehrling azu, azuList) {
+        if(azu.company() == company.name()){
+            azu.setCompany("");
+            apprenticeMap.insert(azu.getKey(), azu);
+        }
+    }
+
 }
 
 
