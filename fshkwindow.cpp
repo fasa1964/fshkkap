@@ -17,6 +17,7 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     readSettings();
 
     readDatas("Betriebe.dat");
+    readDatas("Lehrlinge.dat");
 
     appwidget = new AppWidget(qApp->applicationName(), qApp->applicationVersion(), this);
     appwidget->hide();
@@ -27,6 +28,11 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     formCompany->hide();
     connect(formCompany, &FormBetrieb::companyFormClosed, this, &FSHKWindow::formHasClosed);
     connect(formCompany, &FormBetrieb::saveCompanyMap, this, &FSHKWindow::saveCompanyMap);
+
+    formApprentice = new FormLehrling(this);
+    formApprentice->hide();
+    connect(formApprentice, &FormLehrling::apprenticeFormClosed, this, &FSHKWindow::formHasClosed);
+    connect(formApprentice, &FormLehrling::saveApprenticeMap, this, &FSHKWindow::saveApprenticeMap);
 
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
     connect(ui->actionInfo, &QAction::triggered, this, &FSHKWindow::actionInfoClicked);
@@ -61,7 +67,10 @@ void FSHKWindow::actionCompanyClicked()
 
 void FSHKWindow::actionApprenticeClicked()
 {
-
+    this->takeCentralWidget();
+    formApprentice->setApprenticeMap(apprenticeMap);
+    formApprentice->show();
+    setCentralWidget(formApprentice);
 }
 
 void FSHKWindow::actionProjectClicked()
@@ -89,7 +98,12 @@ void FSHKWindow::apprenticeRemoved(const QList<ClassLehrling> &azuList, const Cl
             apprenticeMap.insert(azu.getKey(), azu);
         }
     }
+}
 
+void FSHKWindow::saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap)
+{
+    apprenticeMap = aMap;
+    saveDatas("Lehrlinge.dat");
 }
 
 
@@ -137,6 +151,13 @@ void FSHKWindow::readDatas(const QString &filename)
             in >> company;
             companyMap.insert(company.nr(), company);
         }
+
+        if(filename == "Lehrlinge.dat")
+        {
+            ClassLehrling appr;
+            in >> appr;
+            apprenticeMap.insert(appr.getKey(), appr);
+        }
     }
 
     file.close();
@@ -163,6 +184,14 @@ bool FSHKWindow::saveDatas(const QString &filename)
     if(filename == "Betriebe.dat")
     {
         QMapIterator<int, ClassBetrieb> it(companyMap);
+        while (it.hasNext()) {
+            it.next();
+            out << it.value();
+        }
+    }
+    if(filename == "Lehrlinge.dat")
+    {
+        QMapIterator<QString, ClassLehrling> it(apprenticeMap);
         while (it.hasNext()) {
             it.next();
             out << it.value();
