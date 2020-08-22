@@ -1,394 +1,343 @@
-#include "formprojekt.h"
-#include "ui_formprojekt.h"
+#include "formapprentice.h"
+#include "ui_formapprentice.h"
 
 #include <QMessageBox>
-#include <QSettings>
-#include <QDebug>
-#include <QMapIterator>
-#include <QFileDialog>
-
 #include <QDebug>
 
-FormProjekt::FormProjekt(QWidget *parent) :
+FormLehrling::FormLehrling(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::FormProjekt)
+    ui(new Ui::FormLehrling)
 {
     ui->setupUi(this);
+
+    changeData = false;
+    seletedApprentice = ClassLehrling();
     setFormReadOnly(true);
-    changeProjekt = false;
-    selectedProjekt = ClassProjekt();
+    setupKlasseMap();
+    ui->klasseBox->addItems(klasseMap.keys());
 
+    ui->tabWidget->setCurrentIndex(0);
 
-    connect(ui->closeButton, &QPushButton::clicked, this, &FormProjekt::closeForm);
-    connect(ui->createButton, &QPushButton::clicked, this, &FormProjekt::createButtonClicked);
-    connect(ui->saveButton, &QPushButton::clicked, this, &FormProjekt::saveButtonClicked);
-    connect(ui->deleteButton, &QPushButton::clicked, this, &FormProjekt::deleteButtonClicked);
-    connect(ui->changeButton, &QPushButton::clicked, this, &FormProjekt::changeButtonClicked);
-    connect(ui->addFrageButton, &QToolButton::clicked, this, &FormProjekt::addFrageButtonClicked);
-    connect(ui->removeFrageButton, &QToolButton::clicked, this, &FormProjekt::removeFrageButtonClicked);
-    connect(ui->openFilelButton , &QToolButton::clicked, this, &FormProjekt::openFileButtonClicked );
+    connect(ui->closeButton, &QPushButton::clicked, this, &FormLehrling::closeButtonClicked);
+    connect(ui->createButton, &QPushButton::clicked, this, &FormLehrling::createButtonClicked);
+    connect(ui->deleteButton, &QPushButton::clicked, this, &FormLehrling::deleteButtonClicked);
+    connect(ui->deleteSkillButton, &QPushButton::clicked, this, &FormLehrling::deleteSkillButtonClicked);
+    connect(ui->changeButton, &QPushButton::clicked, this, &FormLehrling::changeButtonClicked);
+    connect(ui->saveButton, &QPushButton::clicked, this, &FormLehrling::saveButtonClicked);
 
-    connect(ui->anzahlFragenBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-         [=](int i){ anzahlFragenChanged(i); });
-
-    connect(ui->projekteTableWidget, &QTableWidget::itemClicked, this, &FormProjekt::projekteTableClicked);
-    connect(ui->sortBox, &QComboBox::currentTextChanged, this, &FormProjekt::sortBoxTextChanged);
+    connect(ui->klasseBox, &QComboBox::currentTextChanged, this, &FormLehrling::klasseBoxTextChanged);
 
 }
 
-FormProjekt::~FormProjekt()
+FormLehrling::~FormLehrling()
 {
     delete ui;
 }
 
-void FormProjekt::updateProjektTable(const QMap<QString, ClassProjekt> &proMap)
+void FormLehrling::closeButtonClicked()
 {
-    ui->projekteTableWidget->clear();
-    ui->projekteTableWidget->setColumnCount(3);
-    ui->projekteTableWidget->setRowCount(proMap.size());
-
-    QStringList labels;
-    labels << "Nr." << "Name" << "Kennung" ;
-    ui->projekteTableWidget->setHorizontalHeaderLabels(labels);
-    int row = 0;
-    QMapIterator<QString, ClassProjekt> it(proMap);
-    while (it.hasNext()) {
-        it.next();
-        ClassProjekt pro = it.value();
-        QTableWidgetItem *itemNr = new QTableWidgetItem( QString::number(pro.nr(),10));
-        QTableWidgetItem *itemName = new QTableWidgetItem( pro.name() );
-        QTableWidgetItem *itemKennung = new QTableWidgetItem( pro.identifier() );
-
-        ui->projekteTableWidget->setItem(row, 0, itemNr);
-        ui->projekteTableWidget->setItem(row, 1, itemName);
-        ui->projekteTableWidget->setItem(row, 2, itemKennung);
-
-        row++;
-    }
-
-    ui->projekteTableWidget->resizeColumnToContents(0);
-    ui->projekteTableWidget->resizeColumnToContents(1);
-    ui->projekteTableWidget->resizeColumnToContents(2);
-}
-
-void FormProjekt::closeForm()
-{
+    emit apprenticeFormClosed();
     close();
 }
 
-void FormProjekt::createButtonClicked()
+
+void FormLehrling::createButtonClicked()
 {
-    QDateTime dt = QDateTime::currentDateTime();
-    ui->dateTimeEdit->setDateTime(dt);
-
-
-    setFormReadOnly(false);
-    ui->nrBox->setFocus();
-
     clearForm();
-    selectedProjekt = ClassProjekt();
-    changeProjekt = false;
-    ui->saveButton->setEnabled(true);
-    ui->createButton->setEnabled(false);
-}
-
-void FormProjekt::saveButtonClicked()
-{
-   // Check some values
-    if(ui->nrBox->value() <= 0 || ui->nameEdit->text().isEmpty() || ui->kennungEdit->text().isEmpty()
-            || ui->anzahlFragenBox->value() <= 0)
-    {
-        QMessageBox::information(this, tr("Projekt speichern"), tr("Folgende Angaben sind zum Speicher erforderlich!")+"\n"
-                                 +tr("Projekt: Nr, Name, Kennung, Anzahl der Fragen und die max. Punkte bei den Fragen!"));
-        return;
-    }
-
-    if(changeProjekt){
-        QString key = selectedProjekt.getKey();
-        m_projektMap.remove(key);
-    }
-
-    ClassProjekt projekt = readFromForm();
-    QString key = projekt.getKey();
-
-    if(!changeProjekt)
-    {
-        if(projektMap().keys().contains(key))
-        {
-            QMessageBox::information(this, tr("Projekt speichern"), tr("Das Projekt existiert bereits!\n"
-                         "Das überschreiben von Projekten ist nicht zulässig!\n"));
-            return;
-        }
-    }
-
-    m_projektMap.insert(key, projekt);
-    emit saveProjekte(m_projektMap);
-
-    if(!changeProjekt)
-        emit projektAdded(projekt);
-
-    if(changeProjekt)
-        emit projektChanged(projekt);
-
-    ui->saveButton->setEnabled(false);
-    ui->createButton->setEnabled(true);
-    ui->changeButton->setEnabled(true);
-
-    setProjektToForm(projekt);
-    setFormReadOnly(true);
-    setColorTableFragen(Qt::black);
-
-    updateSortBox();
-    updateProjektTable(projektMap());
-
-    changeProjekt = false;
-}
-
-void FormProjekt::changeButtonClicked()
-{
-    QDateTime dt = QDateTime::currentDateTime();
-    ui->dateTimeEdit->setDateTime(dt);
-
-    changeProjekt = true;
-    ui->nrBox->setFocus();
     setFormReadOnly(false);
-    setColorTableFragen(Qt::blue);
+    ui->nrBox->setFocus();
+}
 
-//    ui->nameEdit->setReadOnly(true);
-//    ui->kennungEdit->setReadOnly(true);
-    ui->anzahlFragenBox->setEnabled(false);
+void FormLehrling::deleteButtonClicked()
+{
 
+}
+
+void FormLehrling::deleteSkillButtonClicked()
+{
+    QMap<QString, ClassSkills> sMap = seletedApprentice.getSkillMap();
+    QString key = ui->exameBox->currentText();
+
+    int result = QMessageBox::information(this, tr("Lösche Prüfung"), tr("Die Prüfung: ") +
+                  key + tr("\nwird unwiderruflich gelöscht!"), QMessageBox::Cancel | QMessageBox::Ok);
+
+    if(result == QMessageBox::Cancel)
+        return;
+
+    if(sMap.remove(key) == 0)
+        QMessageBox::information(this, tr("Lösche Prüfung"), tr("Die Prüfung: ") +
+                          key + tr("\nkonnte nicht gelöscht werden!"));
+
+    seletedApprentice = readFromForm();
+    seletedApprentice.setSkillMap(sMap);
+    setApprenticeToForm(seletedApprentice);
+
+}
+
+void FormLehrling::changeButtonClicked()
+{
+    setFormReadOnly(false);
+    ui->nrBox->setFocus();
+
+    if(seletedApprentice.getSkillMap().size() > 0)
+        ui->deleteSkillButton->setEnabled(true);
+    else
+        ui->deleteSkillButton->setEnabled(false);
+
+    changeData = true;
     ui->changeButton->setEnabled(false);
     ui->deleteButton->setEnabled(false);
     ui->createButton->setEnabled(false);
     ui->saveButton->setEnabled(true);
-}
-
-void FormProjekt::deleteButtonClicked()
-{
-
-    m_projektMap.remove(selectedProjekt.getKey());
-    emit saveProjekte(m_projektMap);
-
-    updateProjektTable(projektMap());
-    updateSortBox();
-
-    if(projektMap().values().isEmpty()){
-        clearForm();
-        clearTableFragen();
-        ui->deleteButton->setEnabled(false);
-        ui->changeButton->setEnabled(false);
-    }else
-        setProjektToForm( projektMap().values().first());
 
 }
 
-
-void FormProjekt::openFileButtonClicked()
+void FormLehrling::saveButtonClicked()
 {
-    QString s = QFileDialog::getOpenFileName(this, tr("Dateipfad"), tr("Dateipfad zum hinterlegtem Dokument!"));
-    ui->documentEdit->setText(s);
-}
+    ClassLehrling appr = readFromForm();
 
-void FormProjekt::addFrageButtonClicked()
-{
-    int rowCount = ui->fragenTableWidget->rowCount();
-    ui->anzahlFragenBox->setValue(rowCount+1);
-
-    ui->fragenTableWidget->insertRow(rowCount);
-
-    QTableWidgetItem *itemNr = new QTableWidgetItem( QString::number(rowCount+1,10) );
-    QTableWidgetItem *itemFrage = new QTableWidgetItem("Frage");
-    QTableWidgetItem *itemPunkte = new QTableWidgetItem("0");
-    QTableWidgetItem *itemKennung = new QTableWidgetItem("");
-
-    ui->fragenTableWidget->setItem(rowCount, 0, itemNr);
-    ui->fragenTableWidget->setItem(rowCount, 1, itemFrage);
-    ui->fragenTableWidget->setItem(rowCount, 2, itemPunkte);
-    ui->fragenTableWidget->setItem(rowCount, 3, itemKennung);
-
-    itemNr->setTextColor( ui->fragenTableWidget->item(0,1)->textColor() );
-    itemFrage->setTextColor( ui->fragenTableWidget->item(0,1)->textColor() );
-
-}
-
-void FormProjekt::removeFrageButtonClicked()
-{
-    int rowCount = ui->fragenTableWidget->rowCount()-1;
-    ui->fragenTableWidget->removeRow(rowCount);
-    ui->anzahlFragenBox->setValue(rowCount);
-}
-
-void FormProjekt::anzahlFragenChanged(int value)
-{
-
-    if(changeProjekt)
-        return;
-
-    clearTableFragen();
-    ui->fragenTableWidget->setRowCount(value);
-
-    int nr = 1;
-    for(int i = 0; i < value; i++)
-    {
-        QTableWidgetItem *itemNr = new QTableWidgetItem( QString::number(nr,10) );
-        QTableWidgetItem *itemFrage = new QTableWidgetItem( QString("Frage"));
-        QTableWidgetItem *itemPunkte = new QTableWidgetItem( QString("0"));
-        QTableWidgetItem *itemKennung = new QTableWidgetItem( "" );
-        ui->fragenTableWidget->setItem(i,0, itemNr);
-        ui->fragenTableWidget->setItem(i,1, itemFrage);
-        ui->fragenTableWidget->setItem(i,2, itemPunkte);
-        ui->fragenTableWidget->setItem(i,3, itemKennung);
-        nr++;
+    if(changeData){
+        appr.setSkillMap(seletedApprentice.getSkillMap());
     }
 
-     setColorTableFragen(Qt::blue);
-}
+    m_apprenticeMap.insert(appr.getKey(), appr);
+    emit saveApprenticeMap(m_apprenticeMap);
+    changeData = false;
 
-void FormProjekt::projekteTableClicked(QTableWidgetItem *item)
-{
-    int row = item->row();
-    QString key = ui->projekteTableWidget->item(row, 1)->text()+"."+ ui->projekteTableWidget->item(row, 2)->text();
-    selectedProjekt = projektMap().value(key);
-    setProjektToForm(selectedProjekt);
-    setFormReadOnly(true);
+    seletedApprentice = appr;
+    setApprenticeToForm(seletedApprentice);
+    sortApprenticeTable();
 
     ui->changeButton->setEnabled(true);
     ui->deleteButton->setEnabled(true);
     ui->createButton->setEnabled(true);
     ui->saveButton->setEnabled(false);
-    changeProjekt = false;
 }
 
-void FormProjekt::sortBoxTextChanged(const QString &text)
+void FormLehrling::klasseBoxTextChanged(const QString &text)
 {
-    if(text == "Alle"){
-        updateProjektTable(projektMap());
-        return;
-    }
+    ui->klasseEdit->setText(text);
+    ui->educationDateEdit->setDate(klasseMap.value(text).toDate());
+}
 
-    QMap<QString, ClassProjekt> sortMap;
-    QMapIterator<QString, ClassProjekt> it(projektMap());
+void FormLehrling::apprenticeTableClicked(QTableWidgetItem *item)
+{
+    QString key;
+    int index = ui->tabWidget->currentIndex();
+    if(index == 0)
+        key = ui->apprenticeTableWidget->item(item->row(),1)->text();
+    if(index == 1)
+        key = ui->app1Table->item(item->row(),1)->text();
+    if(index == 2)
+        key = ui->app2Table->item(item->row(),1)->text();
+    if(index == 3)
+        key = ui->app3Table->item(item->row(),1)->text();
+    if(index == 4)
+        key = ui->app4Table->item(item->row(),1)->text();
+    if(index == 5)
+        key = ui->app5Table->item(item->row(),1)->text();
+
+    clearForm();
+    seletedApprentice = m_apprenticeMap.value(key);
+    setApprenticeToForm(seletedApprentice);
+    setFormReadOnly(true);
+
+    changeData = false;
+    ui->changeButton->setEnabled(true);
+    ui->deleteButton->setEnabled(true);
+    ui->createButton->setEnabled(true);
+    ui->saveButton->setEnabled(false);
+    ui->deleteSkillButton->setEnabled(false);
+
+}
+
+void FormLehrling::sortApprenticeTable()
+{
+
+    updateApprenticeTable(ui->apprenticeTableWidget, apprenticeMap());
+
+    for(int i = 1; i < 6; i++)
+    {
+        QMap<QString, ClassLehrling> sortMap;
+        sortMap = getApprenticeMap(i);
+        ui->tabWidget->setTabEnabled(i,false);
+
+        if(i == 1 && !sortMap.isEmpty()){
+            ui->tabWidget->setTabEnabled(i,true);
+            updateApprenticeTable(ui->app1Table, sortMap);
+        }
+        if(i == 2 && !sortMap.isEmpty()){
+            ui->tabWidget->setTabEnabled(i,true);
+            updateApprenticeTable(ui->app2Table, sortMap);
+        }
+        if(i == 3 && !sortMap.isEmpty()){
+            ui->tabWidget->setTabEnabled(i,true);
+            updateApprenticeTable(ui->app3Table, sortMap);
+        }
+
+        if(i == 4 && !sortMap.isEmpty()){
+            ui->tabWidget->setTabEnabled(i,true);
+            updateApprenticeTable(ui->app4Table, sortMap);
+        }
+        if(i == 5 && !sortMap.isEmpty()){
+            ui->tabWidget->setTabEnabled(i,true);
+            updateApprenticeTable(ui->app5Table, sortMap);
+        }
+    }
+}
+
+QMap<QString, ClassLehrling> FormLehrling::getApprenticeMap(int year)
+{
+    int todayYear = QDate::currentDate().year();
+
+    QMap<QString, ClassLehrling> sortMap;
+    QMapIterator<QString, ClassLehrling> it(apprenticeMap());
     while (it.hasNext()) {
         it.next();
-        if(it.value().identifier() == text)
-            sortMap.insert(it.key(), it.value());
+        int educationYear = todayYear - it.value().apprenticeshipDate().year();
+
+        if(educationYear == 0)
+            educationYear = 1;
+
+        if(educationYear > 4)
+            educationYear = 5;
+
+        if(educationYear == year)
+            sortMap.insert(it.value().getKey(), it.value());
+
     }
 
-    if(!sortMap.isEmpty())
-        updateProjektTable(sortMap);
+    return sortMap;
 }
 
-void FormProjekt::setFormReadOnly(bool status)
+void FormLehrling::updateApprenticeTable(QTableWidget *widget, const QMap<QString, ClassLehrling> &aMap)
+{
+
+    widget->clear();
+    widget->setRowCount(aMap.size());
+    widget->setColumnCount(4);
+
+    QStringList labels;
+    labels << "Nr." << "Name" << "Klasse" << "Betrieb";
+    widget->setHorizontalHeaderLabels(labels);
+
+    int row = 0;
+    QMapIterator<QString, ClassLehrling> it(aMap);
+    while (it.hasNext()) {
+        it.next();
+        ClassLehrling appr = it.value();
+
+        QTableWidgetItem *itemNr = new QTableWidgetItem( QString::number(appr.nr(),10));
+        QTableWidgetItem *itemName = new QTableWidgetItem( it.key() );
+        QTableWidgetItem *itemKlasse = new QTableWidgetItem( appr.educationClass() );
+        QTableWidgetItem *itemBetrieb = new QTableWidgetItem( appr.company() );
+
+        widget->setItem(row,0,itemNr);
+        widget->setItem(row,1,itemName);
+        widget->setItem(row,2,itemKlasse);
+        widget->setItem(row,3,itemBetrieb);
+
+        itemNr->setTextColor(QColor(0,85,127,255));
+        itemNr->setToolTip(tr("Prüfungsnummer"));
+        itemName->setTextColor(QColor(0,85,127,255));
+
+        itemNr->setFlags(Qt::ItemIsEnabled);
+        itemName->setFlags(Qt::ItemIsEnabled);
+        itemKlasse->setFlags(Qt::ItemIsEnabled);
+        itemBetrieb->setFlags(Qt::ItemIsEnabled);
+
+        row++;
+
+    }
+
+    widget->resizeColumnToContents(0);
+    widget->resizeColumnToContents(1);
+    widget->resizeColumnToContents(2);
+    widget->resizeColumnToContents(4);
+
+    connect(widget, &QTableWidget::itemClicked, this, &FormLehrling::apprenticeTableClicked);
+}
+
+QMap<QString, ClassLehrling> FormLehrling::apprenticeMap() const
+{
+    return m_apprenticeMap;
+}
+
+void FormLehrling::setApprenticeMap(const QMap<QString, ClassLehrling> &apprenticeMap)
+{
+    m_apprenticeMap = apprenticeMap;
+    sortApprenticeTable();
+}
+
+void FormLehrling::setFormReadOnly(bool status)
 {
     ui->nrBox->setReadOnly(status);
-    ui->nameEdit->setReadOnly(status);
-    ui->kennungEdit->setReadOnly(status);
-    ui->anzahlFragenBox->setReadOnly(status);
-    ui->maxPunkteBox->setReadOnly(status);
-    ui->documentEdit->setReadOnly(status);
-    ui->addFrageButton->setEnabled(!status);
-    ui->removeFrageButton->setEnabled(!status);
-    ui->openFilelButton->setEnabled(!status);
-    ui->sperrfachBox->setEnabled(!status);
-    ui->factorBox->setReadOnly(status);
-    ui->durationBox->setReadOnly(status);
+    ui->firstnameEdit->setReadOnly(status);
+    ui->nachnameEdit->setReadOnly(status);
+    ui->educationDateEdit->setReadOnly(status);
+    ui->strasseEdit->setReadOnly(status);
+    ui->ortEdit->setReadOnly(status);
+    ui->phoneEdit->setReadOnly(status);
+    ui->gebDateEdit->setReadOnly(status);
+    ui->notizEdit->setReadOnly(status);
+    ui->klasseEdit->setReadOnly(status);
+    ui->klasseBox->setEnabled(!status);
 
-    if(!changeProjekt){
-        ui->anzahlFragenBox->setEnabled(true);
-        ui->anzahlFragenBox->setReadOnly(status);
-    }
+    ui->betriebEdit->setReadOnly(true);
+    ui->betriebButton->setEnabled(!status);
+
+    if(changeData && !status)
+        ui->betriebEdit->setReadOnly(false);
 
     if(!status)
         setFormTextColor(QColor(0,85,127));
     else
         setFormTextColor(Qt::black);
-}
-
-ClassProjekt FormProjekt::readFromForm()
-{
-    ClassProjekt pro;
-    pro.setNr( ui->nrBox->value() );
-    pro.setName( ui->nameEdit->text() );
-    pro.setIdentifier( ui->kennungEdit->text() );
-    pro.setCountQuestion( ui->anzahlFragenBox->value() );
-    pro.setMaxPoints(ui->maxPunkteBox->value());
-    pro.setDocument(ui->documentEdit->text());
-    pro.setDateTime( ui->dateTimeEdit->dateTime());
-    pro.setFactor(ui->factorBox->value());
-    pro.setDuration( ui->durationBox->value());
-
-    if(ui->sperrfachBox->checkState() == Qt::Checked)
-        pro.setLockSubject(true);
-    else
-        pro.setLockSubject(false);
-
-    pro.setCreateTime( ui->dateTimeEdit->dateTime().toString("dd.MM.yy hh:mm"));
-
-    // update ClassFragen Map
-    int maxpunkte = 0;
-    int rowCount = ui->anzahlFragenBox->value(); //ui->fragenTableWidget->rowCount();
-
-    QMap<int, ClassFrage> frgMap;
-    for(int i = 0; i < rowCount; i++)
-    {
-        ClassFrage question;
-        int nr = ui->fragenTableWidget->item(i,0)->text().toInt();
-        QString frg = ui->fragenTableWidget->item(i,1)->text();
-        int punkte = ui->fragenTableWidget->item(i,2)->text().toInt();
-        QString identifier = ui->fragenTableWidget->item(i,3)->text();
-
-        question.setQuestionNr(nr);
-        question.setQuestion(frg);
-        question.setMaxPoints(punkte);
-        question.setIdentifier(identifier);
-
-        maxpunkte = maxpunkte + punkte;
-
-        frgMap.insert(i, question);
-    }
-
-    if(maxpunkte != pro.maxPoints())
-    {
-        QMessageBox::information(this, tr("Projekt speichern"), tr("Die Punktzahl stimmt nicht mit den Punkten der Fragen überein!\n"
-                     "Die maximale Punktzahl wird angeglichen!"));
-
-        pro.setMaxPoints(maxpunkte);
-        ui->maxPunkteBox->setValue(maxpunkte);
-    }
-
-    pro.setQuestionMap(frgMap);
-    return pro;
-}
-
-void FormProjekt::clearTableFragen()
-{
-    ui->fragenTableWidget->clear();
-    ui->fragenTableWidget->setColumnCount(4);
-
-    QStringList labels;
-    labels << "Nr." << "Frage" << "Max. Punkte" << "Kennung" ;
-    ui->fragenTableWidget->setHorizontalHeaderLabels(labels);
 
 }
 
-
-void FormProjekt::setColorTableFragen(QColor color)
+void FormLehrling::setApprenticeToForm(const ClassLehrling &appr)
 {
-    int rowCount = ui->fragenTableWidget->rowCount();
-    int columnCount = ui->fragenTableWidget->columnCount();
+    ui->exameBox->clear();
+    ui->nrBox->setValue(appr.nr());
+    ui->firstnameEdit->setText(appr.firstname());
+    ui->nachnameEdit->setText(appr.surname());
+    ui->educationDateEdit->setDate(appr.apprenticeshipDate());
+    ui->strasseEdit->setText(appr.street());
+    ui->ortEdit->setText(appr.city());
+    ui->klasseEdit->setText( appr.educationClass());
+    ui->phoneEdit->setText(appr.phone());
+    ui->betriebEdit->setText( appr.company());
+    ui->gebDateEdit->setDate(appr.birthDate());
+    ui->notizEdit->setPlainText( appr.note());
 
-    for(int i = 0; i < rowCount; i++)
-    {
-        for(int c = 0; c < columnCount; c++)
-        {
-            QTableWidgetItem *item = ui->fragenTableWidget->item(i,c);
-            item->setTextColor(color);
-        }
+    if(appr.getSkillMap().size() > 0){
+        ui->exameBox->addItems(appr.getSkillMap().keys());
     }
 }
 
-void FormProjekt::setFormTextColor(QColor color)
+ClassLehrling FormLehrling::readFromForm()
+{
+
+    ClassLehrling apprentice;
+
+    apprentice.setNr( ui->nrBox->value() );
+    apprentice.setApprenticeshipDate( ui->educationDateEdit->date() );
+    apprentice.setFirstname( ui->firstnameEdit->text() );
+    apprentice.setSurname( ui->nachnameEdit->text() );
+    apprentice.setStreet( ui->strasseEdit->text() );
+    apprentice.setCity( ui->ortEdit->text() );
+    apprentice.setPhone( ui->phoneEdit->text() );
+    apprentice.setEducationClass( ui->klasseEdit->text());
+    apprentice.setBirthDate( ui->gebDateEdit->date() );
+    apprentice.setCompany( ui->betriebEdit->text() );
+    apprentice.setNote( ui->notizEdit->toPlainText());
+
+    return apprentice;
+
+}
+
+void FormLehrling::setFormTextColor(QColor color)
 {
     QPalette palette;
     palette.setColor(QPalette::Base,Qt::white);
@@ -396,123 +345,54 @@ void FormProjekt::setFormTextColor(QColor color)
     palette.setColor(QPalette::ButtonText,color);
 
     ui->nrBox->setPalette(palette);
-    ui->nameEdit->setPalette(palette);
-    ui->kennungEdit->setPalette(palette);
-    ui->anzahlFragenBox->setPalette(palette);
-    ui->maxPunkteBox->setPalette(palette);
-    ui->dateTimeEdit->setPalette(palette);
-    ui->documentEdit->setPalette(palette);
-    //ui->sperrfachBox->setPalette(palette);
-    ui->durationBox->setPalette(palette);
-    ui->factorBox->setPalette(palette);
-
+    ui->firstnameEdit->setPalette(palette);
+    ui->nachnameEdit->setPalette(palette);
+    ui->educationDateEdit->setPalette(palette);
+    ui->strasseEdit->setPalette(palette);
+    ui->ortEdit->setPalette(palette);
+    ui->phoneEdit->setPalette(palette);
+    ui->gebDateEdit->setPalette(palette);
+    ui->notizEdit->setPalette(palette);
+    ui->klasseEdit->setPalette(palette);
+    ui->betriebEdit->setPalette(palette);
+    ui->exameBox->setPalette(palette);
 }
 
-void FormProjekt::setProjektToForm(const ClassProjekt &pro)
-{
-    ui->nrBox->setValue(pro.nr());
-    ui->nameEdit->setText(pro.name());
-    ui->kennungEdit->setText(pro.identifier());
-    ui->anzahlFragenBox->setValue(pro.countQuestion());
-    ui->maxPunkteBox->setValue(pro.maxPoints());
-    ui->documentEdit->setText( pro.document() );
-    ui->factorBox->setValue(pro.getFactor());
-    ui->durationBox->setValue(pro.getDuration());
-
-    if(pro.lockSubject())
-        ui->sperrfachBox->setCheckState(Qt::Checked);
-    else
-        ui->sperrfachBox->setCheckState(Qt::Unchecked);
-
-    if(pro.dateTime().isValid()){
-        ui->dateTimeEdit->setDateTime(pro.dateTime());
-    }else{
-
-        emit invalidDateTime();
-        QString dts = pro.createTime();
-    }
-
-    updateFragenTable(pro.questionMap());
-}
-
-void FormProjekt::clearForm()
+void FormLehrling::clearForm()
 {
     ui->nrBox->setValue(0);
-    ui->nameEdit->clear();
-    ui->kennungEdit->clear();
-    ui->anzahlFragenBox->setValue(0);
-    ui->maxPunkteBox->setValue(0);
-    ui->dateTimeEdit->clear();
-    ui->documentEdit->clear();
-    ui->sperrfachBox->setCheckState(Qt::Unchecked);
-    ui->durationBox->setValue(0);
-
-    clearTableFragen();
+    ui->firstnameEdit->clear();
+    ui->nachnameEdit->clear();
+    ui->educationDateEdit->setDate( QDate() );
+    ui->strasseEdit->clear();
+    ui->ortEdit->clear();
+    ui->phoneEdit->clear();
+    ui->betriebEdit->clear();
+    ui->gebDateEdit->setDate( QDate());
+    ui->notizEdit->clear();
+    ui->exameBox->clear();
 }
 
-void FormProjekt::updateFragenTable(const QMap<int, ClassFrage> &fMap)
+void FormLehrling::setupKlasseMap()
 {
-    ui->fragenTableWidget->clear();
-    ui->fragenTableWidget->setColumnCount(4);
-    ui->fragenTableWidget->setRowCount(fMap.size());
-
-    QStringList labels;
-    labels << "Nr." << "Frage" << "Max. Punkte" << "Kennung" ;
-    ui->fragenTableWidget->setHorizontalHeaderLabels(labels);
-
-    int row = 0;
-    QMapIterator<int, ClassFrage> it(fMap);
-    while (it.hasNext()) {
-        it.next();
-
-        ClassFrage question = it.value();
-        QTableWidgetItem *itemNr = new QTableWidgetItem( QString::number(question.questionNr(),10) );
-        QTableWidgetItem *itemFrage = new QTableWidgetItem( question.question() );
-        QTableWidgetItem *itemPunkte = new QTableWidgetItem( QString::number(question.maxPoints(),10) );
-        QTableWidgetItem *itemKennung = new QTableWidgetItem( question.identifier() );
-        ui->fragenTableWidget->setItem(row,0, itemNr);
-        ui->fragenTableWidget->setItem(row,1, itemFrage);
-        ui->fragenTableWidget->setItem(row,2, itemPunkte);
-        ui->fragenTableWidget->setItem(row,3, itemKennung);
-
-//        itemNr->setFlags(Qt::ItemIsEnabled);
-//        itemFrage->setFlags(Qt::ItemIsEnabled);
-//        itemPunkte->setFlags(Qt::ItemIsEnabled);
-//        itemKennung->setFlags(Qt::ItemIsEnabled);
-
-        row++;
-    }
-
-    ui->fragenTableWidget->resizeColumnToContents(0);
-    ui->fragenTableWidget->resizeColumnToContents(1);
-    ui->fragenTableWidget->resizeColumnToContents(2);
-
+    klasseMap.insert("MAS 16/1", QDate(2016,8,1));
+    klasseMap.insert("MAS 17/1", QDate(2017,8,1));
+    klasseMap.insert("MAS 18/1", QDate(2018,8,1));
+    klasseMap.insert("MAS 19/1", QDate(2019,8,1));
+    klasseMap.insert("MAS 20/1", QDate(2020,8,1));
+    klasseMap.insert("MAS 21/1", QDate(2021,8,1));
+    klasseMap.insert("MAS 22/1", QDate(2022,8,1));
+    klasseMap.insert("MAS 23/1", QDate(2023,8,1));
+    klasseMap.insert("MAS 24/1", QDate(2024,8,1));
+    klasseMap.insert("MAS 25/1", QDate(2025,8,1));
+    klasseMap.insert("MAS 26/1", QDate(2026,8,1));
+    klasseMap.insert("MAS 27/1", QDate(2027,8,1));
+    klasseMap.insert("MAS 28/1", QDate(2028,8,1));
+    klasseMap.insert("MAS 29/1", QDate(2029,8,1));
+    klasseMap.insert("MAS 30/1", QDate(2030,8,1));
 }
 
-void FormProjekt::updateSortBox()
-{
-    QStringList sortList;
-    sortList << "Alle";
 
-    QMapIterator<QString, ClassProjekt> it(projektMap());
-    while (it.hasNext()) {
-        it.next();
-        if(!sortList.contains(it.value().identifier()))
-            sortList << it.value().identifier();
-    }
 
-    sortList.sort();
-    ui->sortBox->clear();
-    ui->sortBox->addItems(sortList);
-}
 
-QMap<QString, ClassProjekt> FormProjekt::projektMap() const
-{
-    return m_projektMap;
-}
 
-void FormProjekt::setProjektMap(const QMap<QString, ClassProjekt> &projektMap)
-{
-    m_projektMap = projektMap;
-    updateSortBox();
-}

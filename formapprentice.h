@@ -1,5 +1,5 @@
-#ifndef FORMLEHRLING_H
-#define FORMLEHRLING_H
+#ifndef FORMAPPRENTICE_H
+#define FORMAPPRENTICE_H
 
 #include <QWidget>
 #include <QTableWidgetItem>
@@ -8,7 +8,7 @@
 #include <QModelIndex>
 
 #include <classlehrling.h>
-#include <formbetriebliste.h>
+
 
 namespace Ui {
 class FormLehrling;
@@ -22,63 +22,45 @@ public:
     explicit FormLehrling(QWidget *parent = nullptr);
     ~FormLehrling();
 
-    QMap<QString, ClassLehrling> lehrlingMap() const;
-    void setLehrlingMap(const QMap<QString, ClassLehrling> &lehrlingMap);
 
-    void updateLehrlingTable(const QMap<QString, ClassLehrling> &aMap);
-    void setLastModified(const QDateTime &date);
-
-    QMap<int, ClassBetrieb> betriebMap() const;
-    void setBetriebMap(const QMap<int, ClassBetrieb> &betriebMap);
+    QMap<QString, ClassLehrling> apprenticeMap() const;
+    void setApprenticeMap(const QMap<QString, ClassLehrling> &apprenticeMap);
 
 signals:
-    void saveLehrlingMap(const QMap<QString, ClassLehrling> &azuMap);
-    void updateBetriebe(const QString &betriebName, const ClassLehrling &azu);
-
+    void apprenticeFormClosed();
+    void saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap);
 
 private slots:
+
+    void closeButtonClicked();
     void createButtonClicked();
     void deleteButtonClicked();
     void deleteSkillButtonClicked();
     void changeButtonClicked();
     void saveButtonClicked();
 
-    void klasseBoxChanged(const QString &text);
-
-    void slotchanged(const QModelIndex &index, const QModelIndex &);
-
-    void azubiItemClicked(QTableWidgetItem *item);
-
-    void openBetriebsListe();
-
-
+    void klasseBoxTextChanged(const QString &text);
+    void apprenticeTableClicked(QTableWidgetItem *item);
 
 private:
     Ui::FormLehrling *ui;
 
-    // For the combobox
-    QStandardItemModel *model;
+    bool changeData;
+    ClassLehrling seletedApprentice;
+    QMap<QString, ClassLehrling> m_apprenticeMap;
+    QMap<QString, QVariant> klasseMap;
 
+    void sortApprenticeTable();
+    QMap<QString, ClassLehrling> getApprenticeMap(int year);
+    void updateApprenticeTable(QTableWidget *widget, const QMap<QString, ClassLehrling> &aMap);
 
-    bool changeLehrling;
-    ClassLehrling selectedLehrling;
-    QMap<QString, ClassLehrling> m_lehrlingMap;
-
-    void updateTable(QTableWidget *widget, const QList<ClassLehrling> &azuList);
-    void createSortMap(const QMap<QString, ClassLehrling> &aMap);
-    bool pruefnummerExist(int year, int nr);
-
-    ClassLehrling readFromForm();
-    void setLehrlingToForm(const ClassLehrling &azubi);
-    void setFormTextColor(QColor color);
     void setFormReadOnly(bool status);
+    void setApprenticeToForm(const ClassLehrling &appr);
+    ClassLehrling readFromForm();
+    void setFormTextColor(QColor color);
     void clearForm();
-
-    QMap<int, ClassBetrieb> m_betriebMap;
-
-
-    QMap<QString, QDate> klasseMap;
     void setupKlasseMap();
+
 };
 
 #endif // FORMLEHRLING_H

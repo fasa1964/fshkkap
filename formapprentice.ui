@@ -92,14 +92,14 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Box</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_8">
       <item row="1" column="0" colspan="11">
-       <widget class="QLineEdit" name="vornameEdit">
+       <widget class="QLineEdit" name="firstnameEdit">
         <property name="toolTip">
          <string>Vorname</string>
         </property>
@@ -162,7 +162,7 @@
        </widget>
       </item>
       <item row="0" column="8" colspan="3">
-       <widget class="QDateEdit" name="ausbildungsDateEdit">
+       <widget class="QDateEdit" name="educationDateEdit">
         <property name="toolTip">
          <string>Start der Ausbildung </string>
         </property>
@@ -479,7 +479,7 @@
       </sizepolicy>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Box</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
@@ -488,7 +488,7 @@
       <item row="0" column="0">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>4</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -496,57 +496,57 @@
          </attribute>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
-           <widget class="QTableWidget" name="azubiTableWidget"/>
+           <widget class="QTableWidget" name="apprenticeTableWidget"/>
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="tab_2">
+        <widget class="QWidget" name="tab1">
          <attribute name="title">
           <string>1.Lehrjahr</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
-           <widget class="QTableWidget" name="lehrling1Table"/>
+           <widget class="QTableWidget" name="app1Table"/>
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="tab_3">
+        <widget class="QWidget" name="tab2">
          <attribute name="title">
           <string>2.Lehrjahr</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
-           <widget class="QTableWidget" name="lehrling2Table"/>
+           <widget class="QTableWidget" name="app2Table"/>
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="tab_4">
+        <widget class="QWidget" name="tab3">
          <attribute name="title">
           <string>3.Lehrjahr</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
-           <widget class="QTableWidget" name="lehrling3Table"/>
+           <widget class="QTableWidget" name="app3Table"/>
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="tab_5">
+        <widget class="QWidget" name="tab4">
          <attribute name="title">
           <string>4.Lehrjahr</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="0">
-           <widget class="QTableWidget" name="lehrling4Table"/>
+           <widget class="QTableWidget" name="app4Table"/>
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="tab_6">
+        <widget class="QWidget" name="tab5">
          <attribute name="title">
           <string>Nachholer</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_6">
           <item row="0" column="0">
-           <widget class="QTableWidget" name="nachholerTable"/>
+           <widget class="QTableWidget" name="app5Table"/>
           </item>
          </layout>
         </widget>
@@ -558,7 +558,7 @@
    <item row="2" column="0" colspan="2">
     <widget class="QFrame" name="frame_3">
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Box</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
@@ -724,8 +724,8 @@
  </widget>
  <tabstops>
   <tabstop>nrBox</tabstop>
-  <tabstop>ausbildungsDateEdit</tabstop>
-  <tabstop>vornameEdit</tabstop>
+  <tabstop>educationDateEdit</tabstop>
+  <tabstop>firstnameEdit</tabstop>
   <tabstop>nachnameEdit</tabstop>
   <tabstop>strasseEdit</tabstop>
   <tabstop>ortEdit</tabstop>
@@ -743,12 +743,12 @@
   <tabstop>changeButton</tabstop>
   <tabstop>deleteButton</tabstop>
   <tabstop>lastChangeEdit</tabstop>
-  <tabstop>azubiTableWidget</tabstop>
-  <tabstop>lehrling1Table</tabstop>
-  <tabstop>lehrling2Table</tabstop>
-  <tabstop>lehrling3Table</tabstop>
-  <tabstop>lehrling4Table</tabstop>
-  <tabstop>nachholerTable</tabstop>
+  <tabstop>apprenticeTableWidget</tabstop>
+  <tabstop>app1Table</tabstop>
+  <tabstop>app2Table</tabstop>
+  <tabstop>app3Table</tabstop>
+  <tabstop>app4Table</tabstop>
+  <tabstop>app5Table</tabstop>
  </tabstops>
  <resources/>
  <connections/>
