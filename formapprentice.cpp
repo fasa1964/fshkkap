@@ -92,7 +92,6 @@ void FormLehrling::changeButtonClicked()
     ui->deleteButton->setEnabled(false);
     ui->createButton->setEnabled(false);
     ui->saveButton->setEnabled(true);
-
 }
 
 void FormLehrling::saveButtonClicked()
@@ -115,6 +114,7 @@ void FormLehrling::saveButtonClicked()
     ui->deleteButton->setEnabled(true);
     ui->createButton->setEnabled(true);
     ui->saveButton->setEnabled(false);
+    setFormReadOnly(true);
 }
 
 void FormLehrling::companyViewButtonClicked()
@@ -165,6 +165,23 @@ void FormLehrling::apprenticeTableClicked(QTableWidgetItem *item)
 
 }
 
+/// !brief proofe if company exist.
+/// returns true if company exist
+bool FormLehrling::companyExist(const QString &name)
+{
+    bool status = false;
+
+    QMapIterator<int, ClassBetrieb> it(getCompanyMap());
+    while (it.hasNext()) {
+        it.next();
+        if(name == it.value().name()){
+            status = true;
+            break;
+        }
+    }
+    return status;
+}
+
 QMap<int, ClassBetrieb> FormLehrling::getCompanyMap() const
 {
     return m_companyMap;
@@ -173,6 +190,11 @@ QMap<int, ClassBetrieb> FormLehrling::getCompanyMap() const
 void FormLehrling::setCompanyMap(const QMap<int, ClassBetrieb> &companyMap)
 {
     m_companyMap = companyMap;
+}
+
+void FormLehrling::setLastModified(const QDateTime &date)
+{
+    ui->lastChangeEdit->setDateTime(date);
 }
 
 void FormLehrling::sortApprenticeTable()
@@ -307,7 +329,7 @@ void FormLehrling::setFormReadOnly(bool status)
     ui->klasseEdit->setReadOnly(status);
     ui->klasseBox->setEnabled(!status);
 
-    ui->betriebEdit->setReadOnly(true);
+    ui->betriebEdit->setReadOnly(status);
     ui->companyViewButton->setEnabled(!status);
 
     if(changeData && !status)
@@ -354,8 +376,16 @@ ClassLehrling FormLehrling::readFromForm()
     apprentice.setPhone( ui->phoneEdit->text() );
     apprentice.setEducationClass( ui->klasseEdit->text());
     apprentice.setBirthDate( ui->gebDateEdit->date() );
-    apprentice.setCompany( ui->betriebEdit->text() );
     apprentice.setNote( ui->notizEdit->toPlainText());
+
+    if(companyExist(ui->betriebEdit->text()))
+        apprentice.setCompany( ui->betriebEdit->text() );
+    else{
+        apprentice.setCompany( "" );
+        QMessageBox::information(this, tr("Betriebname"), tr("Dieser Betrieb existiert nicht in der Liste.\n"
+                                 "Das Editierfeld wird gelöscht!"));
+    }
+
 
     return apprentice;
 

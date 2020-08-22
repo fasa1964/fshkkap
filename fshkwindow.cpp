@@ -61,6 +61,7 @@ void FSHKWindow::actionCompanyClicked()
 {
     this->takeCentralWidget();
     formCompany->setCompanyMap(companyMap);
+    formCompany->setLastModified( lastFileModified("Betriebe.dat"));
     formCompany->show();
     setCentralWidget(formCompany);
 }
@@ -70,6 +71,7 @@ void FSHKWindow::actionApprenticeClicked()
     this->takeCentralWidget();
     formApprentice->setApprenticeMap(apprenticeMap);
     formApprentice->setCompanyMap(companyMap);
+    formApprentice->setLastModified( lastFileModified("Lehrlinge.dat"));
     formApprentice->show();
     setCentralWidget(formApprentice);
 }
@@ -201,6 +203,14 @@ bool FSHKWindow::saveDatas(const QString &filename)
 
     file.close();
     return true;
+}
+
+QDateTime FSHKWindow::lastFileModified(const QString &filename)
+{
+    QDateTime dt;
+    QFileInfo file(filename);
+    dt = file.lastModified();
+    return dt;
 }
 
 

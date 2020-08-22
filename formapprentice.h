@@ -30,6 +30,8 @@ public:
     QMap<int, ClassBetrieb> getCompanyMap() const;
     void setCompanyMap(const QMap<int, ClassBetrieb> &companyMap);
 
+    void setLastModified(const QDateTime &date);
+
 signals:
     void apprenticeFormClosed();
     void saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap);
@@ -58,6 +60,7 @@ private:
     /// !brief for the CompanyViewList
     /// to pick a company
     QMap<int, ClassBetrieb> m_companyMap;
+    bool companyExist(const QString &name);
 
     void sortApprenticeTable();
     QMap<QString, ClassLehrling> getApprenticeMap(int year);

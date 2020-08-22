@@ -22,6 +22,8 @@ public:
     QMap<int, ClassBetrieb> companyMap() const;
     void setCompanyMap(const QMap<int, ClassBetrieb> &companyMap);
 
+     void setLastModified(const QDateTime &date);
+
 signals:
     void companyFormClosed();
     void saveCompanyMap(const QMap<int, ClassBetrieb> &bMap);

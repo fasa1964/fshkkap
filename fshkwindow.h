@@ -28,7 +28,6 @@ public:
     explicit FSHKWindow(QWidget *parent = 0);
     ~FSHKWindow();
 
-
 private slots:
     void actionCloseClicked();
     void actionInfoClicked();
@@ -59,6 +58,8 @@ private:
 
     FormLehrling *formApprentice;
     QMap<QString,ClassLehrling> apprenticeMap;
+
+    QDateTime lastFileModified(const QString &filename);
 
     void readDatas(const QString &filename);
     bool saveDatas(const QString &filename);

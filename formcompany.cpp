@@ -240,6 +240,11 @@ void FormBetrieb::setCompanyMap(const QMap<int, ClassBetrieb> &companyMap)
 
 }
 
+void FormBetrieb::setLastModified(const QDateTime &date)
+{
+    ui->lastChangeEdit->setDateTime(date);
+}
+
 ClassBetrieb FormBetrieb::readFromForm()
 {
     ClassBetrieb company;
