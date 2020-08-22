@@ -4,6 +4,8 @@
 #include <QMessageBox>
 #include <QDebug>
 
+#include <formcompanylist.h>
+
 FormLehrling::FormLehrling(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FormLehrling)
@@ -24,6 +26,7 @@ FormLehrling::FormLehrling(QWidget *parent) :
     connect(ui->deleteSkillButton, &QPushButton::clicked, this, &FormLehrling::deleteSkillButtonClicked);
     connect(ui->changeButton, &QPushButton::clicked, this, &FormLehrling::changeButtonClicked);
     connect(ui->saveButton, &QPushButton::clicked, this, &FormLehrling::saveButtonClicked);
+    connect(ui->companyViewButton, &QToolButton::clicked, this, &FormLehrling::companyViewButtonClicked);
 
     connect(ui->klasseBox, &QComboBox::currentTextChanged, this, &FormLehrling::klasseBoxTextChanged);
 
@@ -114,6 +117,17 @@ void FormLehrling::saveButtonClicked()
     ui->saveButton->setEnabled(false);
 }
 
+void FormLehrling::companyViewButtonClicked()
+{
+    FormBetriebListe *dlg = new FormBetriebListe();
+    dlg->updateTable( getCompanyMap() );
+    dlg->exec();
+    QString company = dlg->verify();
+    if(!company.isEmpty())
+        ui->betriebEdit->setText( company );
+
+}
+
 void FormLehrling::klasseBoxTextChanged(const QString &text)
 {
     ui->klasseEdit->setText(text);
@@ -149,6 +163,16 @@ void FormLehrling::apprenticeTableClicked(QTableWidgetItem *item)
     ui->saveButton->setEnabled(false);
     ui->deleteSkillButton->setEnabled(false);
 
+}
+
+QMap<int, ClassBetrieb> FormLehrling::getCompanyMap() const
+{
+    return m_companyMap;
+}
+
+void FormLehrling::setCompanyMap(const QMap<int, ClassBetrieb> &companyMap)
+{
+    m_companyMap = companyMap;
 }
 
 void FormLehrling::sortApprenticeTable()
@@ -284,7 +308,7 @@ void FormLehrling::setFormReadOnly(bool status)
     ui->klasseBox->setEnabled(!status);
 
     ui->betriebEdit->setReadOnly(true);
-    ui->betriebButton->setEnabled(!status);
+    ui->companyViewButton->setEnabled(!status);
 
     if(changeData && !status)
         ui->betriebEdit->setReadOnly(false);

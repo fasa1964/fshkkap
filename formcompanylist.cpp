@@ -1,5 +1,5 @@
-#include "formbetriebliste.h"
-#include "ui_formbetriebliste.h"
+#include "formcompanylist.h"
+#include "ui_formcompanylist.h"
 
 #include <QMapIterator>
 #include <QTableWidgetItem>
@@ -78,7 +78,7 @@ void FormBetriebListe::rejectForm()
 
 void FormBetriebListe::writeSettings()
 {
-    QSettings settings("FaSa-Soft", "FormBetriebListe");
+    QSettings settings("FASA-Soft", "FormCompanyList");
     settings.setValue("formgeometrie", this->geometry());
     settings.setValue("colw0", ui->tableWidget->columnWidth(0) );
     settings.setValue("colw1", ui->tableWidget->columnWidth(1) );
@@ -86,7 +86,7 @@ void FormBetriebListe::writeSettings()
 
 void FormBetriebListe::readSettings()
 {
-    QSettings settings("FaSa-Soft", "FormBetriebListe");
+    QSettings settings("FASA-Soft", "FormCompanyList");
     QRect rect = settings.value("formgeometrie", QRect(0,0,400,480)).toRect();
     setGeometry(rect);
 

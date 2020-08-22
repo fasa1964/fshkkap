@@ -33,7 +33,8 @@ SOURCES += \
     classprojekt.cpp \
     classskills.cpp \
     formcompany.cpp \
-    formapprentice.cpp
+    formapprentice.cpp \
+    formcompanylist.cpp
 
 HEADERS += \
         fshkwindow.h \
@@ -44,13 +45,15 @@ HEADERS += \
     classprojekt.h \
     classskills.h \
     formcompany.h \
-    formapprentice.h
+    formapprentice.h \
+    formcompanylist.h
 
 FORMS += \
         fshkwindow.ui \
     appwidget.ui \
     formcompany.ui \
-    formapprentice.ui
+    formapprentice.ui \
+    formcompanylist.ui
 
 RESOURCES += \
     images.qrc

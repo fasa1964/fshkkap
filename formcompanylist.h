@@ -1,5 +1,5 @@
-#ifndef FORMBETRIEBLISTE_H
-#define FORMBETRIEBLISTE_H
+#ifndef FORMCOMPANYLIST_H
+#define FORMCOMPANYLIST_H
 
 #include <QWidget>
 #include <QDialog>
@@ -35,4 +35,4 @@ private:
 
 };
 
-#endif // FORMBETRIEBLISTE_H
+#endif // FORMCOMPANYLIST_H

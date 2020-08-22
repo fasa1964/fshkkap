@@ -132,7 +132,7 @@
        </widget>
       </item>
       <item row="6" column="10">
-       <widget class="QToolButton" name="betriebButton">
+       <widget class="QToolButton" name="companyViewButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -733,7 +733,7 @@
   <tabstop>klasseEdit</tabstop>
   <tabstop>klasseBox</tabstop>
   <tabstop>betriebEdit</tabstop>
-  <tabstop>betriebButton</tabstop>
+  <tabstop>companyViewButton</tabstop>
   <tabstop>gebDateEdit</tabstop>
   <tabstop>notizEdit</tabstop>
   <tabstop>saveButton</tabstop>

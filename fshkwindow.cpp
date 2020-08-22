@@ -69,6 +69,7 @@ void FSHKWindow::actionApprenticeClicked()
 {
     this->takeCentralWidget();
     formApprentice->setApprenticeMap(apprenticeMap);
+    formApprentice->setCompanyMap(companyMap);
     formApprentice->show();
     setCentralWidget(formApprentice);
 }

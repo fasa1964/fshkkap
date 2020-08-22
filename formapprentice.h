@@ -8,6 +8,7 @@
 #include <QModelIndex>
 
 #include <classlehrling.h>
+#include <classbetrieb.h>
 
 
 namespace Ui {
@@ -26,6 +27,9 @@ public:
     QMap<QString, ClassLehrling> apprenticeMap() const;
     void setApprenticeMap(const QMap<QString, ClassLehrling> &apprenticeMap);
 
+    QMap<int, ClassBetrieb> getCompanyMap() const;
+    void setCompanyMap(const QMap<int, ClassBetrieb> &companyMap);
+
 signals:
     void apprenticeFormClosed();
     void saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap);
@@ -38,6 +42,7 @@ private slots:
     void deleteSkillButtonClicked();
     void changeButtonClicked();
     void saveButtonClicked();
+    void companyViewButtonClicked();
 
     void klasseBoxTextChanged(const QString &text);
     void apprenticeTableClicked(QTableWidgetItem *item);
@@ -49,6 +54,10 @@ private:
     ClassLehrling seletedApprentice;
     QMap<QString, ClassLehrling> m_apprenticeMap;
     QMap<QString, QVariant> klasseMap;
+
+    /// !brief for the CompanyViewList
+    /// to pick a company
+    QMap<int, ClassBetrieb> m_companyMap;
 
     void sortApprenticeTable();
     QMap<QString, ClassLehrling> getApprenticeMap(int year);
