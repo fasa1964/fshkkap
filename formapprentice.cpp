@@ -44,14 +44,17 @@ void FormLehrling::closeButtonClicked()
     close();
 }
 
-
 void FormLehrling::createButtonClicked()
 {
     clearForm();
     setFormReadOnly(false);
     ui->nrBox->setFocus();
-}
 
+    ui->changeButton->setEnabled(false);
+    ui->deleteButton->setEnabled(false);
+    ui->createButton->setEnabled(false);
+    ui->saveButton->setEnabled(true);
+}
 
 void FormLehrling::deleteButtonClicked()
 {
@@ -67,8 +70,14 @@ void FormLehrling::deleteButtonClicked()
             return;
     }
 
-    emit apprenticeWithoutCompany(seletedApprentice);
+    // Emitt this signal when the apprentice
+    // was in a company usely he is.
+    // So the apprentice will be also remove by the company
+    if(!seletedApprentice.company().isEmpty())
+        emit apprenticeWithoutCompany(seletedApprentice);
+
     emit saveApprenticeMap(m_apprenticeMap);
+    setApprenticeMap(m_apprenticeMap);
 
     seletedApprentice = m_apprenticeMap.values().first();
     setApprenticeToForm(seletedApprentice);
@@ -117,6 +126,20 @@ void FormLehrling::saveButtonClicked()
 {
     ClassLehrling appr = readFromForm();
 
+    if(appr.surname().isEmpty() || appr.firstname().isEmpty() || appr.nr() == 0){
+        QMessageBox::information(this, tr("Lehrling speichern"), tr("Der Vorname, Nachname und Prüfungsnummer vom "
+                                         "Lehrling müssen angegeben werden!"));
+        return;
+    }
+
+    // Check if exam number already exist in the same education year
+    int educationYear = getEducationYear(appr);
+    if(examNumberExist(educationYear, appr.nr())){
+        QMessageBox::information(this, tr("Prüfungsnummer"), tr("Die Prüfungsnummer ist bereits vergeben.\n"
+                                   "Bitte nehmen sie eine andere Prüfungsnummer!"));
+        return;
+    }
+
     // For keeping the skills
     if(changeData){
         appr.setSkillMap(seletedApprentice.getSkillMap());
@@ -124,7 +147,7 @@ void FormLehrling::saveButtonClicked()
 
     m_apprenticeMap.insert(appr.getKey(), appr);
     emit saveApprenticeMap(m_apprenticeMap);
-    changeData = false;
+
 
     seletedApprentice = appr;
     setApprenticeToForm(seletedApprentice);
@@ -136,7 +159,7 @@ void FormLehrling::saveButtonClicked()
     else
         emit apprenticeHasCompany(appr.company(), seletedApprentice.getKey());
 
-
+    changeData = false;
     ui->changeButton->setEnabled(true);
     ui->deleteButton->setEnabled(true);
     ui->createButton->setEnabled(true);
@@ -156,7 +179,6 @@ void FormLehrling::companyViewButtonClicked()
         ui->betriebEdit->setText( company );
 
 }
-
 
 void FormLehrling::klasseBoxTextChanged(const QString &text)
 {
@@ -212,6 +234,43 @@ bool FormLehrling::companyExist(const QString &name)
     return status;
 }
 
+/// !brief Returns the education year
+int FormLehrling::getEducationYear(const ClassLehrling &appr)
+{
+    int year = -1;
+    int today = QDate::currentDate().year();
+    int appDate = appr.apprenticeshipDate().year();
+
+    year = today - appDate;
+    if(year == 0)
+        year = 1;
+
+    if(year > 4)
+        year = 5;
+
+    return year;
+}
+
+/// !brief Returns true if the same education number
+/// already exist in the same education year
+bool FormLehrling::examNumberExist(int educationYear, int examNumber)
+{
+    bool status = false;
+    QMapIterator<QString, ClassLehrling> it(apprenticeMap());
+    while (it.hasNext()) {
+        it.next();
+        ClassLehrling appr = it.value();
+        if(educationYear == getEducationYear(appr)){
+            if(examNumber == appr.nr()){
+                status = true;
+                break;
+            }
+        }
+    }
+
+    return status;
+}
+
 QMap<int, ClassBetrieb> FormLehrling::getCompanyMap() const
 {
     return m_companyMap;
@@ -227,6 +286,7 @@ void FormLehrling::setLastModified(const QDateTime &date)
     ui->lastChangeEdit->setDateTime(date);
 }
 
+/// !brief Sort the table by year of training
 void FormLehrling::sortApprenticeTable()
 {
 
@@ -262,6 +322,7 @@ void FormLehrling::sortApprenticeTable()
     }
 }
 
+/// !brief Returns a map sorted by year of training
 QMap<QString, ClassLehrling> FormLehrling::getApprenticeMap(int year)
 {
     int todayYear = QDate::currentDate().year();
@@ -288,7 +349,6 @@ QMap<QString, ClassLehrling> FormLehrling::getApprenticeMap(int year)
 
 void FormLehrling::updateApprenticeTable(QTableWidget *widget, const QMap<QString, ClassLehrling> &aMap)
 {
-
     widget->clear();
     widget->setRowCount(aMap.size());
     widget->setColumnCount(4);
@@ -317,10 +377,10 @@ void FormLehrling::updateApprenticeTable(QTableWidget *widget, const QMap<QStrin
         itemNr->setToolTip(tr("Prüfungsnummer"));
         itemName->setTextColor(QColor(0,85,127,255));
 
-        itemNr->setFlags(Qt::ItemIsEnabled);
-        itemName->setFlags(Qt::ItemIsEnabled);
-        itemKlasse->setFlags(Qt::ItemIsEnabled);
-        itemBetrieb->setFlags(Qt::ItemIsEnabled);
+        itemNr->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemName->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemKlasse->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemBetrieb->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
         row++;
 

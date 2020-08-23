@@ -65,6 +65,10 @@ private:
     QMap<int, ClassBetrieb> m_companyMap;
     bool companyExist(const QString &name);
 
+    /// !brief Returns the trainy year
+    int getEducationYear(const ClassLehrling &appr);
+    bool examNumberExist(int educationYear, int examNumber);
+
     void sortApprenticeTable();
     QMap<QString, ClassLehrling> getApprenticeMap(int year);
     void updateApprenticeTable(QTableWidget *widget, const QMap<QString, ClassLehrling> &aMap);
