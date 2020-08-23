@@ -44,11 +44,11 @@ FormProjekt::~FormProjekt()
 void FormProjekt::updateProjektTable(const QMap<QString, ClassProjekt> &proMap)
 {
     ui->projekteTableWidget->clear();
-    ui->projekteTableWidget->setColumnCount(4);
+    ui->projekteTableWidget->setColumnCount(5);
     ui->projekteTableWidget->setRowCount(proMap.size());
 
     QStringList labels;
-    labels << "Nr." << "Name" << "Kennung" << "Minuten" ;
+    labels << "Nr." << "Name" << "Kennung" << "Minuten" << "Faktor" ;
     ui->projekteTableWidget->setHorizontalHeaderLabels(labels);
     int row = 0;
     QMapIterator<QString, ClassProjekt> it(proMap);
@@ -59,16 +59,19 @@ void FormProjekt::updateProjektTable(const QMap<QString, ClassProjekt> &proMap)
         QTableWidgetItem *itemName = new QTableWidgetItem( pro.name() );
         QTableWidgetItem *itemKennung = new QTableWidgetItem( pro.identifier() );
         QTableWidgetItem *itemMinutes = new QTableWidgetItem( QString::number(pro.getDuration(),10) );
+        QTableWidgetItem *itemFactor = new QTableWidgetItem( QString::number(pro.getFactor(), 'g' , 3) );
 
         ui->projekteTableWidget->setItem(row, 0, itemNr);
         ui->projekteTableWidget->setItem(row, 1, itemName);
         ui->projekteTableWidget->setItem(row, 2, itemKennung);
         ui->projekteTableWidget->setItem(row, 3, itemMinutes);
+        ui->projekteTableWidget->setItem(row, 4, itemFactor);
 
         itemNr->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         itemName->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         itemKennung->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         itemMinutes->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemFactor->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
         row++;
     }
@@ -77,6 +80,7 @@ void FormProjekt::updateProjektTable(const QMap<QString, ClassProjekt> &proMap)
     ui->projekteTableWidget->resizeColumnToContents(1);
     ui->projekteTableWidget->resizeColumnToContents(2);
     ui->projekteTableWidget->resizeColumnToContents(3);
+    ui->projekteTableWidget->resizeColumnToContents(4);
 }
 
 void FormProjekt::closeForm()
