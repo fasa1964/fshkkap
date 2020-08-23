@@ -39,6 +39,8 @@ private slots:
 
     // Signals from FormsCompany
     void saveCompanyMap(const QMap<int, ClassBetrieb> &cMap);
+    void companyRemoved(const QString &company);
+    void apprenticeRemoved(const QString &company, const QString &apprenticeKey);
 
     // Signals from FormApprentice
     void saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap);

@@ -28,6 +28,8 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     formCompany->hide();
     connect(formCompany, &FormBetrieb::companyFormClosed, this, &FSHKWindow::formHasClosed);
     connect(formCompany, &FormBetrieb::saveCompanyMap, this, &FSHKWindow::saveCompanyMap);
+    connect(formCompany, &FormBetrieb::companyRemoved, this, &FSHKWindow::companyRemoved);
+    connect(formCompany, &FormBetrieb::apprenticeRemoved, this, &FSHKWindow::apprenticeRemoved);
 
     formApprentice = new FormLehrling(this);
     formApprentice->hide();
@@ -95,6 +97,37 @@ void FSHKWindow::saveCompanyMap(const QMap<int, ClassBetrieb> &cMap)
     saveDatas("Betriebe.dat");
 }
 
+/// !brief Check if any apprentice still in the company
+void FSHKWindow::companyRemoved(const QString &company)
+{
+    bool changed = false;
+    QMapIterator<QString, ClassLehrling> it(apprenticeMap);
+    while (it.hasNext()) {
+        it.next();
+        ClassLehrling appr = it.value();
+        if(appr.company() == company){
+            appr.setCompany("");
+            apprenticeMap.insert(appr.getKey(), appr);
+            changed = true;
+        }
+    }
+
+    if(changed)
+        saveDatas("Lehrlinge.dat");
+}
+
+/// !brief When an apprentice has been removed by company
+/// remove the company from the apprentice
+void FSHKWindow::apprenticeRemoved(const QString &company, const QString &apprenticeKey)
+{
+   ClassLehrling appr = apprenticeMap.value(apprenticeKey);
+   if(appr.company() == company){
+       appr.setCompany("");
+       apprenticeMap.insert(appr.getKey(), appr);
+       saveDatas("Lehrlinge.dat");
+   }
+}
+
 /// Signals from FormsApprentice
 void FSHKWindow::saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap)
 {
@@ -155,7 +188,6 @@ void FSHKWindow::apprenticeAssociatedCompany(const QString &company, const QStri
 
     saveDatas("Betriebe.dat");
 }
-
 
 void FSHKWindow::setApplicationLabel()
 {

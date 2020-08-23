@@ -28,6 +28,7 @@ signals:
     void companyFormClosed();
     void saveCompanyMap(const QMap<int, ClassBetrieb> &bMap);
     void companyRemoved(const QString &company);
+    void apprenticeRemoved(const QString &company, const QString &apprenticeKey);
 
 private slots:
     void closeButtonClicked();
