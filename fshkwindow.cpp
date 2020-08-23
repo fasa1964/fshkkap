@@ -33,6 +33,8 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     formApprentice->hide();
     connect(formApprentice, &FormLehrling::apprenticeFormClosed, this, &FSHKWindow::formHasClosed);
     connect(formApprentice, &FormLehrling::saveApprenticeMap, this, &FSHKWindow::saveApprenticeMap);
+    connect(formApprentice, &FormLehrling::apprenticeWithoutCompany, this, &FSHKWindow::apprenticeWithoutCompany);
+    connect(formApprentice, &FormLehrling::apprenticeHasCompany , this, &FSHKWindow::apprenticeAssociatedCompany );
 
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
     connect(ui->actionInfo, &QAction::triggered, this, &FSHKWindow::actionInfoClicked);
@@ -86,27 +88,72 @@ void FSHKWindow::formHasClosed()
     setApplicationLabel();
 }
 
-
+/// Signals from FormsCompany
 void FSHKWindow::saveCompanyMap(const QMap<int, ClassBetrieb> &cMap)
 {
     companyMap = cMap;
     saveDatas("Betriebe.dat");
 }
 
-void FSHKWindow::apprenticeRemoved(const QList<ClassLehrling> &azuList, const ClassBetrieb &company)
-{
-    foreach (ClassLehrling azu, azuList) {
-        if(azu.company() == company.name()){
-            azu.setCompany("");
-            apprenticeMap.insert(azu.getKey(), azu);
-        }
-    }
-}
-
+/// Signals from FormsApprentice
 void FSHKWindow::saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap)
 {
     apprenticeMap = aMap;
     saveDatas("Lehrlinge.dat");
+}
+
+/// !brief Signal emitter when editing an apprentice
+/// and the company edit field is empty or the apprentice was deleting
+void FSHKWindow::apprenticeWithoutCompany(const ClassLehrling &appr)
+{
+    bool dataChanged = false;
+    QMapIterator<int, ClassBetrieb> it(companyMap);
+    while (it.hasNext()) {
+        it.next();
+        ClassBetrieb comp = it.value();
+        QMap<QString, ClassLehrling> aMap = comp.azubiMap();
+        if(aMap.keys().contains(appr.getKey())){
+            aMap.remove(appr.getKey());
+            comp.setAzubiMap(aMap);
+            companyMap.insert(comp.nr(), comp);
+            dataChanged = true;
+        }
+    }
+
+    if(dataChanged)
+        saveDatas("Betriebe.dat");
+}
+
+/// !brief Signal emitter when editing an apprentice
+/// and the company edit field was changed
+void FSHKWindow::apprenticeAssociatedCompany(const QString &company, const QString &apprenticeKey)
+{
+    // Insert the apprentice into company
+    ClassBetrieb comp = getCompany(company);
+    ClassLehrling appr = apprenticeMap.value(apprenticeKey);
+    QMap<QString, ClassLehrling> aMap = comp.azubiMap();
+    aMap.insert(appr.getKey(), appr);
+    comp.setAzubiMap(aMap);
+    companyMap.insert(comp.nr(), comp);
+
+    // Check if apprentice still in other company
+    // if yes delete the apprentice from all other company
+    QMapIterator<int, ClassBetrieb> it(companyMap);
+    while (it.hasNext()) {
+        it.next();
+        if(it.value().azubiMap().keys().contains(apprenticeKey)){
+            if(it.value().nr() != comp.nr()){
+                ClassBetrieb co = it.value();
+                QMap<QString, ClassLehrling> aMap = co.azubiMap();
+                aMap.remove(apprenticeKey);
+                co.setAzubiMap(aMap);
+                companyMap.insert(co.nr(), co);
+            }
+        }
+
+    }
+
+    saveDatas("Betriebe.dat");
 }
 
 
@@ -115,6 +162,22 @@ void FSHKWindow::setApplicationLabel()
     this->takeCentralWidget();
     appwidget->show();
     setCentralWidget(appwidget);
+}
+
+/// !brief Return ClassCompany seaching by name
+ClassBetrieb FSHKWindow::getCompany(const QString &name)
+{
+    ClassBetrieb comp;
+    QMapIterator<int, ClassBetrieb> it(companyMap);
+    while (it.hasNext()) {
+        it.next();
+        if(it.value().name() == name){
+            comp = it.value();
+            break;
+        }
+    }
+
+    return comp;
 }
 
 void FSHKWindow::readDatas(const QString &filename)
@@ -212,7 +275,6 @@ QDateTime FSHKWindow::lastFileModified(const QString &filename)
     dt = file.lastModified();
     return dt;
 }
-
 
 /// !brief Read the settings
 /// from last season

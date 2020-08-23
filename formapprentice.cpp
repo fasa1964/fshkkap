@@ -130,10 +130,12 @@ void FormLehrling::saveButtonClicked()
     setApprenticeToForm(seletedApprentice);
     sortApprenticeTable();
 
-    // Ermitter signal apprentice without company
-    if(appr.company().isEmpty()){
+    // Send signal apprentice without company
+    if(appr.company().isEmpty())
         emit apprenticeWithoutCompany(seletedApprentice);
-    }
+    else
+        emit apprenticeHasCompany(appr.company(), seletedApprentice.getKey());
+
 
     ui->changeButton->setEnabled(true);
     ui->deleteButton->setEnabled(true);

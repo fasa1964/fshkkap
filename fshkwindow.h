@@ -14,8 +14,6 @@
 #include <formapprentice.h>
 
 
-
-
 namespace Ui {
 class FSHKWindow;
 }
@@ -41,11 +39,11 @@ private slots:
 
     // Signals from FormsCompany
     void saveCompanyMap(const QMap<int, ClassBetrieb> &cMap);
-    void apprenticeRemoved(const QList<ClassLehrling> &azuList, const ClassBetrieb &company);
 
     // Signals from FormApprentice
     void saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap);
-
+    void apprenticeWithoutCompany(const ClassLehrling &appr);
+    void apprenticeAssociatedCompany(const QString &company, const QString &apprenticeKey);
 
 private:
     Ui::FSHKWindow *ui;
@@ -55,6 +53,7 @@ private:
 
     FormBetrieb *formCompany;
     QMap<int, ClassBetrieb> companyMap;
+    ClassBetrieb getCompany(const QString &name);
 
     FormLehrling *formApprentice;
     QMap<QString,ClassLehrling> apprenticeMap;
