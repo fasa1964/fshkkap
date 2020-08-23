@@ -19,6 +19,7 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
 
     readDatas("Betriebe.dat");
     readDatas("Lehrlinge.dat");
+    readDatas("Projekte.dat");
 
     appwidget = new AppWidget(qApp->applicationName(), qApp->applicationVersion(), this);
     appwidget->hide();
@@ -42,6 +43,7 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     formProjekt = new FormProjekt(this);
     formProjekt->hide();
     connect(formProjekt, &FormProjekt::formProjectClosed, this, &FSHKWindow::formHasClosed);
+    connect(formProjekt, &FormProjekt::saveProjekte, this, &FSHKWindow::saveProjectMap);
 
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
     connect(ui->actionInfo, &QAction::triggered, this, &FSHKWindow::actionInfoClicked);
@@ -100,7 +102,7 @@ void FSHKWindow::formHasClosed()
     setApplicationLabel();
 }
 
-/// Signals from FormsCompany
+/// Signals from FormCompany
 void FSHKWindow::saveCompanyMap(const QMap<int, ClassBetrieb> &cMap)
 {
     companyMap = cMap;
@@ -140,7 +142,7 @@ void FSHKWindow::apprenticeRemoved(const QString &company, const QString &appren
    }
 }
 
-/// Signals from FormsApprentice
+/// Signals from FormApprentice
 void FSHKWindow::saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap)
 {
     apprenticeMap = aMap;
@@ -200,6 +202,13 @@ void FSHKWindow::apprenticeAssociatedCompany(const QString &company, const QStri
     }
 
     saveDatas("Betriebe.dat");
+}
+
+/// Signals from FormProject
+void FSHKWindow::saveProjectMap(const QMap<QString, ClassProjekt> &pMap)
+{
+    projectMap = pMap;
+    saveDatas("Projekte.dat");
 }
 
 void FSHKWindow::setApplicationLabel()
@@ -269,6 +278,12 @@ void FSHKWindow::readDatas(const QString &filename)
             in >> appr;
             apprenticeMap.insert(appr.getKey(), appr);
         }
+        if(filename == "Projekte.dat")
+        {
+            ClassProjekt pro;
+            in >> pro;
+            projectMap.insert(pro.getKey(), pro);
+        }
     }
 
     file.close();
@@ -303,6 +318,14 @@ bool FSHKWindow::saveDatas(const QString &filename)
     if(filename == "Lehrlinge.dat")
     {
         QMapIterator<QString, ClassLehrling> it(apprenticeMap);
+        while (it.hasNext()) {
+            it.next();
+            out << it.value();
+        }
+    }
+    if(filename == "Projekte.dat")
+    {
+        QMapIterator<QString, ClassProjekt> it(projectMap);
         while (it.hasNext()) {
             it.next();
             out << it.value();

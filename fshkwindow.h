@@ -50,6 +50,9 @@ private slots:
     void apprenticeWithoutCompany(const ClassLehrling &appr);
     void apprenticeAssociatedCompany(const QString &company, const QString &apprenticeKey);
 
+    // Signals from FormProject
+    void saveProjectMap(const QMap<QString, ClassProjekt> &pMap);
+
 private:
     Ui::FSHKWindow *ui;
 

@@ -44,11 +44,11 @@ FormProjekt::~FormProjekt()
 void FormProjekt::updateProjektTable(const QMap<QString, ClassProjekt> &proMap)
 {
     ui->projekteTableWidget->clear();
-    ui->projekteTableWidget->setColumnCount(3);
+    ui->projekteTableWidget->setColumnCount(4);
     ui->projekteTableWidget->setRowCount(proMap.size());
 
     QStringList labels;
-    labels << "Nr." << "Name" << "Kennung" ;
+    labels << "Nr." << "Name" << "Kennung" << "Minuten" ;
     ui->projekteTableWidget->setHorizontalHeaderLabels(labels);
     int row = 0;
     QMapIterator<QString, ClassProjekt> it(proMap);
@@ -58,10 +58,17 @@ void FormProjekt::updateProjektTable(const QMap<QString, ClassProjekt> &proMap)
         QTableWidgetItem *itemNr = new QTableWidgetItem( QString::number(pro.nr(),10));
         QTableWidgetItem *itemName = new QTableWidgetItem( pro.name() );
         QTableWidgetItem *itemKennung = new QTableWidgetItem( pro.identifier() );
+        QTableWidgetItem *itemMinutes = new QTableWidgetItem( QString::number(pro.getDuration(),10) );
 
         ui->projekteTableWidget->setItem(row, 0, itemNr);
         ui->projekteTableWidget->setItem(row, 1, itemName);
         ui->projekteTableWidget->setItem(row, 2, itemKennung);
+        ui->projekteTableWidget->setItem(row, 3, itemMinutes);
+
+        itemNr->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemName->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemKennung->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemMinutes->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
         row++;
     }
@@ -69,6 +76,7 @@ void FormProjekt::updateProjektTable(const QMap<QString, ClassProjekt> &proMap)
     ui->projekteTableWidget->resizeColumnToContents(0);
     ui->projekteTableWidget->resizeColumnToContents(1);
     ui->projekteTableWidget->resizeColumnToContents(2);
+    ui->projekteTableWidget->resizeColumnToContents(3);
 }
 
 void FormProjekt::closeForm()
@@ -95,7 +103,7 @@ void FormProjekt::createButtonClicked()
 
 void FormProjekt::saveButtonClicked()
 {
-   // Check some values
+    // Check header datas
     if(ui->nrBox->value() <= 0 || ui->nameEdit->text().isEmpty() || ui->kennungEdit->text().isEmpty()
             || ui->anzahlFragenBox->value() <= 0)
     {
@@ -104,6 +112,7 @@ void FormProjekt::saveButtonClicked()
         return;
     }
 
+    // Don't copy the project
     if(changeProjekt){
         QString key = selectedProjekt.getKey();
         m_projektMap.remove(key);
@@ -111,6 +120,23 @@ void FormProjekt::saveButtonClicked()
 
     ClassProjekt projekt = readFromForm();
     QString key = projekt.getKey();
+
+    // Check for max points in questionMap
+    bool failed = false;
+    QMapIterator<int, ClassFrage> it( projekt.questionMap() );
+    while (it.hasNext()) {
+        it.next();
+        if(it.value().maxPoints() == 0){
+            failed = true;
+            break;
+        }
+    }
+
+    if(failed){
+        QMessageBox::information(this, tr("Projekt speichern"), tr("Bei den Fragen müssen die max. Punkte mehr als 0 Punkte betragen!\n"));
+        return;
+    }
+
 
     if(!changeProjekt)
     {
@@ -137,7 +163,6 @@ void FormProjekt::saveButtonClicked()
 
     setProjektToForm(projekt);
     setFormReadOnly(true);
-    setColorTableFragen(Qt::black);
 
     updateSortBox();
     updateProjektTable(projektMap());

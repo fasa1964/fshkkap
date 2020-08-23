@@ -892,7 +892,7 @@
       <item row="6" column="1" colspan="2">
        <widget class="QDoubleSpinBox" name="factorBox">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Fakto&lt;/span&gt;r zur anteilmäßigen Gewichtung in der Prüfung.&lt;/p&gt;&lt;p&gt;Z.B. 0,15 entspicht 15%.&lt;/p&gt;&lt;p&gt;Wenn alle Projekte in einer Prüfung den Faktor 1,0 haben, werden alle Projekte gleichermaßen gewichtet.&lt;/p&gt;&lt;p&gt;Voreingestellt ist 1,0.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Faktor&lt;/span&gt; zur anteilmäßigen Gewichtung in der Prüfung.&lt;/p&gt;&lt;p&gt;Z.B. 0,15 entspicht 15%.&lt;/p&gt;&lt;p&gt;Wenn alle Projekte in einer Prüfung den Faktor 1,0 haben, werden alle Projekte gleichermaßen gewichtet.&lt;/p&gt;&lt;p&gt;Voreingestellt ist 1,0.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="minimum">
          <double>0.100000000000000</double>
