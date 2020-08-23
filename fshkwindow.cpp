@@ -8,6 +8,7 @@
 #include <QFileDevice>
 #include <QDataStream>
 
+#include <QDebug>
 
 FSHKWindow::FSHKWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -85,6 +86,8 @@ void FSHKWindow::actionProjectClicked()
 
 }
 
+/// !brief This signal emitt when a form closed
+/// to show the appWidget
 void FSHKWindow::formHasClosed()
 {
     setApplicationLabel();
@@ -95,6 +98,7 @@ void FSHKWindow::saveCompanyMap(const QMap<int, ClassBetrieb> &cMap)
 {
     companyMap = cMap;
     saveDatas("Betriebe.dat");
+    formCompany->setLastModified(lastFileModified("Betriebe.dat"));
 }
 
 /// !brief Check if any apprentice still in the company
@@ -112,8 +116,9 @@ void FSHKWindow::companyRemoved(const QString &company)
         }
     }
 
-    if(changed)
+    if(changed){
         saveDatas("Lehrlinge.dat");
+    }
 }
 
 /// !brief When an apprentice has been removed by company
@@ -133,6 +138,7 @@ void FSHKWindow::saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap)
 {
     apprenticeMap = aMap;
     saveDatas("Lehrlinge.dat");
+    formApprentice->setLastModified(lastFileModified("Lehrlinge.dat"));
 }
 
 /// !brief Signal emitter when editing an apprentice
@@ -315,6 +321,12 @@ void FSHKWindow::readSettings()
     QSettings settings ("FASA-Soft", "FSHK-AP");
     QRect wRect = settings.value("geometrie", QRect(0,0,930,640)).toRect();
     this->setGeometry(wRect);
+
+    QDateTime apprFileDate = settings.value("lehrling").toDateTime();
+    if(lastFileModified("Lehrlinge.dat") != apprFileDate)
+        QMessageBox::information(this, "Test", "Version Lehrlinge ist veraltet!");
+
+    qDebug() << "Read" << apprFileDate;
 }
 
 /// !brief Write the settings
@@ -323,5 +335,8 @@ void FSHKWindow::writeSettings()
 {
     QSettings settings ("FASA-Soft", "FSHK-AP");
     settings.setValue("geometrie", this->geometry());
+    settings.setValue("lehrling", lastFileModified("Lehrlinge.dat"));
+    settings.setValue("betrieb", lastFileModified("Betriebe.dat"));
 
+    qDebug() << "Write" << lastFileModified("Betriebe.dat");
 }
