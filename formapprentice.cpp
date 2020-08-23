@@ -15,6 +15,7 @@ FormLehrling::FormLehrling(QWidget *parent) :
     changeData = false;
     seletedApprentice = ClassLehrling();
     setFormReadOnly(true);
+
     setupKlasseMap();
     ui->klasseBox->addItems(klasseMap.keys());
 
@@ -51,11 +52,30 @@ void FormLehrling::createButtonClicked()
     ui->nrBox->setFocus();
 }
 
+
 void FormLehrling::deleteButtonClicked()
 {
+    int result = QMessageBox::information(this, tr("Lösche Lehrling"), tr("Der Auszubildende: ") +
+                  seletedApprentice.getKey() + tr("\nwird unwiderruflich gelöscht!"), QMessageBox::Cancel | QMessageBox::Ok);
+
+    if(result == QMessageBox::Cancel)
+        return;
+
+    if(m_apprenticeMap.remove(seletedApprentice.getKey()) == 0){
+            QMessageBox::information(this, tr("Lösche Lehrling"), tr("Der Auszubildende: ") +
+                              seletedApprentice.getKey() + tr("\nkonnte nicht gelöscht werden!"));
+            return;
+    }
+
+    emit apprenticeWithoutCompany(seletedApprentice);
+    emit saveApprenticeMap(m_apprenticeMap);
+
+    seletedApprentice = m_apprenticeMap.values().first();
+    setApprenticeToForm(seletedApprentice);
 
 }
 
+/// !brief Delete the current skill
 void FormLehrling::deleteSkillButtonClicked()
 {
     QMap<QString, ClassSkills> sMap = seletedApprentice.getSkillMap();
@@ -74,7 +94,6 @@ void FormLehrling::deleteSkillButtonClicked()
     seletedApprentice = readFromForm();
     seletedApprentice.setSkillMap(sMap);
     setApprenticeToForm(seletedApprentice);
-
 }
 
 void FormLehrling::changeButtonClicked()
@@ -98,6 +117,7 @@ void FormLehrling::saveButtonClicked()
 {
     ClassLehrling appr = readFromForm();
 
+    // For keeping the skills
     if(changeData){
         appr.setSkillMap(seletedApprentice.getSkillMap());
     }
@@ -110,6 +130,11 @@ void FormLehrling::saveButtonClicked()
     setApprenticeToForm(seletedApprentice);
     sortApprenticeTable();
 
+    // Ermitter signal apprentice without company
+    if(appr.company().isEmpty()){
+        emit apprenticeWithoutCompany(seletedApprentice);
+    }
+
     ui->changeButton->setEnabled(true);
     ui->deleteButton->setEnabled(true);
     ui->createButton->setEnabled(true);
@@ -117,6 +142,8 @@ void FormLehrling::saveButtonClicked()
     setFormReadOnly(true);
 }
 
+/// !brief For selecting a company
+/// Open a dialog with a company list
 void FormLehrling::companyViewButtonClicked()
 {
     FormBetriebListe *dlg = new FormBetriebListe();
@@ -127,6 +154,7 @@ void FormLehrling::companyViewButtonClicked()
         ui->betriebEdit->setText( company );
 
 }
+
 
 void FormLehrling::klasseBoxTextChanged(const QString &text)
 {
@@ -360,6 +388,8 @@ void FormLehrling::setApprenticeToForm(const ClassLehrling &appr)
     if(appr.getSkillMap().size() > 0){
         ui->exameBox->addItems(appr.getSkillMap().keys());
     }
+
+    ui->klasseBox->setCurrentText(appr.educationClass());
 }
 
 ClassLehrling FormLehrling::readFromForm()
@@ -386,9 +416,7 @@ ClassLehrling FormLehrling::readFromForm()
                                  "Das Editierfeld wird gelöscht!"));
     }
 
-
     return apprentice;
-
 }
 
 void FormLehrling::setFormTextColor(QColor color)

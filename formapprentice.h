@@ -35,6 +35,8 @@ public:
 signals:
     void apprenticeFormClosed();
     void saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap);
+    void apprenticeWithoutCompany(const ClassLehrling &apprentice);
+
 
 private slots:
 
