@@ -27,7 +27,7 @@ public:
 signals:
     void companyFormClosed();
     void saveCompanyMap(const QMap<int, ClassBetrieb> &bMap);
-    void apprenticeRemoved(const QList<ClassLehrling> &azuList, const ClassBetrieb &company );
+    void companyRemoved(const QString &company);
 
 private slots:
     void closeButtonClicked();
@@ -35,13 +35,18 @@ private slots:
     void deleteButtonClicked();
     void changeButtonClicked();
     void saveButtonClicked();
+    void deleteApprenticeButtonClicked();
 
     void sortBoxTextChanged(const QString &text);
     void companyTableItemClicked(QTableWidgetItem *item);
+    void apprenticeTableItemClicked(QTableWidgetItem *item);
 
 private:
     Ui::FormBetrieb *ui;
 
+    bool dataChanged;
+
+    ClassLehrling selectedApprentice;
     ClassBetrieb selectedCompany;
     QMap<int, ClassBetrieb> m_companyMap;
 

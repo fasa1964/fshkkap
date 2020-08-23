@@ -12,6 +12,8 @@ FormBetrieb::FormBetrieb(QWidget *parent) :
 
     setFormReadOnly(true);
     selectedCompany = ClassBetrieb();
+    selectedApprentice = ClassLehrling();
+    dataChanged = false;
 
     QStringList labels;
     labels << "Alle" << "Betriebe mit Auszubildenden";
@@ -22,9 +24,11 @@ FormBetrieb::FormBetrieb(QWidget *parent) :
     connect(ui->createButton, &QPushButton::clicked, this, &FormBetrieb::createButtonClicked);
     connect(ui->changeButton, &QPushButton::clicked, this, &FormBetrieb::changeButtonClicked);
     connect(ui->saveButton, &QPushButton::clicked, this, &FormBetrieb::saveButtonClicked);
+    connect(ui->deleteApprenticeButton, &QPushButton::clicked, this, &FormBetrieb::deleteApprenticeButtonClicked);
 
     connect(ui->sortBox, &QComboBox::currentTextChanged, this, &FormBetrieb::sortBoxTextChanged);
     connect(ui->companyTableWidget, &QTableWidget::itemClicked, this, &FormBetrieb::companyTableItemClicked);
+    connect(ui->apprenticeTableWidget, &QTableWidget::itemClicked, this, &FormBetrieb::apprenticeTableItemClicked);
 
 }
 
@@ -35,7 +39,6 @@ FormBetrieb::~FormBetrieb()
 
 void FormBetrieb::closeButtonClicked()
 {
-
     close();
     emit companyFormClosed();
 }
@@ -56,6 +59,9 @@ void FormBetrieb::createButtonClicked()
     ui->deleteApprenticeButton->setEnabled(false);
 }
 
+
+/// !brief When delete company emit signal
+/// to check if any apprentice are in the company
 void FormBetrieb::deleteButtonClicked()
 {
     if(selectedCompany.name().isEmpty())
@@ -63,8 +69,8 @@ void FormBetrieb::deleteButtonClicked()
 
     int result = QMessageBox::information(this, tr("Löschen Betrieb"), tr("Der Betrieb: ")+ selectedCompany.name()
                                           + tr("\nwird unwiderruflich gelöscht!"),
-                                       QMessageBox::Yes | QMessageBox::Abort);
-    if(result == QMessageBox::Abort)
+                                       QMessageBox::Yes | QMessageBox::Cancel);
+    if(result == QMessageBox::Cancel)
         return;
 
     if(m_companyMap.remove(selectedCompany.nr()) == 0){
@@ -72,16 +78,15 @@ void FormBetrieb::deleteButtonClicked()
         return;
     }
 
-    if(selectedCompany.azubiMap().size() > 0)
-        emit apprenticeRemoved(selectedCompany.azubiMap().values(), selectedCompany);
-
-
     updateCompanyTable(m_companyMap);
+    emit companyRemoved(selectedCompany.name());
+
     clearForm();
     if(!m_companyMap.isEmpty()){
         selectedCompany = m_companyMap.values().first();
         setCompanyToForm(selectedCompany);
     }
+
 
     emit saveCompanyMap(m_companyMap);
 
@@ -93,6 +98,7 @@ void FormBetrieb::changeButtonClicked()
     if(selectedCompany.name().isEmpty())
         return;
 
+    dataChanged = true;
     setFormReadOnly(false);
     ui->nameEdit->setFocus();
 
@@ -113,21 +119,56 @@ void FormBetrieb::saveButtonClicked()
         return;
     }
 
+    if(dataChanged && selectedCompany.azubiMap().size() > 0)
+        company.setAzubiMap(selectedCompany.azubiMap());
+
+
     m_companyMap.insert(company.nr(), company);
     updateCompanyTable(m_companyMap);
     emit saveCompanyMap(m_companyMap);
 
     selectedCompany = company;
+    selectedApprentice = ClassLehrling();
 
     setFormReadOnly(true);
     setCompanyToForm(selectedCompany);
 
+    dataChanged = false;
     ui->saveButton->setEnabled(false);
     ui->createButton->setEnabled(true);
     ui->deleteButton->setEnabled(true);
     ui->changeButton->setEnabled(true);
     ui->deleteApprenticeButton->setEnabled(false);
+}
 
+void FormBetrieb::deleteApprenticeButtonClicked()
+{
+    if(!dataChanged && !selectedApprentice.isValid())
+        return;
+
+    int result = QMessageBox::information(this, tr("Löschen Lehrling"), tr("Der Auszubildende: ")+ selectedApprentice.getKey()
+                                          + tr("\nwird vom Betrieb gelöscht!"),
+                                       QMessageBox::Yes | QMessageBox::Cancel);
+
+    if(result == QMessageBox::Cancel)
+        return;
+
+    QMap<QString, ClassLehrling> aMap = selectedCompany.azubiMap();
+    aMap.remove(selectedApprentice.getKey());
+    selectedCompany.setAzubiMap(aMap);
+    setCompanyToForm(selectedCompany);
+    m_companyMap.insert(selectedCompany.nr(), selectedCompany);
+    ui->sortBox->setCurrentText("Alle");
+
+//    if(!selectedApprentice.surname().isEmpty()){
+//        QMap<QString, ClassLehrling> aMap = selectedCompany.azubiMap();
+//        aMap.remove(selectedApprentice.getKey());
+//        selectedCompany.setAzubiMap(aMap);
+//        m_companyMap.insert(selectedCompany.nr(), selectedCompany);
+//        emit saveCompanyMap(m_companyMap);
+//        updateCompanyTable(m_companyMap);
+//        setCompanyToForm(selectedCompany);
+//    }
 }
 
 void FormBetrieb::sortBoxTextChanged(const QString &text)
@@ -135,6 +176,19 @@ void FormBetrieb::sortBoxTextChanged(const QString &text)
     if(companyMap().isEmpty() || text.isEmpty())
         return;
 
+    if( ui->sortBox->findText(text) == 0 ){
+        updateCompanyTable(companyMap());
+        return;
+    }
+
+    if( ui->sortBox->findText(text) == 1 ){
+        QMap<int, ClassBetrieb> sortMap;
+        foreach (ClassBetrieb comp, companyMap()) {
+            if(comp.azubiMap().size() > 0)
+                sortMap.insert(comp.nr(), comp);
+        }
+        updateCompanyTable(sortMap);
+    }
 }
 
 void FormBetrieb::companyTableItemClicked(QTableWidgetItem *item)
@@ -144,6 +198,21 @@ void FormBetrieb::companyTableItemClicked(QTableWidgetItem *item)
     selectedCompany = m_companyMap.value(key);
     setCompanyToForm(selectedCompany);
     setFormReadOnly(true);
+    dataChanged = false;
+}
+
+void FormBetrieb::apprenticeTableItemClicked(QTableWidgetItem *item)
+{
+    if(!dataChanged)
+        return;
+
+    QString key = ui->apprenticeTableWidget->item(item->row(),0)->text();
+
+    if(!selectedCompany.azubiMap().value(key).getKey().isEmpty()){
+        ui->deleteApprenticeButton->setEnabled(true);
+        selectedApprentice = selectedCompany.azubiMap().value(key);
+    }else
+        ui->deleteApprenticeButton->setEnabled(false);
 }
 
 /// !brief When delete a company from list.
@@ -217,6 +286,9 @@ void FormBetrieb::updateApprenticeTable(const QMap<QString, ClassLehrling> aMap)
        ui->apprenticeTableWidget->setItem(row,0, itemKennung);
        ui->apprenticeTableWidget->setItem(row,1, itemKlasse);
 
+       itemKennung->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+       itemKlasse->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+
        row++;
     }
 
@@ -267,6 +339,8 @@ void FormBetrieb::setCompanyToForm(const ClassBetrieb &company)
 
     if(!company.azubiMap().isEmpty())
        updateApprenticeTable(company.azubiMap());
+    else
+       ui->apprenticeTableWidget->clear();
 
 
     ui->saveButton->setEnabled(false);
