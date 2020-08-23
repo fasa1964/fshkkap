@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     QGuiApplication::setApplicationName("FSHK-AP");
     QGuiApplication::setApplicationVersion("1.0");
 
+
     FSHKWindow window;
     window.show();
 

@@ -65,6 +65,7 @@ private:
     void setFormTextColor(QColor color);
     void clearForm();
 
+
 };
 
 #endif // FORMBETRIEB_H

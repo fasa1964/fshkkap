@@ -326,7 +326,7 @@ void FSHKWindow::readSettings()
     if(lastFileModified("Lehrlinge.dat") != apprFileDate)
         QMessageBox::information(this, "Test", "Version Lehrlinge ist veraltet!");
 
-    qDebug() << "Read" << apprFileDate;
+    //qDebug() << "Read" << apprFileDate;
 }
 
 /// !brief Write the settings
@@ -338,5 +338,6 @@ void FSHKWindow::writeSettings()
     settings.setValue("lehrling", lastFileModified("Lehrlinge.dat"));
     settings.setValue("betrieb", lastFileModified("Betriebe.dat"));
 
-    qDebug() << "Write" << lastFileModified("Betriebe.dat");
+
+    //qDebug() << "Write" << lastFileModified("Betriebe.dat");
 }
