@@ -73,6 +73,7 @@ void FormProjekt::updateProjektTable(const QMap<QString, ClassProjekt> &proMap)
 
 void FormProjekt::closeForm()
 {
+    emit formProjectClosed();
     close();
 }
 

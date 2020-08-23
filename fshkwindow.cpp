@@ -39,6 +39,10 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     connect(formApprentice, &FormLehrling::apprenticeWithoutCompany, this, &FSHKWindow::apprenticeWithoutCompany);
     connect(formApprentice, &FormLehrling::apprenticeHasCompany , this, &FSHKWindow::apprenticeAssociatedCompany );
 
+    formProjekt = new FormProjekt(this);
+    formProjekt->hide();
+    connect(formProjekt, &FormProjekt::formProjectClosed, this, &FSHKWindow::formHasClosed);
+
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
     connect(ui->actionInfo, &QAction::triggered, this, &FSHKWindow::actionInfoClicked);
     connect(ui->actionCompany, &QAction::triggered, this, &FSHKWindow::actionCompanyClicked);
@@ -83,7 +87,10 @@ void FSHKWindow::actionApprenticeClicked()
 
 void FSHKWindow::actionProjectClicked()
 {
-
+    this->takeCentralWidget();
+    formProjekt->show();
+    formProjekt->setProjektMap(projectMap);
+    setCentralWidget(formProjekt);
 }
 
 /// !brief This signal emitt when a form closed

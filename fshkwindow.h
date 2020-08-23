@@ -13,6 +13,9 @@
 #include <classlehrling.h>
 #include <formapprentice.h>
 
+#include <classprojekt.h>
+#include <formproject.h>
+
 
 namespace Ui {
 class FSHKWindow;
@@ -34,7 +37,7 @@ private slots:
     void actionApprenticeClicked();
     void actionProjectClicked();
 
-    // Signal from Forms
+    // Signal from Forms***
     void formHasClosed();
 
     // Signals from FormsCompany
@@ -59,6 +62,9 @@ private:
 
     FormLehrling *formApprentice;
     QMap<QString,ClassLehrling> apprenticeMap;
+
+    FormProjekt *formProjekt;
+    QMap<QString, ClassProjekt> projectMap;
 
     QDateTime lastFileModified(const QString &filename);
 
