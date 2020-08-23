@@ -143,6 +143,12 @@ void FormLehrling::saveButtonClicked()
     // For keeping the skills
     if(changeData){
         appr.setSkillMap(seletedApprentice.getSkillMap());
+        // Importent
+        if(appr.nr() != seletedApprentice.nr()){ // Check the number
+            // if the number not equal remove the selectedApprentice
+            // so it will not make a copy
+            m_apprenticeMap.remove(seletedApprentice.getKey());
+        }
     }
 
     m_apprenticeMap.insert(appr.getKey(), appr);
@@ -261,9 +267,17 @@ bool FormLehrling::examNumberExist(int educationYear, int examNumber)
         it.next();
         ClassLehrling appr = it.value();
         if(educationYear == getEducationYear(appr)){
-            if(examNumber == appr.nr()){
-                status = true;
-                break;
+            if(!changeData ){
+                if(examNumber == appr.nr()){
+                    status = true;
+                    break;
+                }
+            }
+            if(changeData && seletedApprentice.getKey() != appr.getKey()){
+                if(examNumber == appr.nr()){
+                    status = true;
+                    break;
+                }
             }
         }
     }

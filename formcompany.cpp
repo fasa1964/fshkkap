@@ -4,6 +4,8 @@
 #include <QMessageBox>
 #include <QDebug>
 
+#include <QSettings>
+
 FormBetrieb::FormBetrieb(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FormBetrieb)
@@ -58,7 +60,6 @@ void FormBetrieb::createButtonClicked()
     ui->changeButton->setEnabled(false);
     ui->deleteApprenticeButton->setEnabled(false);
 }
-
 
 /// !brief When delete company emit signal
 /// to check if any apprentice are in the company
@@ -384,8 +385,6 @@ void FormBetrieb::clearForm()
     ui->phoneEdit->clear();
     ui->apprenticeTableWidget->clear();
 }
-
-
 
 
 
