@@ -27,53 +27,67 @@ public:
     void setProjektMap(const QMap<QString, ClassProjekt> &projektMap);
 
 signals:
+    void formSkillClosed();
     void saveSkillsMap(const QMap<QString, ClassSkills> &skillMap);
-    void skillChanged(ClassSkills skill);
-    void skillProjektChanged(ClassProjekt pro);
+    //    void skillChanged(ClassSkills skill);
+//    void skillProjektChanged(ClassProjekt pro);
 
 private slots:
-    void deleteSkillProjektButtonClicked();
+    void closeButtonClicked();
     void createButtonClicked();
-    void deleteButtonClicked();
-    void changeButtonClicked();
     void saveButtonClicked();
-    void importProjekteButtonClicked();
+//    void deleteSkillProjektButtonClicked();
+
+//    void deleteButtonClicked();
+//    void changeButtonClicked();
+//
+//    void importProjekteButtonClicked();
+//    void dragDropButtonClicked();
 
 
-    void sortKennungBoxTextChanged(const QString &text);
-    void projektTableItemClicked(QTableWidgetItem *);
+//    void sortKennungBoxTextChanged(const QString &text);
+//    void projektTableItemClicked(QTableWidgetItem *);
 
-    void skillTableItemClicked(QTableWidgetItem *item);
-    void skillProjektTableItemClicked(QTableWidgetItem *);
-    void skillProjektTableCellClicked(int row, int column);
+//    void skillTableItemClicked(QTableWidgetItem *item);
+//    void skillProjektTableItemClicked(QTableWidgetItem *);
+//    void skillProjektTableCellClicked(int row, int column);
 
 
-    bool isItemChecked(QTableWidget *widget);
+//    bool isItemChecked(QTableWidget *widget);
 
-    void kennungBoxTextChanged(const QString &text);
-
+//    void kennungBoxTextChanged(const QString &text);
+    void sortProjectBoxTextChanged(const QString &text);
 
 private:
     Ui::FormSkills *ui;
 
     bool changeSkill;
     bool createSkill;
-    bool projectFactorChanged;
+//    bool projectFactorChanged;
 
     QMap<QString, ClassSkills> m_skillMap;
-    void setupSkillTable(const QMap<QString, ClassSkills> &sMap);
-    ClassSkills selectedSkill;
-    void setSkillToForm(const ClassSkills &skill);
-    void setSkillProjektToForm(const QMap<QString, ClassProjekt> &proMap);
     ClassSkills readFromForm();
-    QMap<QString, ClassProjekt> getSkillProjektMap();
-    double totalProjectFactor(const ClassSkills &skill);
+
+
+//    ClassSkills selectedSkill;
+//    void setSkillToForm(const ClassSkills &skill);
+//    void setSkillProjektToForm(const QMap<QString, ClassProjekt> &proMap);
+
+//    QMap<QString, ClassProjekt> getSkillProjektMap();
+//    double totalProjectFactor(const ClassSkills &skill);
 
     QMap<QString, ClassProjekt> m_projektMap;
-    void setupKennungBox(const QMap<QString, ClassProjekt> &proMap);
-    void setupProjektTable(const QMap<QString, ClassProjekt> &proMap, Qt::CheckState state);
-    double getSkillProjectFactor();
+//    void setupKennungBox(const QMap<QString, ClassProjekt> &proMap);
+//    void setupProjektTable(const QMap<QString, ClassProjekt> &proMap, Qt::CheckState state);
+//    void setupProjektIconTable(const QMap<QString, ClassProjekt> &proMap, Qt::CheckState state);
+//    double getSkillProjectFactor();
 
+    QStringList getProjectKennung(const QMap<QString, ClassProjekt> &pMap);
+    QMap<QString, ClassProjekt> getSkillProjectMap();
+
+
+    void setupSkillTable(const QMap<QString, ClassSkills> &sMap);
+    void setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::CheckState state);
     void setFormTextColor(QColor color);
     void setFormReadOnly(bool status);
     void clearForm();

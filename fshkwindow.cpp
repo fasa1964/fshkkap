@@ -20,6 +20,7 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     readDatas("Betriebe.dat");
     readDatas("Lehrlinge.dat");
     readDatas("Projekte.dat");
+    readDatas("Pruefungen.dat");
 
     appwidget = new AppWidget(qApp->applicationName(), qApp->applicationVersion(), this);
     appwidget->hide();
@@ -45,11 +46,17 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     connect(formProjekt, &FormProjekt::formProjectClosed, this, &FSHKWindow::formHasClosed);
     connect(formProjekt, &FormProjekt::saveProjekte, this, &FSHKWindow::saveProjectMap);
 
+    formSkill = new FormSkills(this);
+    formSkill->hide();
+    connect(formSkill, &FormSkills::formSkillClosed, this, &FSHKWindow::formHasClosed);
+    connect(formSkill, &FormSkills::saveSkillsMap, this, &FSHKWindow::saveSkillMap);
+
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
     connect(ui->actionInfo, &QAction::triggered, this, &FSHKWindow::actionInfoClicked);
     connect(ui->actionCompany, &QAction::triggered, this, &FSHKWindow::actionCompanyClicked);
     connect(ui->actionApprentice, &QAction::triggered, this, &FSHKWindow::actionApprenticeClicked);
     connect(ui->actionProjects, &QAction::triggered, this, &FSHKWindow::actionProjectClicked);
+    connect(ui->actionSkill, &QAction::triggered, this, &FSHKWindow::actionSkillClicked);
 }
 
 FSHKWindow::~FSHKWindow()
@@ -93,6 +100,15 @@ void FSHKWindow::actionProjectClicked()
     formProjekt->show();
     formProjekt->setProjektMap(projectMap);
     setCentralWidget(formProjekt);
+}
+
+void FSHKWindow::actionSkillClicked()
+{
+    this->takeCentralWidget();
+    formSkill->show();
+    formSkill->setSkillMap(skillMap);
+    formSkill->setProjektMap(projectMap);
+    setCentralWidget(formSkill);
 }
 
 /// !brief This signal emitt when a form closed
@@ -211,6 +227,12 @@ void FSHKWindow::saveProjectMap(const QMap<QString, ClassProjekt> &pMap)
     saveDatas("Projekte.dat");
 }
 
+void FSHKWindow::saveSkillMap(const QMap<QString, ClassSkills> &sMap)
+{
+    skillMap = sMap;
+    saveDatas("Pruefungen.dat");
+}
+
 void FSHKWindow::setApplicationLabel()
 {
     this->takeCentralWidget();
@@ -284,6 +306,12 @@ void FSHKWindow::readDatas(const QString &filename)
             in >> pro;
             projectMap.insert(pro.getKey(), pro);
         }
+        if(filename == "Pruefungen.dat")
+        {
+            ClassSkills skill;
+            in >> skill;
+            skillMap.insert(skill.getKey(), skill);
+        }
     }
 
     file.close();
@@ -326,6 +354,14 @@ bool FSHKWindow::saveDatas(const QString &filename)
     if(filename == "Projekte.dat")
     {
         QMapIterator<QString, ClassProjekt> it(projectMap);
+        while (it.hasNext()) {
+            it.next();
+            out << it.value();
+        }
+    }
+    if(filename == "Pruefungen.dat")
+    {
+        QMapIterator<QString, ClassSkills> it(skillMap);
         while (it.hasNext()) {
             it.next();
             out << it.value();

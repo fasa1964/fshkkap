@@ -16,6 +16,9 @@
 #include <classprojekt.h>
 #include <formproject.h>
 
+#include <classskills.h>
+#include <formskills.h>
+
 
 namespace Ui {
 class FSHKWindow;
@@ -36,6 +39,7 @@ private slots:
     void actionCompanyClicked();
     void actionApprenticeClicked();
     void actionProjectClicked();
+    void actionSkillClicked();
 
     // Signal from Forms***
     void formHasClosed();
@@ -53,6 +57,9 @@ private slots:
     // Signals from FormProject
     void saveProjectMap(const QMap<QString, ClassProjekt> &pMap);
 
+    // Signals from FormSkills
+    void saveSkillMap(const QMap<QString, ClassSkills> &sMap);
+
 private:
     Ui::FSHKWindow *ui;
 
@@ -68,6 +75,9 @@ private:
 
     FormProjekt *formProjekt;
     QMap<QString, ClassProjekt> projectMap;
+
+    FormSkills *formSkill;
+    QMap<QString, ClassSkills> skillMap;
 
     QDateTime lastFileModified(const QString &filename);
 
