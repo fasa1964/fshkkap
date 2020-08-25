@@ -37,6 +37,7 @@
     <addaction name="actionCompany"/>
     <addaction name="actionApprentice"/>
     <addaction name="actionProjects"/>
+    <addaction name="actionSkill"/>
    </widget>
    <addaction name="menu_Programm"/>
    <addaction name="menuDaten"/>
@@ -82,6 +83,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionSkill">
+   <property name="text">
+    <string>Prüfungen</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>FSHKIcon.svg</file>
+        <file>ProjectIcon.png</file>
     </qresource>
 </RCC>
