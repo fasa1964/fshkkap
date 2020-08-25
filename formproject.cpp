@@ -101,8 +101,11 @@ void FormProjekt::createButtonClicked()
     clearForm();
     selectedProjekt = ClassProjekt();
     changeProjekt = false;
+
     ui->saveButton->setEnabled(true);
     ui->createButton->setEnabled(false);
+    ui->changeButton->setEnabled(false);
+    ui->deleteButton->setEnabled(false);
 }
 
 void FormProjekt::saveButtonClicked()
