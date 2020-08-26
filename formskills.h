@@ -41,7 +41,7 @@ private slots:
 //    void deleteButtonClicked();
 //    void changeButtonClicked();
 //
-//    void importProjekteButtonClicked();
+    void importProjectButtonClicked();
 //    void dragDropButtonClicked();
 
 
@@ -49,11 +49,10 @@ private slots:
 //    void projektTableItemClicked(QTableWidgetItem *);
 
 //    void skillTableItemClicked(QTableWidgetItem *item);
-//    void skillProjektTableItemClicked(QTableWidgetItem *);
+    void projektTableItemClicked(QTableWidgetItem *);
+    void skillProjektTableItemClicked(QTableWidgetItem *);
 //    void skillProjektTableCellClicked(int row, int column);
 
-
-//    bool isItemChecked(QTableWidget *widget);
 
 //    void kennungBoxTextChanged(const QString &text);
     void sortProjectBoxTextChanged(const QString &text);
@@ -84,9 +83,13 @@ private:
 
     QStringList getProjectKennung(const QMap<QString, ClassProjekt> &pMap);
     QMap<QString, ClassProjekt> getSkillProjectMap();
+    QMap<QString, ClassProjekt> getSelectedProjects();
+    bool isItemChecked(QTableWidget *widget);
+
 
 
     void setupSkillTable(const QMap<QString, ClassSkills> &sMap);
+    void setupSkillProjectTable(const QMap<QString, ClassProjekt> &pMap);
     void setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::CheckState state);
     void setFormTextColor(QColor color);
     void setFormReadOnly(bool status);

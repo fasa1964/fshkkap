@@ -31,16 +31,16 @@ FormSkills::FormSkills(QWidget *parent) :
 //    connect(ui->deleteButton, &QPushButton::clicked, this, &FormSkills::deleteButtonClicked);
 //    connect(ui->changeButton, &QPushButton::clicked, this, &FormSkills::changeButtonClicked);
 //
-//    connect(ui->importProjekteButton, &QPushButton::clicked, this, &FormSkills::importProjekteButtonClicked);
-
+    connect(ui->importProjekteButton, &QPushButton::clicked, this, &FormSkills::importProjectButtonClicked);
     connect(ui->sortKennunBox, &QComboBox::currentTextChanged, this, &FormSkills::sortProjectBoxTextChanged);
+    connect(ui->skillProjektTable, &QTableWidget::itemClicked, this, &FormSkills::skillProjektTableItemClicked);
 //    connect(ui->kennungBox, &QComboBox::currentTextChanged, this, &FormSkills::kennungBoxTextChanged);
 
 //    connect(ui->projektTable, &QTableWidget::itemClicked, this, &FormSkills::projektTableItemClicked);
 
 //    connect(ui->skillTable, &QTableWidget::itemClicked, this, &FormSkills::skillTableItemClicked);
 
-//    connect(ui->skillProjektTable, &QTableWidget::itemClicked, this, &FormSkills::skillProjektTableItemClicked);
+
 //    connect(ui->skillProjektTable, &QTableWidget::cellChanged, this, &FormSkills::skillProjektTableCellClicked);
 
 
@@ -108,6 +108,35 @@ void FormSkills::saveButtonClicked()
     ui->deleteButton->setEnabled(false);
     ui->createButton->setEnabled(true);
     ui->saveButton->setEnabled(false);
+
+    createSkill = false;
+    changeSkill = false;
+}
+
+void FormSkills::importProjectButtonClicked()
+{
+    if(createSkill)
+        setupSkillProjectTable( getSelectedProjects() );
+
+    if(changeSkill){
+        ;
+    }
+}
+
+void FormSkills::projektTableItemClicked(QTableWidgetItem *)
+{
+    if(isItemChecked(ui->skillProjektTable))
+        ui->importProjekteButton->setEnabled(true);
+    else
+        ui->importProjekteButton->setEnabled(false);
+}
+
+void FormSkills::skillProjektTableItemClicked(QTableWidgetItem *)
+{
+    if(isItemChecked(ui->skillProjektTable))
+        ui->deleteSkillProjektButton->setEnabled(true);
+    else
+        ui->deleteSkillProjektButton->setEnabled(false);
 }
 
 void FormSkills::sortProjectBoxTextChanged(const QString &text)
@@ -192,6 +221,37 @@ QMap<QString, ClassProjekt> FormSkills::getSkillProjectMap()
     return pMap;
 }
 
+QMap<QString, ClassProjekt> FormSkills::getSelectedProjects()
+{
+    QMap<QString, ClassProjekt> pMap;
+
+    int rows = ui->projektTable->rowCount();
+    for(int i = 0; i < rows; i++){
+        if(ui->projektTable->item(i,6)->checkState() == Qt::Checked){
+            QString key = ui->projektTable->item(i,1)->text()+"."+ui->projektTable->item(i,2)->text();
+            ClassProjekt pro = m_projektMap.value(key);
+            pMap.insert(key, pro);
+        }
+    }
+
+    return pMap;
+}
+
+bool FormSkills::isItemChecked(QTableWidget *widget)
+{
+    bool status = false;
+
+    for(int i = 0; i < widget->rowCount(); i++){
+        if(widget->item(i,6)->checkState() == Qt::Checked){
+            status = true;
+            break;
+        }
+    }
+
+    return status;
+
+}
+
 void FormSkills::setupSkillTable(const QMap<QString, ClassSkills> &sMap)
 {
     ui->skillTable->clear();
@@ -236,14 +296,69 @@ void FormSkills::setupSkillTable(const QMap<QString, ClassSkills> &sMap)
     ui->skillTable->resizeColumnToContents(4);
 }
 
+void FormSkills::setupSkillProjectTable(const QMap<QString, ClassProjekt> &pMap)
+{
+    ui->skillProjektTable->clear();
+    ui->skillProjektTable->setColumnCount(7);
+    ui->skillProjektTable->setRowCount(pMap.size());
+
+    QStringList labels;
+    labels << "Nr." << "Name" << "Kennung" << "Faktor" << "Zeit" << "Datum" << "Marker";
+    ui->skillProjektTable->setHorizontalHeaderLabels(labels);
+
+    int row = 0;
+    QMapIterator<QString, ClassProjekt> it(pMap);
+    while (it.hasNext()) {
+        it.next();
+        ClassProjekt pro = it.value();
+        QTableWidgetItem *itemNr = new QTableWidgetItem( QString::number(pro.nr(),10));
+        QTableWidgetItem *itemName = new QTableWidgetItem( pro.name() );
+        QTableWidgetItem *itemKennung = new QTableWidgetItem( pro.identifier() );
+        QTableWidgetItem *itemFactor = new QTableWidgetItem( QString::number(pro.getFactor(),'g',2) );
+        QTableWidgetItem *itemMinutes = new QTableWidgetItem( QString::number(pro.getDuration(),10) );
+        QTableWidgetItem *itemDate = new QTableWidgetItem( pro.createTime() );
+        QTableWidgetItem *itemCheck = new QTableWidgetItem();
+
+        ui->skillProjektTable->setItem(row, 0, itemNr);
+        ui->skillProjektTable->setItem(row, 1, itemName);
+        ui->skillProjektTable->setItem(row, 2, itemKennung);
+        ui->skillProjektTable->setItem(row, 3, itemFactor);
+        ui->skillProjektTable->setItem(row, 4, itemMinutes);
+        ui->skillProjektTable->setItem(row, 5, itemDate);
+        ui->skillProjektTable->setItem(row, 6, itemCheck);
+
+        itemFactor->setToolTip(tr("Hier kann der Faktor des Projektes geändert werden.\n"
+                                  "Die Änderung wird auch in den Stammdaten des Projektes übertragen.\n"
+                                  "Die Faktoren aller Projekte in einer Prüfung muss insgesamt 1.0 betragen!"));
+
+        itemNr->setFlags(Qt::ItemIsEnabled);
+        itemName->setFlags(Qt::ItemIsEnabled);
+        itemKennung->setFlags(Qt::ItemIsEnabled);
+        itemDate->setFlags(Qt::ItemIsEnabled);
+        itemCheck->setCheckState(Qt::Unchecked);
+
+        row++;
+    }
+
+    ui->skillProjektTable->resizeColumnToContents(0);
+    ui->skillProjektTable->resizeColumnToContents(1);
+    ui->skillProjektTable->resizeColumnToContents(2);
+    ui->skillProjektTable->resizeColumnToContents(3);
+    ui->skillProjektTable->resizeColumnToContents(4);
+    ui->skillProjektTable->resizeColumnToContents(5);
+    ui->skillProjektTable->resizeColumnToContents(6);
+
+    ui->countProjekteBox->setValue(pMap.size());
+}
+
 void FormSkills::setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::CheckState state)
 {
     ui->projektTable->clear();
-    ui->projektTable->setColumnCount(6);
+    ui->projektTable->setColumnCount(7);
     ui->projektTable->setRowCount(pMap.size());
 
     QStringList labels;
-    labels << "Nr." << "Name" << "Kennung" << "Marker" << "Zeit" << "Datum";
+    labels << "Nr." << "Name" << "Kennung" << "Faktor" << "Zeit" << "Datum" << "Marker";
     ui->projektTable->setHorizontalHeaderLabels(labels);
 
     int row = 0;
@@ -254,16 +369,18 @@ void FormSkills::setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::
         QTableWidgetItem *itemNr = new QTableWidgetItem( QString::number(pro.nr(),10));
         QTableWidgetItem *itemName = new QTableWidgetItem( pro.name() );
         QTableWidgetItem *itemKennung = new QTableWidgetItem( pro.identifier() );
+        QTableWidgetItem *itemFactor = new QTableWidgetItem( QString::number(pro.getFactor(),'g',2) );
+        QTableWidgetItem *itemMinutes = new QTableWidgetItem( QString::number(pro.getDuration(), 10) );
+        QTableWidgetItem *itemDate = new QTableWidgetItem( pro.createTime() );
         QTableWidgetItem *itemCheck = new QTableWidgetItem();
-        QTableWidgetItem *itemMinutes = new QTableWidgetItem( QString::number(pro.getDuration(),10) );
-        QTableWidgetItem *itemDate = new QTableWidgetItem( pro.createTime());
 
         ui->projektTable->setItem(row, 0, itemNr);
         ui->projektTable->setItem(row, 1, itemName);
         ui->projektTable->setItem(row, 2, itemKennung);
-        ui->projektTable->setItem(row, 3, itemCheck);
+        ui->projektTable->setItem(row, 3, itemFactor);
         ui->projektTable->setItem(row, 4, itemMinutes);
         ui->projektTable->setItem(row, 5, itemDate);
+        ui->projektTable->setItem(row, 6, itemCheck);
 
         itemCheck->setCheckState(state);
 
@@ -283,6 +400,7 @@ void FormSkills::setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::
     ui->projektTable->resizeColumnToContents(3);
     ui->projektTable->resizeColumnToContents(4);
     ui->projektTable->resizeColumnToContents(5);
+    ui->projektTable->resizeColumnToContents(6);
 }
 
 QMap<QString, ClassProjekt> FormSkills::projektMap() const
