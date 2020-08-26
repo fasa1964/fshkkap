@@ -15,10 +15,8 @@ FormSkills::FormSkills(QWidget *parent) :
 
     changeSkill = false;
     createSkill = false;
+    selectedSkill = ClassSkills();
 //    projectFactorChanged = false;
-
-//    selectedSkill = ClassSkills();
-
 
     ui->criteriaBox->addItems(ClassSkills::supportedCriteria());
     setFormReadOnly(true);
@@ -34,9 +32,10 @@ FormSkills::FormSkills(QWidget *parent) :
     connect(ui->importProjekteButton, &QPushButton::clicked, this, &FormSkills::importProjectButtonClicked);
     connect(ui->sortKennunBox, &QComboBox::currentTextChanged, this, &FormSkills::sortProjectBoxTextChanged);
     connect(ui->skillProjektTable, &QTableWidget::itemClicked, this, &FormSkills::skillProjektTableItemClicked);
+    connect(ui->projektTable, &QTableWidget::itemClicked, this, &FormSkills::projektTableItemClicked);
 //    connect(ui->kennungBox, &QComboBox::currentTextChanged, this, &FormSkills::kennungBoxTextChanged);
 
-//    connect(ui->projektTable, &QTableWidget::itemClicked, this, &FormSkills::projektTableItemClicked);
+    connect(ui->projektTable, &QTableWidget::itemClicked, this, &FormSkills::projektTableItemClicked);
 
 //    connect(ui->skillTable, &QTableWidget::itemClicked, this, &FormSkills::skillTableItemClicked);
 
@@ -66,6 +65,7 @@ void FormSkills::createButtonClicked()
 
     createSkill = true;
     changeSkill = false;
+    selectedSkill = ClassSkills();
 
     ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
     ui->nrBox->setFocus();
@@ -102,7 +102,12 @@ void FormSkills::saveButtonClicked()
 
     m_skillMap.insert(skill.getKey(), skill);
     emit saveSkillsMap(skillMap());
+
     setupSkillTable(skillMap());
+
+    selectedSkill = skill;
+    setSkillToForm(selectedSkill);
+
 
     ui->changeButton->setEnabled(false);
     ui->deleteButton->setEnabled(false);
@@ -115,6 +120,8 @@ void FormSkills::saveButtonClicked()
 
 void FormSkills::importProjectButtonClicked()
 {
+    // copy all selected skills from
+    // projektTable into skillProjektTable
     if(createSkill)
         setupSkillProjectTable( getSelectedProjects() );
 
@@ -125,7 +132,18 @@ void FormSkills::importProjectButtonClicked()
 
 void FormSkills::projektTableItemClicked(QTableWidgetItem *)
 {
-    if(isItemChecked(ui->skillProjektTable))
+    if(!changeSkill && !createSkill)
+        return;
+
+    if(ui->sortKennunBox->currentText() == "Alle"){
+        if( !isItemChecked(ui->projektTable))
+            ui->importProjekteButton->setEnabled(false);
+        else
+            ui->importProjekteButton->setEnabled(true);
+        return;
+    }
+
+    if(isItemChecked(ui->projektTable))
         ui->importProjekteButton->setEnabled(true);
     else
         ui->importProjekteButton->setEnabled(false);
@@ -143,10 +161,7 @@ void FormSkills::sortProjectBoxTextChanged(const QString &text)
 {
     if(text == "Alle"){
         setupProjektTable(projektMap(), Qt::Unchecked);
-
-        if(createSkill || changeSkill)
-            ui->importProjekteButton->setEnabled(true);
-
+        ui->importProjekteButton->setEnabled(false);
         return;
     }
 
@@ -387,7 +402,7 @@ void FormSkills::setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::
         itemNr->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         itemName->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
         itemKennung->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-        //itemCheck->setFlags(Qt::ItemIsSelectable);
+        itemFactor->setFlags(Qt::ItemIsSelectable  | Qt::ItemIsSelectable);
         itemMinutes->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         itemDate->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
@@ -401,6 +416,27 @@ void FormSkills::setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::
     ui->projektTable->resizeColumnToContents(4);
     ui->projektTable->resizeColumnToContents(5);
     ui->projektTable->resizeColumnToContents(6);
+}
+
+void FormSkills::setSkillToForm(const ClassSkills &skill)
+{
+    ui->nrBox->setValue( skill.getNr());
+    ui->nameEdit->setText(skill.name());
+    ui->dateEdit->setDate(skill.date());
+    ui->kennungEdit->setText(skill.identifier());
+    ui->wertBox->setValue(skill.getWert() );
+    ui->dateTimeEdit->setDateTime(skill.getCreatedDate());
+
+    setupSkillProjectTable(skill.getProjektMap());
+
+    int min = 0;
+    foreach (ClassProjekt p, skill.getProjektMap().values()) {
+        min = min + p.getDuration();
+    }
+
+    ui->durationBox->setValue(min);
+
+    //ui->criteriaBox->setCurrentIndex(skill.getEvaluationType());
 }
 
 QMap<QString, ClassProjekt> FormSkills::projektMap() const

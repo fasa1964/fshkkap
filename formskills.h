@@ -62,6 +62,7 @@ private:
 
     bool changeSkill;
     bool createSkill;
+    ClassSkills selectedSkill;
 //    bool projectFactorChanged;
 
     QMap<QString, ClassSkills> m_skillMap;
@@ -91,6 +92,7 @@ private:
     void setupSkillTable(const QMap<QString, ClassSkills> &sMap);
     void setupSkillProjectTable(const QMap<QString, ClassProjekt> &pMap);
     void setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::CheckState state);
+    void setSkillToForm(const ClassSkills &skill);
     void setFormTextColor(QColor color);
     void setFormReadOnly(bool status);
     void clearForm();
