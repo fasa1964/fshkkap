@@ -40,6 +40,8 @@ private slots:
     void actionApprenticeClicked();
     void actionProjectClicked();
     void actionSkillClicked();
+    void actionAllocateClicked();
+    void actionEvaluationClicked();
 
     // Signal from Forms***
     void formHasClosed();

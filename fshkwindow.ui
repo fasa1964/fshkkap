@@ -39,8 +39,16 @@
     <addaction name="actionProjects"/>
     <addaction name="actionSkill"/>
    </widget>
+   <widget class="QMenu" name="menuPruefung">
+    <property name="title">
+     <string>Prüfung</string>
+    </property>
+    <addaction name="actionAllocate"/>
+    <addaction name="actionEvaluation"/>
+   </widget>
    <addaction name="menu_Programm"/>
    <addaction name="menuDaten"/>
+   <addaction name="menuPruefung"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -91,6 +99,19 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionAllocate">
+   <property name="text">
+    <string>Zuordnen</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionEvaluation">
+   <property name="text">
+    <string>Auswerten</string>
    </property>
   </action>
  </widget>
