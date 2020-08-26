@@ -15,6 +15,8 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     ui(new Ui::FSHKWindow)
 {
     ui->setupUi(this);
+
+    setWindowIcon(QIcon(":/FSHKIcon.svg"));
     readSettings();
 
     readDatas("Betriebe.dat");
