@@ -121,7 +121,8 @@ void FormSkills::saveButtonClicked()
 
 
     if(!projektFactorSimilarly()){
-        if(getProjectFactor() != 1.0){
+        double f = getProjectFactor();
+        if(f > 1.0 || f < 1.0 ){
             QMessageBox::information(this, tr("Prüfung speichern"), tr("Der Faktor muss ingesamt gleich 1.0 betragen!\n"
                                                                        "Wenn alle Projekte 1.0 betragen, wird die Gewichtung gleichermaßen aufgeteilt!"));
             return;
