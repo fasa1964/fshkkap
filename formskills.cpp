@@ -589,8 +589,10 @@ void FormSkills::setSkillToForm(const ClassSkills &skill)
     ui->wertBox->setValue(skill.getWert() );
     ui->dateTimeEdit->setDateTime(skill.getCreatedDate());
 
+    ui->kennungBox->setCurrentText( skill.identifier() );
     setupSkillProjectTable(skill.getProjektMap());
 
+    // calculate the duration time of skill
     int min = 0;
     foreach (ClassProjekt p, skill.getProjektMap().values()) {
         min = min + p.getDuration();
@@ -693,24 +695,6 @@ void FormSkills::setSkillMap(const QMap<QString, ClassSkills> &skillMap)
 //    }
 //}
 
-//void FormSkills::changeButtonClicked()
-//{
-//    setFormReadOnly(false);
-//    setFormTextColor(QColor(0,87,127));
-//    ui->nrBox->setFocus();
-//    ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
-
-//    changeSkill = true;
-//    createSkill = false;
-
-//    ui->changeButton->setEnabled(false);
-//    ui->deleteButton->setEnabled(false);
-//    ui->createButton->setEnabled(false);
-//    ui->saveButton->setEnabled(true);
-//    ui->deleteSkillProjektButton->setEnabled(false);
-
-//    ui->kennungBox->setCurrentText( ui->kennungEdit->text() );
-//}
 
 //void FormSkills::saveButtonClicked()
 //{
@@ -1219,6 +1203,7 @@ void FormSkills::clearForm()
     ui->dateEdit->setDate(QDate());
     ui->kennungEdit->clear();
     ui->wertBox->setValue(0);
+    ui->durationBox->setValue(0);
 
     ui->skillProjektTable->setRowCount(0);
     ui->skillProjektTable->clear();
