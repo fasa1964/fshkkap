@@ -183,6 +183,7 @@ void FSHKWindow::saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap)
     apprenticeMap = aMap;
     saveDatas("Lehrlinge.dat");
     formApprentice->setLastModified(lastFileModified("Lehrlinge.dat"));
+    setupMenu();
 }
 
 /// !brief Signal emitter when editing an apprentice
@@ -278,7 +279,8 @@ void FSHKWindow::projectRemoved(const ClassProjekt &pro)
         saveDatas("Pruefungen.dat");
 }
 
-
+/// !brief If skill has same identifier as the added
+/// project then insert the project into the skill
 void FSHKWindow::projectAdded(const ClassProjekt &pro)
 {
     if(skillMap.isEmpty())
@@ -458,15 +460,30 @@ QDateTime FSHKWindow::lastFileModified(const QString &filename)
     return dt;
 }
 
+/// !brief Depends on datas to enable action menu
 void FSHKWindow::setupMenu()
 {
-    if(skillMap.isEmpty()){
+    if(skillMap.isEmpty())
         ui->actionAllocate->setEnabled(false);
-        ui->actionEvaluation->setEnabled(false);
-    }else{
+    else
         ui->actionAllocate->setEnabled(true);
-        ui->actionEvaluation->setEnabled(true);
+
+    // check if apprentice has any skills allocated
+    bool skillsAllocated = false;
+    QMapIterator <QString, ClassLehrling> it(apprenticeMap);
+    while (it.hasNext()) {
+        it.next();
+        if( it.value().getSkillMap().size() > 0){
+            skillsAllocated = true;
+            break;
+        }
     }
+
+    if(skillsAllocated)
+        ui->actionEvaluation->setEnabled(true);
+    else
+        ui->actionEvaluation->setEnabled(false);
+
 }
 
 /// !brief Read the settings
