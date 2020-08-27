@@ -61,6 +61,9 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     connect(ui->actionSkill, &QAction::triggered, this, &FSHKWindow::actionSkillClicked);
     connect(ui->actionAllocate, &QAction::triggered, this, &FSHKWindow::actionAllocateClicked);
     connect(ui->actionEvaluation, &QAction::triggered, this, &FSHKWindow::actionEvaluationClicked);
+
+    setupMenu();
+
 }
 
 FSHKWindow::~FSHKWindow()
@@ -245,6 +248,7 @@ void FSHKWindow::saveSkillMap(const QMap<QString, ClassSkills> &sMap)
 {
     skillMap = sMap;
     saveDatas("Pruefungen.dat");
+    setupMenu();
 }
 
 void FSHKWindow::setApplicationLabel()
@@ -392,6 +396,17 @@ QDateTime FSHKWindow::lastFileModified(const QString &filename)
     QFileInfo file(filename);
     dt = file.lastModified();
     return dt;
+}
+
+void FSHKWindow::setupMenu()
+{
+    if(skillMap.isEmpty()){
+        ui->actionAllocate->setEnabled(false);
+        ui->actionEvaluation->setEnabled(false);
+    }else{
+        ui->actionAllocate->setEnabled(true);
+        ui->actionEvaluation->setEnabled(true);
+    }
 }
 
 /// !brief Read the settings
