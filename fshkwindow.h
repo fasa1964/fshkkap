@@ -83,6 +83,7 @@ private:
 
     QDateTime lastFileModified(const QString &filename);
 
+    void setupMenu();
     void readDatas(const QString &filename);
     bool saveDatas(const QString &filename);
 

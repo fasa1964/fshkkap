@@ -216,7 +216,6 @@ void FormProjekt::deleteButtonClicked()
 
 }
 
-
 void FormProjekt::openFileButtonClicked()
 {
     QString s = QFileDialog::getOpenFileName(this, tr("Dateipfad"), tr("Dateipfad zum hinterlegtem Dokument!"));
@@ -404,7 +403,6 @@ void FormProjekt::clearTableFragen()
     ui->fragenTableWidget->setHorizontalHeaderLabels(labels);
 
 }
-
 
 void FormProjekt::setColorTableFragen(QColor color)
 {
