@@ -47,6 +47,8 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     formProjekt->hide();
     connect(formProjekt, &FormProjekt::formProjectClosed, this, &FSHKWindow::formHasClosed);
     connect(formProjekt, &FormProjekt::saveProjekte, this, &FSHKWindow::saveProjectMap);
+    connect(formProjekt, &FormProjekt::projektRemoved, this, &FSHKWindow::projectRemoved);
+    connect(formProjekt, &FormProjekt::projektAdded, this, &FSHKWindow::projectAdded);
 
     formSkill = new FormSkills(this);
     formSkill->hide();
@@ -242,6 +244,64 @@ void FSHKWindow::saveProjectMap(const QMap<QString, ClassProjekt> &pMap)
 {
     projectMap = pMap;
     saveDatas("Projekte.dat");
+}
+
+/// !brief Check if any skill has the
+/// removed project ask user to remove from skill
+void FSHKWindow::projectRemoved(const ClassProjekt &pro)
+{
+    if(skillMap.isEmpty())
+        return;
+
+    ClassProjekt removedProject = pro;
+    bool skillHasChanged = false;
+    QMapIterator <QString, ClassSkills> it(skillMap);
+    while (it.hasNext()) {
+        it.next();
+        ClassSkills skill = it.value();
+        QMap< QString, ClassProjekt> pMap = skill.getProjektMap();
+
+        if(pMap.keys().contains(removedProject.getKey())){
+
+            int result = QMessageBox::question(this, tr("Projekt löschen"), tr("Soll das Projekt von der Prüfung:") + skill.getKey() + "\n" +
+                                               tr("gelöscht werden?"), QMessageBox::No | QMessageBox::Yes);
+            if(result == QMessageBox::Yes){
+                pMap.remove(removedProject.getKey());
+                skill.setProjektMap(pMap);
+                skillMap.insert(it.key(), skill);
+                skillHasChanged = true;
+            }
+        }
+    }
+
+    if(skillHasChanged)
+        saveDatas("Pruefungen.dat");
+}
+
+
+void FSHKWindow::projectAdded(const ClassProjekt &pro)
+{
+    if(skillMap.isEmpty())
+        return;
+
+    ClassProjekt addedProject = pro;
+    bool skillHasChanged = false;
+
+    QMapIterator <QString, ClassSkills> it(skillMap);
+    while (it.hasNext()) {
+        it.next();
+        ClassSkills skill = it.value();
+        if(skill.identifier() == addedProject.identifier()){
+            QMap< QString, ClassProjekt> pMap = skill.getProjektMap();
+            pMap.insert(addedProject.getKey(), addedProject);
+            skill.setProjektMap(pMap);
+            skillMap.insert(it.key(), skill);
+            skillHasChanged = true;
+        }
+    }
+
+    if(skillHasChanged)
+        saveDatas("Pruefungen.dat");
 }
 
 void FSHKWindow::saveSkillMap(const QMap<QString, ClassSkills> &sMap)

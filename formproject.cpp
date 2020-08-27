@@ -200,8 +200,15 @@ void FormProjekt::changeButtonClicked()
 void FormProjekt::deleteButtonClicked()
 {
 
+    int result = QMessageBox::information(this, tr("Projekt löschen"), tr("Das Projekt: ") + selectedProjekt.getKey() + "\n" +
+                                          tr("wird unwiderruflich gelöscht!"), QMessageBox::Cancel | QMessageBox::Ok);
+
+    if(result == QMessageBox::Cancel)
+        return;
+
     m_projektMap.remove(selectedProjekt.getKey());
     emit saveProjekte(m_projektMap);
+    emit projektRemoved(selectedProjekt);
 
     updateProjektTable(projektMap());
     updateSortBox();
