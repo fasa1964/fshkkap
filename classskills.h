@@ -51,7 +51,8 @@ public:
     /// !brief Evaluation criteria
     void setEvaluationType(const CriteriaTypes &type);
     void setEvaluationType(int index);
-    int getEvaluationType() const;
+    int getEvaluationIndex() const;
+    QString getEvaluationText(int index) const;
 
     static QStringList supportedCriteria(){
         QStringList list;

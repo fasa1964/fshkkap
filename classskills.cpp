@@ -134,7 +134,7 @@ void ClassSkills::setEvaluationType(int index)
 
 }
 
-int ClassSkills::getEvaluationType() const
+int ClassSkills::getEvaluationIndex() const
 {
     int index = -1;
 
@@ -145,6 +145,19 @@ int ClassSkills::getEvaluationType() const
         index = 1;
 
     return index;
+}
+
+QString ClassSkills::getEvaluationText(int index) const
+{
+    QString text;
+
+    if(index == 0)
+        text = "Nach Projekten";
+
+    if(index == 1)
+        text = "Nach Kennung (Fragen)";
+
+    return text;
 }
 
 
@@ -161,7 +174,7 @@ void ClassSkills::setNr(int nr)
 QDataStream &operator<<(QDataStream &out, const ClassSkills &dat)
 {
     out << dat.getNr() << dat.name() << dat.identifier() << dat.date() << dat.getWert() <<
-           dat.getCreatedDate() << dat.getProjektMap() << dat.getEvaluationType();
+           dat.getCreatedDate() << dat.getProjektMap() << dat.getEvaluationIndex();
     return out;
 }
 
