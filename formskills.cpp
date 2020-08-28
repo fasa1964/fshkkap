@@ -177,10 +177,10 @@ void FormSkills::deleteButtonClicked()
 
 }
 
+/// !brief Import the selected projects from
+/// projectTable into the skillProjectTable
 void FormSkills::importProjectButtonClicked()
 {
-    // copy all selected skills from
-    // projektTable into skillProjektTable
     if(createSkill)
         setupSkillProjectTable( getSelectedProjects() );
 
