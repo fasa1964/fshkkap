@@ -480,11 +480,11 @@ void FormSkills::setupSkillTable(const QMap<QString, ClassSkills> &sMap)
         ui->skillTable->setItem(row,3, itemDate);
         ui->skillTable->setItem(row,4, itemPro);
 
-        itemNr->setFlags(Qt::ItemIsEnabled);
-        itemName->setFlags(Qt::ItemIsEnabled);
-        itemKennung->setFlags(Qt::ItemIsEnabled);
-        itemDate->setFlags(Qt::ItemIsEnabled);
-        itemPro->setFlags(Qt::ItemIsEnabled);
+        itemNr->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemName->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemKennung->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemDate->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        itemPro->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
         row++;
     }
