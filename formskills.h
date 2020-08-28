@@ -29,6 +29,8 @@ public:
 signals:
     void formSkillClosed();
     void saveSkillsMap(const QMap<QString, ClassSkills> &skillMap);
+    void removeProjects(const QMap<QString, ClassProjekt> &proMap);
+
     //    void skillChanged(ClassSkills skill);
 //    void skillProjektChanged(ClassProjekt pro);
 
@@ -52,7 +54,7 @@ private slots:
     void skillTableItemClicked(QTableWidgetItem *item);
     void projektTableItemClicked(QTableWidgetItem *);
     void skillProjektTableItemClicked(QTableWidgetItem *);
-//   void skillProjektTableCellClicked(int row, int column);
+    void skillProjektTableCellClicked(int row, int column);
 
 
     void kennungBoxTextChanged(const QString &text);

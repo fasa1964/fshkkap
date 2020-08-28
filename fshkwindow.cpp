@@ -49,11 +49,13 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     connect(formProjekt, &FormProjekt::saveProjekte, this, &FSHKWindow::saveProjectMap);
     connect(formProjekt, &FormProjekt::projektRemoved, this, &FSHKWindow::projectRemoved);
     connect(formProjekt, &FormProjekt::projektAdded, this, &FSHKWindow::projectAdded);
+    connect(formProjekt, &FormProjekt::projektChanged, this, &FSHKWindow::projectChanged);
 
     formSkill = new FormSkills(this);
     formSkill->hide();
     connect(formSkill, &FormSkills::formSkillClosed, this, &FSHKWindow::formHasClosed);
     connect(formSkill, &FormSkills::saveSkillsMap, this, &FSHKWindow::saveSkillMap);
+    connect(formSkill, &FormSkills::removeProjects, this, &FSHKWindow::removeProjects);
 
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
     connect(ui->actionInfo, &QAction::triggered, this, &FSHKWindow::actionInfoClicked);
@@ -306,11 +308,43 @@ void FSHKWindow::projectAdded(const ClassProjekt &pro)
         saveDatas("Pruefungen.dat");
 }
 
+void FSHKWindow::projectChanged(const ClassProjekt &pro)
+{
+    if(skillMap.isEmpty())
+        return;
+
+    ClassProjekt addedProject = pro;
+    bool skillHasChanged = false;
+
+    QMapIterator <QString, ClassSkills> it(skillMap);
+    while (it.hasNext()) {
+        it.next();
+        ClassSkills skill = it.value();
+        if(skill.identifier() == addedProject.identifier()){
+            QMap< QString, ClassProjekt> pMap = skill.getProjektMap();
+            pMap.insert(addedProject.getKey(), addedProject);
+            skill.setProjektMap(pMap);
+            skillMap.insert(it.key(), skill);
+            skillHasChanged = true;
+        }
+    }
+
+    if(skillHasChanged)
+        saveDatas("Pruefungen.dat");
+}
+
+/// !brief Signals from FormSkills
+/// Updating the skill data
 void FSHKWindow::saveSkillMap(const QMap<QString, ClassSkills> &sMap)
 {
     skillMap = sMap;
     saveDatas("Pruefungen.dat");
     setupMenu();
+}
+
+void FSHKWindow::removeProjects(const QMap<QString, ClassProjekt> &proMap)
+{
+    ;
 }
 
 void FSHKWindow::setApplicationLabel()

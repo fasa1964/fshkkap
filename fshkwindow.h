@@ -60,9 +60,11 @@ private slots:
     void saveProjectMap(const QMap<QString, ClassProjekt> &pMap);
     void projectRemoved(const ClassProjekt &pro);
     void projectAdded(const ClassProjekt &pro);
+    void projectChanged(const ClassProjekt &pro);
 
     // Signals from FormSkills
     void saveSkillMap(const QMap<QString, ClassSkills> &sMap);
+    void removeProjects(const QMap<QString, ClassProjekt> &proMap);
 
 private:
     Ui::FSHKWindow *ui;
