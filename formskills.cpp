@@ -175,7 +175,6 @@ void FormSkills::deleteButtonClicked()
 
     setupSkillTable(m_skillMap);
 
-
 }
 
 void FormSkills::importProjectButtonClicked()

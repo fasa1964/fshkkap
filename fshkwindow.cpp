@@ -342,11 +342,26 @@ void FSHKWindow::saveSkillMap(const QMap<QString, ClassSkills> &sMap)
     setupMenu();
 }
 
+/// !brief This signal emit after deleting skill when user
+/// also wants to delete the projects from the skill
 void FSHKWindow::removeProjects(const QMap<QString, ClassProjekt> &proMap)
 {
-    ;
+    QMapIterator<QString, ClassProjekt> it(proMap);
+    while (it.hasNext()) {
+        it.next();
+        if(projectMap.remove(it.key()) != 1){
+            QMessageBox::information(this, tr("Projekt löschen"), tr("Das Projekt :" ) + it.key() + "\n" +
+                                    tr( "konnte nicht gelöscht werden!\nMögliche Ursache:\nDas Projekt existiert nicht mehr."));
+        }
+
+    }
+
+    saveDatas("Projekte.dat");
+    formSkill->setProjektMap(projectMap);
 }
 
+/// !brief This function is called
+/// when a Form has been closed
 void FSHKWindow::setApplicationLabel()
 {
     this->takeCentralWidget();
