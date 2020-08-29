@@ -37,7 +37,8 @@ SOURCES += \
     formcompanylist.cpp \
     formproject.cpp \
     formskills.cpp \
-    formallocate.cpp
+    formallocate.cpp \
+    formevaluation.cpp
 
 HEADERS += \
         fshkwindow.h \
@@ -52,7 +53,8 @@ HEADERS += \
     formcompanylist.h \
     formproject.h \
     formskills.h \
-    formallocate.h
+    formallocate.h \
+    formevaluation.h
 
 FORMS += \
         fshkwindow.ui \
@@ -62,7 +64,8 @@ FORMS += \
     formcompanylist.ui \
     formproject.ui \
     formskills.ui \
-    formallocate.ui
+    formallocate.ui \
+    formevaluation.ui
 
 RESOURCES += \
     images.qrc
