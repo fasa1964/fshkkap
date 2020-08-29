@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
-
+#include <QPushButton>
 
 #include <appwidget.h>
 
@@ -19,6 +19,7 @@
 #include <classskills.h>
 #include <formskills.h>
 
+#include <formallocate.h>
 
 namespace Ui {
 class FSHKWindow;
@@ -68,6 +69,7 @@ private slots:
 
 private:
     Ui::FSHKWindow *ui;
+    QPushButton *dateButton;
 
     AppWidget *appwidget;
     void setApplicationLabel();
@@ -84,6 +86,8 @@ private:
 
     FormSkills *formSkill;
     QMap<QString, ClassSkills> skillMap;
+
+    FormAllocate *formAllocate;
 
     QDateTime lastFileModified(const QString &filename);
 

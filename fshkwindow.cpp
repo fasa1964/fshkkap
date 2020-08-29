@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QFileDevice>
 #include <QDataStream>
+#include <QFont>
 
 #include <QDebug>
 
@@ -15,6 +16,10 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     ui(new Ui::FSHKWindow)
 {
     ui->setupUi(this);
+
+    QString date = QDate::currentDate().toString("dd.MM.yyyy");
+    QAction *action = new QAction(date);
+    ui->menuBar->addAction(action);
 
     setWindowIcon(QIcon(":/FSHKIcon.svg"));
     readSettings();
@@ -56,6 +61,12 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     connect(formSkill, &FormSkills::formSkillClosed, this, &FSHKWindow::formHasClosed);
     connect(formSkill, &FormSkills::saveSkillsMap, this, &FSHKWindow::saveSkillMap);
     connect(formSkill, &FormSkills::removeProjects, this, &FSHKWindow::removeProjects);
+
+    formAllocate = new FormAllocate(this);
+    formAllocate->hide();
+    connect(formAllocate, &FormAllocate::formAllocateClosed, this, &FSHKWindow::formHasClosed);
+    connect(formAllocate, &FormAllocate::saveApprenticeMap, this, &FSHKWindow::saveApprenticeMap);
+
 
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
     connect(ui->actionInfo, &QAction::triggered, this, &FSHKWindow::actionInfoClicked);
@@ -124,7 +135,11 @@ void FSHKWindow::actionSkillClicked()
 
 void FSHKWindow::actionAllocateClicked()
 {
-
+    this->takeCentralWidget();
+    formAllocate->show();
+    formAllocate->setSkillMap(skillMap);
+    formAllocate->setApprenticeMap(apprenticeMap);
+    setCentralWidget(formAllocate);
 }
 
 void FSHKWindow::actionEvaluationClicked()
@@ -179,7 +194,7 @@ void FSHKWindow::apprenticeRemoved(const QString &company, const QString &appren
    }
 }
 
-/// Signals from FormApprentice
+/// !brief Signals from FormApprentice and FormAllocate
 void FSHKWindow::saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap)
 {
     apprenticeMap = aMap;
