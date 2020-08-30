@@ -52,6 +52,10 @@ void ClassSkills::setProjektMap(const QMap<QString, ClassProjekt> &value)
     projektMap = value;
 }
 
+void ClassSkills::insertProjekt(ClassProjekt pro)
+{
+    projektMap.insert(pro.getKey(), pro);
+}
 
 QDateTime ClassSkills::getCreatedDate() const
 {
@@ -159,7 +163,6 @@ QString ClassSkills::getEvaluationText(int index) const
 
     return text;
 }
-
 
 int ClassSkills::getNr() const
 {

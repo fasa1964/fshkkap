@@ -38,6 +38,8 @@ public:
     QDateTime getCreatedDate() const;
     void setCreatedDate(const QDateTime &createdDate);
 
+    void insertProjekt( ClassProjekt pro);
+
     int getWert() const;
     void setWert(int wert);
 
