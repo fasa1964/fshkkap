@@ -20,6 +20,7 @@
 #include <formskills.h>
 
 #include <formallocate.h>
+#include <formevaluation.h>
 
 namespace Ui {
 class FSHKWindow;
@@ -88,6 +89,7 @@ private:
     QMap<QString, ClassSkills> skillMap;
 
     FormAllocate *formAllocate;
+    FormEvaluation *formEvaluation;
 
     QDateTime lastFileModified(const QString &filename);
 

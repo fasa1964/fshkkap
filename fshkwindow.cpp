@@ -67,6 +67,8 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     connect(formAllocate, &FormAllocate::formAllocateClosed, this, &FSHKWindow::formHasClosed);
     connect(formAllocate, &FormAllocate::saveApprenticeMap, this, &FSHKWindow::saveApprenticeMap);
 
+    formEvaluation = new FormEvaluation(this);
+    formEvaluation->hide();
 
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
     connect(ui->actionInfo, &QAction::triggered, this, &FSHKWindow::actionInfoClicked);
@@ -144,7 +146,10 @@ void FSHKWindow::actionAllocateClicked()
 
 void FSHKWindow::actionEvaluationClicked()
 {
-
+    this->takeCentralWidget();
+    formEvaluation->show();
+    formEvaluation->setApprenticeMap( apprenticeMap );
+    setCentralWidget(formEvaluation);
 }
 
 /// !brief This signal emitt when a form closed
