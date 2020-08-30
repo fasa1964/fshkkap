@@ -108,6 +108,7 @@ void ClassProjekt::setQuestionMap(const QMap<int, ClassFrage> &questionMap)
     m_questionMap = questionMap;
 }
 
+
 QString ClassProjekt::document() const
 {
     return m_document;
@@ -191,6 +192,23 @@ int ClassProjekt::getDuration() const
 void ClassProjekt::setDuration(int duration)
 {
     m_duration = duration;
+}
+
+QStringList ClassProjekt::identifierList()
+{
+    QStringList identList;
+    QMapIterator<int, ClassFrage> it(questionMap());
+    while (it.hasNext()) {
+        it.next();
+        ClassFrage question = it.value();
+        if(!question.identifier().isEmpty()){
+            QString ki = question.identifier();
+            if(!identList.contains(ki))
+                identList << ki;
+        }
+    }
+
+    return identList;
 }
 
 QDataStream &operator<<(QDataStream &out, const ClassProjekt &dat)
