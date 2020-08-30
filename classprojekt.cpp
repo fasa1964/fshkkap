@@ -1,4 +1,5 @@
 #include "classprojekt.h"
+#include <QtMath>
 
 ClassProjekt::ClassProjekt()
 {
@@ -78,9 +79,17 @@ void ClassProjekt::setPoints(int points)
     m_points = points;
 }
 
+// Test another way to calculate the percent
 double ClassProjekt::percent() const
 {
-    return m_percent;
+    int p = 0;
+    foreach (ClassFrage question, questionMap().values()) {
+        p += question.points();
+    }
+
+    double percent =  p * 100.0 / maxPoints();
+
+    return percent;
 }
 
 void ClassProjekt::setPercent(double percent)
