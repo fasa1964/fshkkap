@@ -25,8 +25,8 @@ public:
 
      void updateSortBox();
 
-     QMap<QString, ClassLehrling> azubiMap() const;
-     void setAzubiMap(const QMap<QString, ClassLehrling> &azubiMap);
+     QMap<QString, ClassLehrling> getApprenticeMap() const;
+     void setApprenticeMap(const QMap<QString, ClassLehrling> &apprenticeMap);
 
 signals:
      void saveAzubiMap(QMap<QString, ClassLehrling> azuMap);
@@ -51,7 +51,7 @@ private:
     ClassSkills selectedSkill;
     ClassProjekt selectedProjekt;
 
-    QMap<QString, ClassLehrling> m_azubiMap;
+    QMap<QString, ClassLehrling> m_apprenticeMap;
 
     void setupProjectValue();
     void setupQuestionTable(ClassProjekt pro);

@@ -40,7 +40,7 @@ FormEvaluation::~FormEvaluation()
 /// !brief Sort all apprentices in years
 void FormEvaluation::updateSortBox()
 {
-    if(m_azubiMap.isEmpty())
+    if(m_apprenticeMap.isEmpty())
         return;
 
     disconnect(ui->azubiSortBox, &QComboBox::currentTextChanged, this, &FormEvaluation::sortBoxTextChanged);
@@ -83,7 +83,7 @@ void FormEvaluation::sortBoxTextChanged(const QString &text)
 /// Update the skill and result table
 void FormEvaluation::azubiBoxTextChanged(const QString &text)
 {
-    selectedLehrling = m_azubiMap.value(text);
+    selectedLehrling = m_apprenticeMap.value(text);
     updateSkillBox(selectedLehrling);
     setupResultWidget(selectedLehrling);
 }
@@ -239,12 +239,23 @@ void FormEvaluation::resultTableItemClicked(QTreeWidgetItem *item, int column)
     //projectBoxTextChanged(key);
 }
 
+QMap<QString, ClassLehrling> FormEvaluation::getApprenticeMap() const
+{
+    return m_apprenticeMap;
+}
+
+void FormEvaluation::setApprenticeMap(const QMap<QString, ClassLehrling> &apprenticeMap)
+{
+    m_apprenticeMap = apprenticeMap;
+    updateSortBox();
+}
+
 void FormEvaluation::setupProjectValue()
 {
     // Update selected skill and selected Lehrling
     selectedSkill.insertProjekt(selectedProjekt);
     selectedLehrling.insertSkill(selectedSkill);
-    m_azubiMap.insert(selectedLehrling.getKey(), selectedLehrling);
+    m_apprenticeMap.insert(selectedLehrling.getKey(), selectedLehrling);
 
     setupResultWidget(selectedLehrling);
 
@@ -327,16 +338,6 @@ void FormEvaluation::updateSkillBox(const ClassLehrling &azu)
     ui->azuNameEdit->setText(azu.firstname()+"."+azu.surname());
 }
 
-QMap<QString, ClassLehrling> FormEvaluation::azubiMap() const
-{
-    return m_azubiMap;
-}
-
-void FormEvaluation::setAzubiMap(const QMap<QString, ClassLehrling> &azubiMap)
-{
-    m_azubiMap = azubiMap;
-}
-
 void FormEvaluation::closeButtonClicked()
 {
     if(dirty){
@@ -344,7 +345,7 @@ void FormEvaluation::closeButtonClicked()
                                  "Wenn sie jetzt schließen gehen die eingegebenen Daten verloren!",
                                   QMessageBox::Save | QMessageBox::Cancel);
          if(result == QMessageBox::Save)
-            emit saveAzubiMap(m_azubiMap);
+            emit saveAzubiMap(m_apprenticeMap);
     }
 
     dirty = false;
@@ -354,7 +355,7 @@ void FormEvaluation::closeButtonClicked()
 
 void FormEvaluation::saveButtonClicked()
 {
-    emit saveAzubiMap(m_azubiMap);
+    emit saveAzubiMap(m_apprenticeMap);
     ui->saveButton->setEnabled(false);
     dirty = false;
 }
@@ -364,11 +365,11 @@ QMap<QString, ClassLehrling> FormEvaluation::apprenticeship(int year)
 {
     QMap<QString, ClassLehrling> sortMap;
 
-    if(m_azubiMap.isEmpty())
+    if(m_apprenticeMap.isEmpty())
         return sortMap;
 
     QDate today = QDate::currentDate();
-    QMapIterator<QString, ClassLehrling> it(m_azubiMap);
+    QMapIterator<QString, ClassLehrling> it(m_apprenticeMap);
     while (it.hasNext()) {
         it.next();
         ClassLehrling azu = it.value();
@@ -415,7 +416,7 @@ void FormEvaluation::setupResultWidget(const ClassLehrling &azu)
 
         ClassSkills skill = it.value();
         bool projectNode = false;
-        if( skill.index(skill.criteria()) == 0 )
+        if( skill.getEvaluationIndex() == 0 )
             projectNode = true;
 
         QTreeWidgetItem *topItem = new QTreeWidgetItem(QStringList() << it.key());
@@ -439,8 +440,8 @@ void FormEvaluation::setupResultWidget(const ClassLehrling &azu)
              QTreeWidgetItem *childItem = new QTreeWidgetItem(QStringList() << ip.key());
              topItem->addChild(childItem);
 
-             // if projekt has
-             if(!pro.identifierList().isEmpty() && skill.criteria() == ClassSkills::identifierNode){
+             // if project has
+             if(!pro.identifierList().isEmpty() && skill.getEvaluationIndex() == 1){
                 QStringList list = pro.identifierList();
                 foreach (QString ids, list) {
                     QTreeWidgetItem *cc = new QTreeWidgetItem(QStringList() << ids);
