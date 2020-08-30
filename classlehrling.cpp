@@ -140,6 +140,10 @@ void ClassLehrling::setSkillMap(const QMap<QString, ClassSkills> &skillMap)
     m_skillMap = skillMap;
 }
 
+void ClassLehrling::insertSkill(ClassSkills skill)
+{
+    m_skillMap.insert(skill.getKey(), skill);
+}
 
 QString ClassLehrling::note() const
 {

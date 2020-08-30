@@ -53,6 +53,8 @@ public:
     QMap<QString, ClassSkills> getSkillMap() const;
     void setSkillMap(const QMap<QString, ClassSkills> &skillMap);
 
+    void insertSkill(ClassSkills skill);
+
 private:
     int m_nr;
     QString m_firstname;
