@@ -53,6 +53,7 @@ private slots:
 private:
     Ui::FormProjekt *ui;
     bool changeProjekt;
+    bool createProjekt;
 
     ClassProjekt selectedProjekt;
     QMap<QString, ClassProjekt> m_projektMap;

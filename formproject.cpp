@@ -16,6 +16,8 @@ FormProjekt::FormProjekt(QWidget *parent) :
     ui->setupUi(this);
     setFormReadOnly(true);
     changeProjekt = false;
+    createProjekt = false;
+
     selectedProjekt = ClassProjekt();
 
 
@@ -101,7 +103,7 @@ void FormProjekt::createButtonClicked()
     clearForm();
     selectedProjekt = ClassProjekt();
     changeProjekt = false;
-
+    createProjekt = true;
     ui->saveButton->setEnabled(true);
     ui->createButton->setEnabled(false);
     ui->changeButton->setEnabled(false);
@@ -145,7 +147,7 @@ void FormProjekt::saveButtonClicked()
     }
 
 
-    if(!changeProjekt)
+    if(createProjekt)
     {
         if(projektMap().keys().contains(key))
         {
@@ -158,7 +160,7 @@ void FormProjekt::saveButtonClicked()
     m_projektMap.insert(key, projekt);
     emit saveProjekte(m_projektMap);
 
-    if(!changeProjekt)
+    if(createProjekt)
         emit projektAdded(projekt);
 
     if(changeProjekt)
@@ -175,6 +177,7 @@ void FormProjekt::saveButtonClicked()
     updateProjektTable(projektMap());
 
     changeProjekt = false;
+    createProjekt = false;
 }
 
 void FormProjekt::changeButtonClicked()
@@ -297,6 +300,7 @@ void FormProjekt::projekteTableClicked(QTableWidgetItem *item)
     ui->createButton->setEnabled(true);
     ui->saveButton->setEnabled(false);
     changeProjekt = false;
+    createProjekt = false;
 }
 
 void FormProjekt::sortBoxTextChanged(const QString &text)
