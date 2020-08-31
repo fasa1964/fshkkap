@@ -72,6 +72,11 @@ private:
     Ui::FSHKWindow *ui;
     QPushButton *dateButton;
 
+    void insertProjectToSkill(const ClassProjekt &pro);
+    void addProjectToSkill(const ClassProjekt &pro);
+    void insertProjectToApprentice(const ClassProjekt &pro);
+    void addProjectToApprentice(const ClassProjekt &pro);
+
     AppWidget *appwidget;
     void setApplicationLabel();
 
