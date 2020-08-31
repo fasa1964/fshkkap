@@ -22,6 +22,8 @@
 #include <formallocate.h>
 #include <formevaluation.h>
 
+#include <dialogapprenticelist.h>
+
 namespace Ui {
 class FSHKWindow;
 }
@@ -67,10 +69,13 @@ private slots:
     // Signals from FormSkills
     void saveSkillMap(const QMap<QString, ClassSkills> &sMap);
     void removeProjects(const QMap<QString, ClassProjekt> &proMap);
+    void skillChanged(const ClassSkills &skill);
 
 private:
     Ui::FSHKWindow *ui;
     QPushButton *dateButton;
+
+    QStringList getApprenticeList(const ClassSkills &skill);
 
     void insertProjectToSkill(const ClassProjekt &pro);
     void addProjectToSkill(const ClassProjekt &pro);
@@ -95,6 +100,7 @@ private:
 
     FormAllocate *formAllocate;
     FormEvaluation *formEvaluation;
+
 
     QDateTime lastFileModified(const QString &filename);
 

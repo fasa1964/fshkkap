@@ -133,6 +133,11 @@ void FormSkills::saveButtonClicked()
 
     setupSkillTable(skillMap());
 
+
+    if(changeSkill)
+        skillChanged(skill);
+
+
     selectedSkill = skill;
     setSkillToForm(selectedSkill);
 

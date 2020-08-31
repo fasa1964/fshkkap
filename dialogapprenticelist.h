@@ -12,11 +12,12 @@ class DialogApprenticeList : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogApprenticeList(QWidget *parent = 0);
+    explicit DialogApprenticeList(const QString &title, const QString &message, const QStringList &names, QWidget *parent = 0);
     ~DialogApprenticeList();
 
 private:
     Ui::DialogApprenticeList *ui;
+    void setupListWidget(const QStringList &list);
 };
 
 #endif // DIALOGAPPRENTICELIST_H

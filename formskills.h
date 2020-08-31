@@ -30,6 +30,7 @@ public:
 signals:
     void formSkillClosed();
     void saveSkillsMap(const QMap<QString, ClassSkills> &skillMap);
+    void skillChanged(const ClassSkills &skill);
     void removeProjects(const QMap<QString, ClassProjekt> &proMap);
 
     //    void skillChanged(ClassSkills skill);
