@@ -164,6 +164,11 @@ QString ClassSkills::getEvaluationText(int index) const
     return text;
 }
 
+bool ClassSkills::containsProject(const QString &proKey)
+{
+    return projektMap.keys().contains(proKey);
+}
+
 int ClassSkills::getNr() const
 {
     return m_nr;

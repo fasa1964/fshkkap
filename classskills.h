@@ -62,7 +62,7 @@ public:
         return list;
     }
 
-
+    bool containsProject(const QString &proKey);
 
 private:
 
