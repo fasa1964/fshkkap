@@ -54,6 +54,8 @@ public:
     void setSkillMap(const QMap<QString, ClassSkills> &skillMap);
 
     void insertSkill(ClassSkills skill);
+    bool containsSkill(const QString &skillKey);
+    bool isSkillEvaluated(const QString &skillKey);
 
 private:
     int m_nr;

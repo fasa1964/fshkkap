@@ -145,6 +145,17 @@ void ClassLehrling::insertSkill(ClassSkills skill)
     m_skillMap.insert(skill.getKey(), skill);
 }
 
+bool ClassLehrling::containsSkill(const QString &skillKey)
+{
+    return m_skillMap.keys().contains(skillKey);
+}
+
+bool ClassLehrling::isSkillEvaluated(const QString &skillKey)
+{
+    ClassSkills s = m_skillMap.value( skillKey );
+    return s.isEvaluated();
+}
+
 QString ClassLehrling::note() const
 {
     return m_note;
