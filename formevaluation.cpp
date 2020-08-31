@@ -114,7 +114,7 @@ void FormEvaluation::projectBoxTextChanged(const QString &text)
 
     setupQuestionTable(selectedProjekt);
 
-    qDebug() << selectedProjekt.createTime();
+    //qDebug() << selectedProjekt.createTime();
 }
 
 void FormEvaluation::evaluatedCheckBoxChanged(int status)
@@ -133,6 +133,7 @@ void FormEvaluation::evaluatedCheckBoxChanged(int status)
 }
 
 /// !brief Calculate the points of current project
+/// when value from questions changed
 void FormEvaluation::questionTableCellChanged(int row, int column)
 {
     // Check if already evaluated
@@ -145,7 +146,7 @@ void FormEvaluation::questionTableCellChanged(int row, int column)
         return;
     }
 
-    // Check entered value
+    // Check entered value of points
     QString s = ui->fragenTableWidget->item(row, column)->text();
     foreach (QChar ch, s) {
         if(!ch.isDigit()){
@@ -154,36 +155,37 @@ void FormEvaluation::questionTableCellChanged(int row, int column)
         }
     }
 
-    int value =  s.toInt();
-    int mval = ui->fragenTableWidget->item(row, column+1)->text().toInt();
-    if(value > mval){
+    // Check points
+    int points =  s.toInt();
+    int maxPoints = ui->fragenTableWidget->item(row, column+1)->text().toInt();
+    if(points > maxPoints){
         QMessageBox::information(this, tr("Eingabe"), tr("Der Zahlenwert darf das Maximum nicht überschreiten!"));
         ui->fragenTableWidget->item(row, column)->setText("0");
     }
 
-    // Udate selected project
-    QMap<int, ClassFrage> fMap;
-    fMap = selectedProjekt.questionMap();
+    // Update selected project question map
+//    QMap<int, ClassFrage> fMap;
+//    fMap = selectedProjekt.questionMap();
     for(int i = 0; i < ui->fragenTableWidget->rowCount(); i++){
         int p = ui->fragenTableWidget->item(i, 2)->text().toInt();
-        ClassFrage frg = fMap.value(i);
-        frg.setPoints(p);
-        fMap.insert(i, frg);
+        selectedProjekt.setQuestionPoints(i, p);
+//        ClassFrage frg = fMap.value(i);
+//        frg.setPoints(p);
+//        fMap.insert(i, frg);
     }
-    selectedProjekt.setQuestionMap(fMap);
+//    selectedProjekt.setQuestionMap(fMap);
 
-    double pp = getProjectPercent(selectedProjekt);
-    selectedProjekt.setPoints(getProjectPoints(selectedProjekt));
-    selectedProjekt.setPercent(pp);
+    double pp = selectedProjekt.percent();
 
+    qDebug() << pp;
     ui->percentBox->setValue(pp);
     if(pp < 50.0)
         setTextColor(ui->percentBox, Qt::red);
     else
         setTextColor(ui->percentBox, Qt::darkGreen);
 
-    selectedProjekt.setPoints(getProjectPoints(selectedProjekt));
-    selectedProjekt.setPercent(pp);
+//    selectedProjekt.setPoints(getProjectPoints(selectedProjekt));
+//    selectedProjekt.setPercent(pp);
     setupProjectValue();
 
 //    // Update selected skill and selected Lehrling
@@ -232,11 +234,19 @@ void FormEvaluation::questionTableCellChanged(int row, int column)
     //    setupProjectValue();
 }
 
+/// !brief
 void FormEvaluation::resultTableItemClicked(QTreeWidgetItem *item, int column)
 {
     QString key = item->text(column);
+
+    // Check if key is top item
+    if(selectedLehrling.getSkillMap().keys().contains(key)){
+        // Check if topItem == selsectedSkill
+        if(ui->skillListBox->currentText() != key)
+            ui->skillListBox->setCurrentText(key);
+    }
+
     ui->projektListBox->setCurrentText(key);
-    //projectBoxTextChanged(key);
 }
 
 QMap<QString, ClassLehrling> FormEvaluation::getApprenticeMap() const
@@ -345,7 +355,7 @@ void FormEvaluation::closeButtonClicked()
                                  "Wenn sie jetzt schließen gehen die eingegebenen Daten verloren!",
                                   QMessageBox::Save | QMessageBox::Cancel);
          if(result == QMessageBox::Save)
-            emit saveAzubiMap(m_apprenticeMap);
+            emit saveApprenticeMap(m_apprenticeMap);
     }
 
     dirty = false;
@@ -355,7 +365,7 @@ void FormEvaluation::closeButtonClicked()
 
 void FormEvaluation::saveButtonClicked()
 {
-    emit saveAzubiMap(m_apprenticeMap);
+    emit saveApprenticeMap(m_apprenticeMap);
     ui->saveButton->setEnabled(false);
     dirty = false;
 }
@@ -402,10 +412,10 @@ void FormEvaluation::setupResultWidget(const ClassLehrling &azu)
     QMap<QString, ClassSkills> sMap;
     sMap = azu.getSkillMap();
 
-    ui->resultTreeWidget->setColumnCount(3);
+    ui->resultTreeWidget->setColumnCount(4);
 
     QStringList headers;
-    headers << "Beschreibung" << "Ergebnis in %" << "Wert/Faktor";
+    headers << "Beschreibung" << "Ergebnis in %" << "Wert/Faktor" << "Auswertung nach";
     ui->resultTreeWidget->setHeaderLabels(headers);
 
     QMapIterator<QString, ClassSkills> it(sMap);
@@ -428,7 +438,7 @@ void FormEvaluation::setupResultWidget(const ClassLehrling &azu)
         topItem->setFont(0,font);
         topItem->setFont(1,font);
 
-        // Set child item
+        // Setup child item from skill
         QMap<QString, ClassProjekt> pMap;
         pMap = skill.getProjektMap();
 
@@ -462,7 +472,7 @@ void FormEvaluation::setupResultWidget(const ClassLehrling &azu)
                  childItem->setTextColor(1, Qt::darkGreen);
              }
 
-             childItem->setText(1, QString::number(pro.percent(), 'g', 2)+" %");
+             childItem->setText(1, QString::number(pro.percent(), 'g', 3)+" %");
              childItem->setText(2, QString::number(pro.getFactor(), 'g', 2));
 
              // calculate the skill percent
@@ -474,19 +484,26 @@ void FormEvaluation::setupResultWidget(const ClassLehrling &azu)
 
         }
 
-        // Set skill percent text
-        topItem->setText(1, QString::number( skillPercent,'g',2)+"%");
+        // Set skill results
+        topItem->setText(1, QString::number( skillPercent,'g',3)+"%");
 
+        // If only one skill show info
         if(sMap.size() == 1){
             QString text = "100%("+QString::number( skill.getWert(),10)+"%)";
             topItem->setText(2, text);
         }else
             topItem->setText(2, QString::number( skill.getWert(),10)+"%");
 
+        // Choose color
         if(skillPercent < 50.0)
             topItem->setTextColor(1,Qt::red);
         else
             topItem->setTextColor(1,Qt::darkGreen);
+
+        // Set info for evaluation criteria for skill
+        QString criteriaText = skill.getEvaluationText( skill.getEvaluationIndex() );
+        topItem->setText(3, criteriaText);
+
 
 
     }
@@ -725,6 +742,12 @@ int FormEvaluation::getProjectPoints(const ClassProjekt &pro)
     }
     return p;
 }
+
+bool FormEvaluation::isSkillKey(const QString &text)
+{
+    return selectedLehrling.getSkillMap().keys().contains(text);
+}
+
 
 
 

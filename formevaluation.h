@@ -29,7 +29,7 @@ public:
      void setApprenticeMap(const QMap<QString, ClassLehrling> &apprenticeMap);
 
 signals:
-     void saveAzubiMap(QMap<QString, ClassLehrling> azuMap);
+     void saveApprenticeMap(QMap<QString, ClassLehrling> apprMap);
 
 private slots:
      void closeButtonClicked();
@@ -53,6 +53,9 @@ private:
 
     QMap<QString, ClassLehrling> m_apprenticeMap;
 
+    // Test result item map
+    QMap<QString, QVariant> resultMap;
+
     void setupProjectValue();
     void setupQuestionTable(ClassProjekt pro);
     void updateSkillBox(const ClassLehrling &azu);
@@ -74,6 +77,8 @@ private:
     int getProjectMaxPoint(const ClassProjekt &pro);
     int getProjectPoints(const ClassProjekt &pro);
 
+    /// !brief Returns true if skill key
+    bool isSkillKey(const QString &text);
 
 };
 
