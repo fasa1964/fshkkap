@@ -57,6 +57,9 @@ public:
     bool containsSkill(const QString &skillKey);
     bool isSkillEvaluated(const QString &skillKey);
 
+    bool removeProject(const QString &proKey);
+
+
 private:
     int m_nr;
     QString m_firstname;

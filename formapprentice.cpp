@@ -74,7 +74,7 @@ void FormLehrling::deleteButtonClicked()
     // was in a company usely he is.
     // So the apprentice will be also remove by the company
     if(!seletedApprentice.company().isEmpty())
-        emit apprenticeWithoutCompany(seletedApprentice);
+        emit apprenticeWithoutCompany(seletedApprentice.getKey());
 
     emit saveApprenticeMap(m_apprenticeMap);
     setApprenticeMap(m_apprenticeMap);
@@ -161,7 +161,7 @@ void FormLehrling::saveButtonClicked()
 
     // Send signal apprentice without company
     if(appr.company().isEmpty())
-        emit apprenticeWithoutCompany(seletedApprentice);
+        emit apprenticeWithoutCompany(seletedApprentice.getKey());
     else
         emit apprenticeHasCompany(appr.company(), seletedApprentice.getKey());
 

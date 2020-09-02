@@ -57,7 +57,7 @@ private slots:
 
     // Signals from FormApprentice
     void saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap);
-    void apprenticeWithoutCompany(const ClassLehrling &appr);
+    void apprenticeWithoutCompany(const QString &apprKey);
     void apprenticeAssociatedCompany(const QString &company, const QString &apprenticeKey);
 
     // Signals from FormProject
@@ -75,12 +75,20 @@ private:
     Ui::FSHKWindow *ui;
     QPushButton *dateButton;
 
-    QStringList getApprenticeList(const ClassSkills &skill);
+    bool skillSameIdentifier(const QString &proIdent);
+    QStringList addProjectToSkill(const ClassProjekt &pro);
+    QStringList removeProjectFromSkill(const ClassProjekt &pro);
+    void addProjectToApprentice(const QString &apprKey, const QString &skillKey, const ClassProjekt &pro );
 
-    void insertProjectToSkill(const ClassProjekt &pro);
-    void addProjectToSkill(const ClassProjekt &pro);
-    void insertProjectToApprentice(const ClassProjekt &pro);
-    void addProjectToApprentice(const ClassProjekt &pro);
+    //bool skillListContainsProject(const QString &proKey);
+    QMap<QString, QVariant> getApprenticeKeyMap(const QString &skillKey);
+
+
+//    QStringList getApprenticeList(const ClassSkills &skill);
+//    void insertProjectToSkill(const ClassProjekt &pro);
+//    void addProjectToSkill(const ClassProjekt &pro);
+//    void insertProjectToApprentice(const ClassProjekt &pro);
+//    void addProjectToApprentice(const ClassProjekt &pro);
 
     AppWidget *appwidget;
     void setApplicationLabel();
@@ -104,9 +112,21 @@ private:
 
     QDateTime lastFileModified(const QString &filename);
 
+    void updateCompanyData();
+    QStringList companyKeyList();
+
+    void updateApprenticeData();
+    bool apprenticeExist(const QString &key);
+
+    void updateProjektData();
+    QStringList projectKeyList(const QString &identifier);
+
     void setupMenu();
     void readDatas(const QString &filename);
     bool saveDatas(const QString &filename);
+
+    // Values for app settings
+    QMap<QString, QVariant> appSettingsMap;
 
 
     void readSettings();

@@ -30,6 +30,10 @@ public:
      QMap<QString, ClassLehrling> azubiMap() const;
      void setAzubiMap(const QMap<QString, ClassLehrling> &azubiMap);
 
+     QStringList azuKeys();
+     bool removeApprentice(const QString &apprKey);
+     void insertApprentice( ClassLehrling appr);
+
 //     bool removeLehrling(const ClassLehrling &azu);
 //     int countLehrling();
 

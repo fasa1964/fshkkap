@@ -69,6 +69,30 @@ void ClassBetrieb::setAzubiMap(const QMap<QString, ClassLehrling> &azubiMap)
     m_azubiMap = azubiMap;
 }
 
+QStringList ClassBetrieb::azuKeys()
+{
+    QStringList keyList;
+    foreach (ClassLehrling appr, azubiMap().values()) {
+        keyList << appr.getKey();
+    }
+    return keyList;
+}
+
+bool ClassBetrieb::removeApprentice(const QString &apprKey)
+{
+    if(m_azubiMap.remove(apprKey) == 1)
+        return true;
+    else
+        return false;
+}
+
+void ClassBetrieb::insertApprentice(ClassLehrling appr)
+{
+    m_azubiMap.insert(appr.getKey(), appr);
+}
+
+
+
 //bool ClassBetrieb::removeLehrling(const ClassLehrling &azu)
 //{
 //    bool status = false;

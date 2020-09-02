@@ -52,10 +52,6 @@ void ClassSkills::setProjektMap(const QMap<QString, ClassProjekt> &value)
     projektMap = value;
 }
 
-void ClassSkills::insertProjekt(ClassProjekt pro)
-{
-    projektMap.insert(pro.getKey(), pro);
-}
 
 QDateTime ClassSkills::getCreatedDate() const
 {
@@ -164,11 +160,6 @@ QString ClassSkills::getEvaluationText(int index) const
     return text;
 }
 
-bool ClassSkills::containsProject(const QString &proKey)
-{
-    return projektMap.keys().contains(proKey);
-}
-
 int ClassSkills::getNr() const
 {
     return m_nr;
@@ -178,6 +169,35 @@ void ClassSkills::setNr(int nr)
 {
     m_nr = nr;
 }
+
+bool ClassSkills::containsProject(const QString &proKey)
+{
+    return projektMap.keys().contains(proKey);
+}
+
+void ClassSkills::insertProjekt(ClassProjekt pro)
+{
+    projektMap.insert(pro.getKey(), pro);
+}
+
+bool ClassSkills::removeProject(const QString &proKey)
+{
+    bool status = false;
+    if(projektMap.remove(proKey) == 1)
+        status = true;
+    return status;
+}
+
+QStringList ClassSkills::projectKeyList()
+{
+    QStringList keyList;
+    foreach (ClassProjekt p, projektMap.values()) {
+        keyList << p.getKey();
+    }
+
+    return keyList;
+}
+
 
 QDataStream &operator<<(QDataStream &out, const ClassSkills &dat)
 {

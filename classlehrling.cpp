@@ -156,6 +156,28 @@ bool ClassLehrling::isSkillEvaluated(const QString &skillKey)
     return s.isEvaluated();
 }
 
+bool ClassLehrling::removeProject(const QString &proKey)
+{
+    bool status = false;
+    QMapIterator<QString, ClassSkills> it(getSkillMap());
+    while (it.hasNext())
+    {
+        it.next();
+        ClassSkills skill = it.value();
+        if(skill.containsProject(proKey))
+        {
+            if(skill.removeProject(proKey))
+            {
+                m_skillMap.insert(skill.getKey(), skill);
+                status = true;
+            }
+        }
+    }
+
+
+    return status;
+}
+
 QString ClassLehrling::note() const
 {
     return m_note;

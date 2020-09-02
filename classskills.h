@@ -38,8 +38,6 @@ public:
     QDateTime getCreatedDate() const;
     void setCreatedDate(const QDateTime &createdDate);
 
-    void insertProjekt( ClassProjekt pro);
-
     int getWert() const;
     void setWert(int wert);
 
@@ -63,6 +61,10 @@ public:
     }
 
     bool containsProject(const QString &proKey);
+    void insertProjekt( ClassProjekt pro);
+    bool removeProject( const QString &proKey );
+    QStringList projectKeyList();
+
 
 private:
 

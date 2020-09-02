@@ -36,17 +36,17 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
 
     formCompany = new FormBetrieb(this);
     formCompany->hide();
-    connect(formCompany, &FormBetrieb::companyFormClosed, this, &FSHKWindow::formHasClosed);
-    connect(formCompany, &FormBetrieb::saveCompanyMap, this, &FSHKWindow::saveCompanyMap);
-    connect(formCompany, &FormBetrieb::companyRemoved, this, &FSHKWindow::companyRemoved);
-    connect(formCompany, &FormBetrieb::apprenticeRemoved, this, &FSHKWindow::apprenticeRemoved);
+    connect(formCompany, &FormBetrieb::companyFormClosed, this, &FSHKWindow::formHasClosed);            // Works
+    connect(formCompany, &FormBetrieb::saveCompanyMap, this, &FSHKWindow::saveCompanyMap);              // Works
+    connect(formCompany, &FormBetrieb::companyRemoved, this, &FSHKWindow::companyRemoved);              // Works
+    connect(formCompany, &FormBetrieb::apprenticeRemoved, this, &FSHKWindow::apprenticeRemoved);        // Works
 
     formApprentice = new FormLehrling(this);
     formApprentice->hide();
-    connect(formApprentice, &FormLehrling::apprenticeFormClosed, this, &FSHKWindow::formHasClosed);
-    connect(formApprentice, &FormLehrling::saveApprenticeMap, this, &FSHKWindow::saveApprenticeMap);
-    connect(formApprentice, &FormLehrling::apprenticeWithoutCompany, this, &FSHKWindow::apprenticeWithoutCompany);
-    connect(formApprentice, &FormLehrling::apprenticeHasCompany , this, &FSHKWindow::apprenticeAssociatedCompany );
+    connect(formApprentice, &FormLehrling::apprenticeFormClosed, this, &FSHKWindow::formHasClosed);     // Works
+    connect(formApprentice, &FormLehrling::saveApprenticeMap, this, &FSHKWindow::saveApprenticeMap);    // Works
+    connect(formApprentice, &FormLehrling::apprenticeWithoutCompany, this, &FSHKWindow::apprenticeWithoutCompany);      // Works
+    connect(formApprentice, &FormLehrling::apprenticeHasCompany , this, &FSHKWindow::apprenticeAssociatedCompany );     // Works
 
     formProjekt = new FormProjekt(this);
     formProjekt->hide();
@@ -167,25 +167,18 @@ void FSHKWindow::saveCompanyMap(const QMap<int, ClassBetrieb> &cMap)
     companyMap = cMap;
     saveDatas("Betriebe.dat");
     formCompany->setLastModified(lastFileModified("Betriebe.dat"));
+    //updateCompanyData();
 }
 
 /// !brief Check if any apprentice still in the company
 void FSHKWindow::companyRemoved(const QString &company)
 {
-    bool changed = false;
-    QMapIterator<QString, ClassLehrling> it(apprenticeMap);
-    while (it.hasNext()) {
-        it.next();
-        ClassLehrling appr = it.value();
-        if(appr.company() == company){
-            appr.setCompany("");
-            apprenticeMap.insert(appr.getKey(), appr);
-            changed = true;
+    foreach (ClassLehrling azu, apprenticeMap.values()) {
+        if(azu.company() == company){
+            azu.setCompany("");
+            apprenticeMap.insert(azu.getKey(), azu);
+            saveDatas("Lehrlinge.dat");
         }
-    }
-
-    if(changed){
-        saveDatas("Lehrlinge.dat");
     }
 }
 
@@ -208,119 +201,216 @@ void FSHKWindow::saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap)
     saveDatas("Lehrlinge.dat");
     formApprentice->setLastModified(lastFileModified("Lehrlinge.dat"));
     setupMenu();
+    //updateApprenticeData();
 }
 
-/// !brief Signal emitter when editing an apprentice
+/// !brief Signal emitt when editing an apprentice
 /// and the company edit field is empty or the apprentice was deleting
-void FSHKWindow::apprenticeWithoutCompany(const ClassLehrling &appr)
-{
-    bool dataChanged = false;
-    QMapIterator<int, ClassBetrieb> it(companyMap);
-    while (it.hasNext()) {
-        it.next();
-        ClassBetrieb comp = it.value();
-        QMap<QString, ClassLehrling> aMap = comp.azubiMap();
-        if(aMap.keys().contains(appr.getKey())){
-            aMap.remove(appr.getKey());
-            comp.setAzubiMap(aMap);
+void FSHKWindow::apprenticeWithoutCompany(const QString &apprKey)
+{    
+    foreach (ClassBetrieb comp, companyMap.values()) {
+        if(comp.azuKeys().contains( apprKey )){
+            comp.removeApprentice(apprKey);
             companyMap.insert(comp.nr(), comp);
-            dataChanged = true;
+            saveDatas("Betriebe.dat");
         }
     }
-
-    if(dataChanged)
-        saveDatas("Betriebe.dat");
 }
 
-/// !brief Signal emitter when editing an apprentice
+/// !brief Signal emitt when editing an apprentice
 /// and the company edit field was changed
 void FSHKWindow::apprenticeAssociatedCompany(const QString &company, const QString &apprenticeKey)
 {
     // Insert the apprentice into company
     ClassBetrieb comp = getCompany(company);
     ClassLehrling appr = apprenticeMap.value(apprenticeKey);
-    QMap<QString, ClassLehrling> aMap = comp.azubiMap();
-    aMap.insert(appr.getKey(), appr);
-    comp.setAzubiMap(aMap);
+    comp.insertApprentice(appr);
     companyMap.insert(comp.nr(), comp);
 
-    // Check if apprentice still in other company
-    // if yes delete the apprentice from all other company
-    QMapIterator<int, ClassBetrieb> it(companyMap);
-    while (it.hasNext()) {
-        it.next();
-        if(it.value().azubiMap().keys().contains(apprenticeKey)){
-            if(it.value().nr() != comp.nr()){
-                ClassBetrieb co = it.value();
-                QMap<QString, ClassLehrling> aMap = co.azubiMap();
-                aMap.remove(apprenticeKey);
-                co.setAzubiMap(aMap);
-                companyMap.insert(co.nr(), co);
-            }
+    foreach (ClassBetrieb c, companyMap.values()) {
+        if(c.azuKeys().contains(apprenticeKey) && c.name() != comp.name()){
+            c.removeApprentice(apprenticeKey);
+            companyMap.insert(c.nr(), c);
         }
-
     }
 
     saveDatas("Betriebe.dat");
 }
 
 /// Signals from FormProject
+///
 void FSHKWindow::saveProjectMap(const QMap<QString, ClassProjekt> &pMap)
 {
     projectMap = pMap;
     saveDatas("Projekte.dat");
+ //   updateProjektData();
+
 }
 
 /// !brief Check if any skill has the
 /// removed project ask user to remove from skill
 void FSHKWindow::projectRemoved(const ClassProjekt &pro)
 {
-    if(skillMap.isEmpty())
-        return;
+//    if(skillMap.isEmpty())
+//        return;
 
-    ClassProjekt removedProject = pro;
-    bool skillHasChanged = false;
-    QMapIterator <QString, ClassSkills> it(skillMap);
-    while (it.hasNext()) {
-        it.next();
-        ClassSkills skill = it.value();
-        QMap< QString, ClassProjekt> pMap = skill.getProjektMap();
+//    if(!skillSameIdentifier( pro.identifier() ))
+//        return;
 
-        if(pMap.keys().contains(removedProject.getKey())){
+//    // Remove project from skill if skill has same identifier
+//    // Returns the changed skills key
+//    QStringList skillList = removeProjectFromSkill(pro);
 
-            int result = QMessageBox::question(this, tr("Projekt löschen"), tr("Soll das Projekt von der Prüfung:") + skill.getKey() + "\n" +
-                                               tr("gelöscht werden?"), QMessageBox::No | QMessageBox::Yes);
-            if(result == QMessageBox::Yes){
-                pMap.remove(removedProject.getKey());
-                skill.setProjektMap(pMap);
-                skillMap.insert(it.key(), skill);
-                skillHasChanged = true;
-            }
-        }
-    }
+//    // Check if any apprentice has this changed skill
+//    bool apprenticeDataChanged = false;
+//    ClassProjekt project = pro;
+//    foreach (QString skey, skillList)
+//    {
 
-    if(skillHasChanged)
-        saveDatas("Pruefungen.dat");
+//        QMap<QString, QVariant> keyMap = getApprenticeKeyMap( skey );
+
+//        // All apprentices with the changed skill (not evaluated)
+//        QStringList cleanList = keyMap.keys("cleanSkill");
+//        foreach (QString apprKey, cleanList){
+
+//            ClassLehrling appr = apprenticeMap.value(apprKey);
+//            if(appr.removeProject( project.getKey() ))
+//                apprenticeMap.insert(appr.getKey(), appr);
+//        }
+
+//        // All apprentices with the changed skill (evaluated)
+//        QStringList evaluatedList = keyMap.keys("evaluatedSkill");
+//        if(!evaluatedList.isEmpty())
+//        {
+//            QString title = "Auszubildende mit Prüfungen";
+//            QString message = "Bei den unten aufgeführten Auszubildenden wurde die Prüfung bereits "
+//                              "ganz oder teils ausgewertet. Ausgewertete Daten könnten verloren gehen!";
+//            DialogApprenticeList *dlg = new  DialogApprenticeList(title,message, evaluatedList ,this);
+//            if(dlg->exec() == QDialog::Accepted)
+//            {
+//                foreach (QString apprKey, evaluatedList)
+//                {
+//                    ClassLehrling appr = apprenticeMap.value(apprKey);
+//                    if(appr.removeProject( project.getKey() ))
+//                        apprenticeMap.insert(appr.getKey(), appr);
+//                }
+
+//            }
+//        }
+
+//        if(!cleanList.isEmpty() || !evaluatedList.isEmpty())
+//            apprenticeDataChanged = true;
+
+//    }
+
+//    if(apprenticeDataChanged)
+//        saveDatas("Lehrlinge.dat");
+
+
 }
 
 /// !brief If skill has same identifier as the added
 /// project then insert the project into the skill
 void FSHKWindow::projectAdded(const ClassProjekt &pro)
 {
-    if(skillMap.isEmpty())
-        return;
+//    if(skillMap.isEmpty())
+//        return;
 
-    addProjectToSkill(pro);
-    //addProjectToApprentice(pro);
+//    if(!skillSameIdentifier(pro.identifier()))
+//        return;
+
+//    // Add project to skill if skill has same identifier
+//    // Returns the changed skills key
+//    QStringList skillList = addProjectToSkill(pro);
+
+//    // Check if any apprentice has this changed skill
+//    bool apprenticeDataChanged = false;
+//    foreach (QString skey, skillList)
+//    {
+
+//        QMap<QString, QVariant> keyMap = getApprenticeKeyMap( skey );
+
+//        // All apprentices with the changed skill (not evaluated)
+//        QStringList cleanList = keyMap.keys("cleanSkill");
+//        foreach (QString apprKey, cleanList)
+//            addProjectToApprentice(apprKey, skey, pro);
+
+//        // All apprentices with the changed skill (evaluated)
+//        QStringList evaluatedList = keyMap.keys("evaluatedSkill");
+//        if(!evaluatedList.isEmpty())
+//        {
+//            QString title = "Auszubildende mit Prüfungen";
+//            QString message = "Bei den unten aufgeführten Auszubildenden wurde die Prüfung bereits "
+//                              "ganz oder teils ausgewertet. Ausgewertete Daten könnten verloren gehen!";
+//            DialogApprenticeList *dlg = new  DialogApprenticeList(title,message, evaluatedList ,this);
+//            if(dlg->exec() == QDialog::Accepted)
+//            {
+//                foreach (QString apprKey, evaluatedList)
+//                    addProjectToApprentice(apprKey, skey, pro);
+
+//            }
+//        }
+
+//        if(!cleanList.isEmpty() || !evaluatedList.isEmpty())
+//            apprenticeDataChanged = true;
+
+//    }
+
+//    if(apprenticeDataChanged)
+//        saveDatas("Lehrlinge.dat");
 }
 
 void FSHKWindow::projectChanged(const ClassProjekt &pro)
 {
-    if(skillMap.isEmpty())
-        return;
+//    if(skillMap.isEmpty())
+//        return;
 
-    insertProjectToSkill(pro);
-    insertProjectToApprentice(pro);
+//    if(!skillSameIdentifier(pro.identifier()))
+//        return;
+
+//    // Add project to skill if skill has same identifier
+//    // Returns the changed skills key
+//    QStringList skillList = addProjectToSkill(pro);
+
+//    // Check if any apprentice has this changed skill
+//    bool apprenticeDataChanged = false;
+//    foreach (QString skey, skillList)
+//    {
+
+//        QMap<QString, QVariant> keyMap = getApprenticeKeyMap( skey );
+
+//        // All apprentices with the changed skill (not evaluated)
+//        QStringList cleanList = keyMap.keys("cleanSkill");
+//        foreach (QString apprKey, cleanList)
+//            addProjectToApprentice(apprKey, skey, pro);
+
+//        // All apprentices with the changed skill (evaluated)
+//        QStringList evaluatedList = keyMap.keys("evaluatedSkill");
+//        if(!evaluatedList.isEmpty())
+//        {
+//            QString title = "Auszubildende mit Prüfungen";
+//            QString message = "Bei den unten aufgeführten Auszubildenden wurde die Prüfung bereits "
+//                              "ganz oder teils ausgewertet. Ausgewertete Daten könnten verloren gehen!";
+//            DialogApprenticeList *dlg = new  DialogApprenticeList(title,message, evaluatedList ,this);
+//            if(dlg->exec() == QDialog::Accepted)
+//            {
+//                foreach (QString apprKey, evaluatedList)
+//                    addProjectToApprentice(apprKey, skey, pro);
+
+//            }
+//        }
+
+//        if(!cleanList.isEmpty() || !evaluatedList.isEmpty())
+//            apprenticeDataChanged = true;
+
+//    }
+
+//    if(apprenticeDataChanged)
+//        saveDatas("Lehrlinge.dat");
+
+
+//    insertProjectToSkill(pro);
+//    insertProjectToApprentice(pro);
 }
 
 /// !brief Signals from FormSkills
@@ -343,7 +433,6 @@ void FSHKWindow::removeProjects(const QMap<QString, ClassProjekt> &proMap)
             QMessageBox::information(this, tr("Projekt löschen"), tr("Das Projekt :" ) + it.key() + "\n" +
                                     tr( "konnte nicht gelöscht werden!\nMögliche Ursache:\nDas Projekt existiert nicht mehr."));
         }
-
     }
 
     saveDatas("Projekte.dat");
@@ -353,181 +442,289 @@ void FSHKWindow::removeProjects(const QMap<QString, ClassProjekt> &proMap)
 void FSHKWindow::skillChanged(const ClassSkills &skill)
 {
     // Check if any apprentice evaluated this skill
-    QStringList azuList = getApprenticeList(skill);
+//    QStringList azuList = getApprenticeList(skill);
+//    QStringList azuEvaluatedList;
 
+//    ClassSkills sk = skill;
+//    foreach (QString key, azuList) {
+//        if(apprenticeMap.value(key).isSkillEvaluated(sk.getKey()))
+//            azuEvaluatedList << key;
+//    }
 
-    if(!azuList.isEmpty()){
-        bool dataChanged = false;
-        QString message = "Bei den unten aufgeführten Auszubildenden wurde die geänderte Prüfung teils oder ganz Ausgewertet."
-                          "Wenn die Prüfung bei den Auszubildenden geändert wird kann die Auswertung verloren gehen!";
-        QString title =  "Auszubildende mit ausgewerteten Prüfungen";
-        DialogApprenticeList *formDlg = new DialogApprenticeList(title, message, azuList, this);
-        if(formDlg->exec() == QDialog::Rejected)
-            return;
+//    if(!azuList.isEmpty()){
+//        bool dataChanged = false;
+//        QString message = "Bei den unten aufgeführten Auszubildenden wurde die geänderte Prüfung teils oder ganz Ausgewertet."
+//                          "Wenn die Prüfung bei den Auszubildenden geändert wird kann die Auswertung verloren gehen!";
+//        QString title =  "Auszubildende mit ausgewerteten Prüfungen";
+//        DialogApprenticeList *formDlg = new DialogApprenticeList(title, message, azuList, this);
+//        if(formDlg->exec() == QDialog::Rejected)
+//            return;
 
-        ClassSkills nsk = skill;                                        // The changed skill
-        foreach (QString key, azuList) {
+//        ClassSkills nsk = skill;                                        // The changed skill
+//        foreach (QString key, azuList) {
 
-            ClassLehrling appr = apprenticeMap.value(key);
-            ClassSkills osk = appr.getSkillMap().value(nsk.getKey());   // The old skill from apprentice
+//            ClassLehrling appr = apprenticeMap.value(key);
+//            ClassSkills osk = appr.getSkillMap().value(nsk.getKey());   // The old skill from apprentice
 
-            if(!osk.isEvaluated())
-                osk = nsk;
-            else
-            {
-                // Try to not overwrite the hole skill
-                // Compare the project instead...
-                foreach (ClassProjekt pro, nsk.getProjektMap().values())    // Compare each project
-                {
-                    if(!osk.containsProject(pro.getKey()))                  // If project not exist
-                    {
-                        osk.insertProjekt(pro);                             // Insert the new project into old skill
-                    }
-                    else
-                    {                                                  // If exist
+//            if(!osk.isEvaluated())
+//                osk = nsk;
+//            else
+//            {
+//                // Try to not overwrite the hole skill
+//                // Compare the project instead...
+//                foreach (ClassProjekt pro, nsk.getProjektMap().values())    // Compare each project
+//                {
+//                    if(!osk.containsProject(pro.getKey()))                  // If project not exist
+//                    {
+//                        osk.insertProjekt(pro);                             // Insert the new project into old skill
+//                    }
+//                    else
+//                    {                                                  // If exist
 
-                        if(!osk.getProjektMap().value(pro.getKey()).getEvaluated() ) // If project is not evaluated
-                            osk.insertProjekt(pro);                         // Insert the new project into old skill
-                        else                                                // If project is evaluated
-                        {
-                            // Check created date
-                            QDateTime proDT = QDateTime::fromString( pro.createTime(), "dd.MM.yy hh:mm" );
-                            QDateTime oldproDT = QDateTime::fromString( osk.getProjektMap().value(pro.getKey()).createTime(), "dd.MM.yy hh:mm" );
-                            QDateTime now = QDateTime::currentDateTime();
-                            if(proDT.secsTo(now) < oldproDT.secsTo(now))
-                                osk.insertProjekt(pro);
-                        }
-                    }
-                }
-            }
+//                        if(!osk.getProjektMap().value(pro.getKey()).getEvaluated() ) // If project is not evaluated
+//                            osk.insertProjekt(pro);                         // Insert the new project into old skill
+//                        else                                                // If project is evaluated
+//                        {
+//                            // Check created date
+//                            QDateTime proDT = QDateTime::fromString( pro.createTime(), "dd.MM.yy hh:mm" );
+//                            QDateTime oldproDT = QDateTime::fromString( osk.getProjektMap().value(pro.getKey()).createTime(), "dd.MM.yy hh:mm" );
+//                            QDateTime now = QDateTime::currentDateTime();
+//                            if(proDT.secsTo(now) < oldproDT.secsTo(now))
+//                                osk.insertProjekt(pro);
+//                        }
+//                    }
+//                }
+//            }
 
-            appr.insertSkill(osk);
-            apprenticeMap.insert(appr.getKey(), appr);
-            dataChanged = true;
+//            appr.insertSkill(osk);
+//            apprenticeMap.insert(appr.getKey(), appr);
+//            dataChanged = true;
 
-        }
+//        }
 
-        if(dataChanged)
-            saveDatas("Lehrlinge.dat");
+//        if(dataChanged)
+//            saveDatas("Lehrlinge.dat");
 
-    }
+    //    }
 }
 
-QStringList FSHKWindow::getApprenticeList(const ClassSkills &skill)
+bool FSHKWindow::skillSameIdentifier(const QString &proIdent)
 {
-    ClassSkills sk = skill;
-    QStringList list;
+    bool status = false;
+
+    QMapIterator<QString, ClassSkills> it(skillMap);
+    while (it.hasNext()) {
+        it.next();
+        if(it.value().identifier() == proIdent){
+            status = true;
+            break;
+        }
+    }
+
+    return status;
+}
+
+QStringList FSHKWindow::addProjectToSkill(const ClassProjekt &pro)
+{
+    QStringList skillKey;
+    ClassProjekt project = pro;
+    QMapIterator<QString, ClassSkills> it(skillMap);
+    while (it.hasNext()) {
+        it.next();
+        if(it.value().identifier() == project.identifier()){
+            ClassSkills sk = it.value();
+            sk.insertProjekt(project);
+            skillMap.insert(sk.getKey(), sk);
+
+            // Store the changed skills
+            skillKey << sk.getKey();
+        }
+    }
+    saveDatas("Pruefungen.dat");
+    return skillKey;
+}
+
+QStringList FSHKWindow::removeProjectFromSkill(const ClassProjekt &pro)
+{
+    QStringList skillKey;
+    ClassProjekt project = pro;
+    QMapIterator<QString, ClassSkills> it(skillMap);
+    while (it.hasNext())
+    {
+        it.next();
+        ClassSkills sk = it.value();
+        if(sk.containsProject( project.getKey() ))
+        {
+            if(sk.removeProject( project.getKey() ))
+            {
+                skillMap.insert(sk.getKey(), sk);
+                skillKey << sk.getKey();
+
+            }
+        }
+    }
+    saveDatas("Pruefungen.dat");
+    return skillKey;
+}
+
+void FSHKWindow::addProjectToApprentice(const QString &apprKey, const QString &skillKey, const ClassProjekt &pro)
+{
+    ClassProjekt project = pro;
+    ClassLehrling appr = apprenticeMap.value(apprKey);
+    QMap<QString, ClassSkills> sMap = appr.getSkillMap();
+    ClassSkills skill = sMap.value(skillKey);
+    skill.insertProjekt(project);
+    sMap.insert(skill.getKey(), skill);
+    appr.setSkillMap(sMap);
+    apprenticeMap.insert(appr.getKey(), appr);
+}
+
+//bool FSHKWindow::skillListContainsProject(const QString &proKey)
+//{
+//    bool status = false;
+
+//    QMapIterator<QString, ClassSkills> it(skillMap);
+//    while (it.hasNext()) {
+//        it.next();
+//        if(it.value().identifier() == proKey){
+//            status = true;
+//            break;
+//        }
+//    }
+
+//    return status;
+//}
+
+QMap<QString, QVariant> FSHKWindow::getApprenticeKeyMap(const QString &skillKey)
+{
+    QMap<QString, QVariant> keyMap;
     QMapIterator<QString, ClassLehrling> it(apprenticeMap);
     while (it.hasNext()) {
         it.next();
         ClassLehrling appr = it.value();
-        if(appr.containsSkill(sk.getKey())){
-            if(appr.isSkillEvaluated(sk.getKey()))
-                list << appr.getKey();
-        }
+        if (appr.containsSkill(skillKey) && appr.isSkillEvaluated(skillKey) )
+                keyMap.insert(appr.getKey(), "evaluatedSkill");
+
+        if (appr.containsSkill(skillKey) && !appr.isSkillEvaluated(skillKey) )
+                keyMap.insert(appr.getKey(), "cleanSkill");
+
     }
-    return list;
+    return keyMap;
 }
 
-void FSHKWindow::insertProjectToSkill(const ClassProjekt &pro)
-{
-     QList<ClassSkills> skillList;
-    bool dataChanged = false;
-    ClassProjekt project = pro;
-    QMapIterator <QString, ClassSkills> it(skillMap);
-    while (it.hasNext()) {
-        it.next();
-        ClassSkills skill = it.value();
-        if(skill.containsProject( project.getKey() )){
-            skill.insertProjekt(project);
-            skillMap.insert(it.key(), skill);
-            skillList << skill;
-            dataChanged = true;
-        }
-    }
+//QStringList FSHKWindow::getApprenticeList(const ClassSkills &skill)
+//{
+//    ClassSkills sk = skill;
+//    QStringList list;
+//    QMapIterator<QString, ClassLehrling> it(apprenticeMap);
+//    while (it.hasNext()) {
+//        it.next();
+//        ClassLehrling appr = it.value();
+//        if(appr.containsSkill(sk.getKey()))
+//                list << appr.getKey();
+//    }
+//    return list;
+//}
 
-    if(dataChanged){
-        saveDatas("Pruefungen.dat");
+//void FSHKWindow::insertProjectToSkill(const ClassProjekt &pro)
+//{
+//    QList<ClassSkills> skillList;
+//    bool dataChanged = false;
+//    ClassProjekt project = pro;
+//    QMapIterator <QString, ClassSkills> it(skillMap);
+//    while (it.hasNext()) {
+//        it.next();
+//        ClassSkills skill = it.value();
+//        if(skill.containsProject( project.getKey() )){
+//            skill.insertProjekt(project);
+//            skillMap.insert(it.key(), skill);
+//            skillList << skill;
+//            dataChanged = true;
+//        }
+//    }
 
-        foreach (ClassSkills sk, skillList) {
-            skillChanged(sk);
-        }
-    }
-}
+//    if(dataChanged){
+//        saveDatas("Pruefungen.dat");
 
-void FSHKWindow::addProjectToSkill(const ClassProjekt &pro)
-{
-    QList<ClassSkills> skillList;
-    bool dataChanged = false;
-    ClassProjekt project = pro;
-    QMapIterator <QString, ClassSkills> it(skillMap);
-    while (it.hasNext()) {
-        it.next();
-        ClassSkills skill = it.value();
-        if(skill.identifier() == pro.identifier()){
-            skill.insertProjekt(project);
-            skillMap.insert(it.key(), skill);
-            skillList << skill;
-            dataChanged = true;
-        }
-    }
+//        foreach (ClassSkills sk, skillList) {
+//            skillChanged(sk);
+//        }
+//    }
+//}
 
-    if(dataChanged){
-        saveDatas("Pruefungen.dat");
+//void FSHKWindow::addProjectToSkill(const ClassProjekt &pro)
+//{
+//    QList<ClassSkills> skillList;
+//    bool dataChanged = false;
+//    ClassProjekt project = pro;
+//    QMapIterator <QString, ClassSkills> it(skillMap);
+//    while (it.hasNext()) {
+//        it.next();
+//        ClassSkills skill = it.value();
+//        if(skill.identifier() == pro.identifier()){
+//            skill.insertProjekt(project);
+//            skillMap.insert(it.key(), skill);
+//            skillList << skill;
+//            dataChanged = true;
+//        }
+//    }
 
-        foreach (ClassSkills sk, skillList) {
-            skillChanged(sk);
-        }
-    }
-}
+//    if(dataChanged){
+//        saveDatas("Pruefungen.dat");
 
-void FSHKWindow::insertProjectToApprentice(const ClassProjekt &pro)
-{
-    bool apprenticeChanged = false;
-    ClassProjekt project = pro;
-    QMapIterator <QString, ClassLehrling> it(apprenticeMap);
-    while (it.hasNext()) {
-        it.next();
-        ClassLehrling appr = it.value();
-        QMap<QString, ClassSkills> sMap = appr.getSkillMap();
-        foreach (ClassSkills skill, sMap.values()) {
-            if(skill.containsProject( project.getKey() )){
-                skill.insertProjekt(project);
-                sMap.insert(skill.getKey(), skill);
-                appr.setSkillMap(sMap);
-                apprenticeMap.insert(appr.getKey(), appr);
-                apprenticeChanged = true;
-            }
-        }
-    }
+//        foreach (ClassSkills sk, skillList) {
+//            skillChanged(sk);
+//        }
+//    }
+//}
 
-    if(apprenticeChanged)
-        saveDatas("Lehrlinge.dat");
-}
+//void FSHKWindow::insertProjectToApprentice(const ClassProjekt &pro)
+//{
+//    bool apprenticeChanged = false;
+//    ClassProjekt project = pro;
+//    QMapIterator <QString, ClassLehrling> it(apprenticeMap);
+//    while (it.hasNext()) {
+//        it.next();
+//        ClassLehrling appr = it.value();
+//        QMap<QString, ClassSkills> sMap = appr.getSkillMap();
+//        foreach (ClassSkills skill, sMap.values()) {
+//            if(skill.containsProject( project.getKey() )){
+//                skill.insertProjekt(project);
+//                sMap.insert(skill.getKey(), skill);
+//                appr.setSkillMap(sMap);
+//                apprenticeMap.insert(appr.getKey(), appr);
+//                apprenticeChanged = true;
+//            }
+//        }
+//    }
 
-void FSHKWindow::addProjectToApprentice(const ClassProjekt &pro)
-{
-    bool apprenticeChanged = false;
-    ClassProjekt project = pro;
-    QMapIterator <QString, ClassLehrling> it(apprenticeMap);
-    while (it.hasNext()) {
-        it.next();
-        ClassLehrling appr = it.value();
-        QMap<QString, ClassSkills> sMap = appr.getSkillMap();
-        foreach (ClassSkills skill, sMap.values()) {
-            if(skill.identifier() == project.identifier()){
-                skill.insertProjekt(project);
-                sMap.insert(skill.getKey(), skill);
-                appr.setSkillMap(sMap);
-                apprenticeMap.insert(appr.getKey(), appr);
-                apprenticeChanged = true;
-            }
-        }
-    }
+//    if(apprenticeChanged)
+//        saveDatas("Lehrlinge.dat");
+//}
 
-    if(apprenticeChanged)
-        saveDatas("Lehrlinge.dat");   
-}
+//void FSHKWindow::addProjectToApprentice(const ClassProjekt &pro)
+//{
+//    bool apprenticeChanged = false;
+//    ClassProjekt project = pro;
+//    QMapIterator <QString, ClassLehrling> it(apprenticeMap);
+//    while (it.hasNext()) {
+//        it.next();
+//        ClassLehrling appr = it.value();
+//        QMap<QString, ClassSkills> sMap = appr.getSkillMap();
+//        foreach (ClassSkills skill, sMap.values()) {
+//            if(skill.identifier() == project.identifier()){
+//                skill.insertProjekt(project);
+//                sMap.insert(skill.getKey(), skill);
+//                appr.setSkillMap(sMap);
+//                apprenticeMap.insert(appr.getKey(), appr);
+//                apprenticeChanged = true;
+//            }
+//        }
+//    }
+
+//    if(apprenticeChanged)
+//        saveDatas("Lehrlinge.dat");
+//}
 
 /// !brief This function is called
 /// when a Form has been closed
@@ -678,6 +875,233 @@ QDateTime FSHKWindow::lastFileModified(const QString &filename)
     return dt;
 }
 
+void FSHKWindow::updateCompanyData()
+{
+    bool apprenticeDataChanged = false;
+    bool companyDataChanged = false;
+
+    QMapIterator<int, ClassBetrieb> it(companyMap);
+    while (it.hasNext())
+    {
+        it.next();
+        ClassBetrieb comp = it.value();
+
+        QStringList azuKeyList = comp.azuKeys();
+        QMapIterator<QString, ClassLehrling> ip(apprenticeMap);
+        while (ip.hasNext())
+        {
+            ip.next();
+            ClassLehrling appr = ip.value();
+
+            // Company has no apprentice
+            if(appr.company() == comp.name() && azuKeyList.isEmpty())
+                appr.setCompany("");
+
+            // When company was removed
+            if(!companyKeyList().contains(appr.company()))
+                appr.setCompany("");
+
+            // When company has not this apprentice ...
+            if(!comp.azuKeys().contains( appr.getKey() ) && appr.company() == comp.name())
+                appr.setCompany("");
+
+            apprenticeMap.insert(appr.getKey(), appr);
+            apprenticeDataChanged = true;
+
+        }
+
+        foreach (QString key, comp.azuKeys())
+        {
+            if(!apprenticeExist(key))
+            {
+                comp.removeApprentice(key);
+                companyMap.insert(comp.nr(), comp);
+                companyDataChanged = true;
+            }
+
+        }
+    }
+
+
+    if(apprenticeDataChanged)
+        saveDatas("Lehrlinge.dat");
+
+    if(companyDataChanged)
+        saveDatas("Betriebe.dat");
+}
+
+QStringList FSHKWindow::companyKeyList()
+{
+    QStringList list;
+    foreach (ClassBetrieb b, companyMap.values()) {
+        list << b.name();
+    }
+    return list;
+}
+
+void FSHKWindow::updateApprenticeData()
+{
+    bool apprenticeDataChanged = false;
+    bool companyDataChanged = false;
+
+    // Get some values
+    QStringList apprNames;
+
+    QMapIterator<QString, ClassLehrling> it(apprenticeMap);
+    while (it.hasNext())
+    {
+        it.next();
+        ClassLehrling appr = it.value();
+
+        // Apprentice without company
+        if(appr.company().isEmpty())
+        {
+            foreach (ClassBetrieb co, companyMap.values())
+            {
+                if(co.azuKeys().contains( appr.getKey() ))
+                {
+                    if(co.removeApprentice(appr.getKey()))
+                    {
+                        companyMap.insert(co.nr(), co);
+                        companyDataChanged = true;
+                    }
+                }
+            }
+        }
+
+        if(!appr.company().isEmpty())
+        {
+           ClassBetrieb co = getCompany( appr.company() );
+           if(!co.azuKeys().contains(appr.getKey()))
+           {
+               co.insertApprentice(appr);
+               companyMap.insert(co.nr(), co);
+               companyDataChanged = true;
+           }
+        }
+
+        // Update skills in apprentice
+        foreach (ClassSkills sk, skillMap.values())
+        {
+            if(appr.containsSkill(sk.getKey()))
+            {
+                if(!appr.isSkillEvaluated(sk.getKey()))
+                {
+                    appr.insertSkill(sk);
+                    apprenticeMap.insert(appr.getKey(), appr);
+                    apprenticeDataChanged = true;
+                }
+
+                if(appr.isSkillEvaluated(sk.getKey()))
+                {
+                    if(!appSettingsMap.value("overwriteEvaluatedSkills").toBool())
+                        apprNames << appr.getKey();
+                    else
+                    {
+                        appr.insertSkill(sk);
+                        apprenticeMap.insert(appr.getKey(), appr);
+                        apprenticeDataChanged = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if(!apprNames.isEmpty())
+    {
+        QString title = "Auszubildende mit Prüfungen";
+        QString message = "Bei den unten aufgeführten Auszubildenden wurde die Prüfung bereits "
+                         "ganz oder teils ausgewertet. Ausgewertete Daten könnten verloren gehen!";
+        DialogApprenticeList *dlg = new  DialogApprenticeList(title,message, apprNames ,this);
+        if(dlg->exec() == QDialog::Accepted)
+        {
+            appSettingsMap.insert("overwriteEvaluatedSkills", true);
+            updateApprenticeData();
+        }
+    }
+
+
+    if(companyDataChanged)
+        saveDatas("Betriebe.dat");
+
+    if(apprenticeDataChanged)
+        saveDatas("Pruefungen.dat");
+
+    appSettingsMap.insert("overwriteEvaluatedSkills", false);
+
+}
+
+bool FSHKWindow::apprenticeExist(const QString &key)
+{
+    bool status = false;
+    if(!apprenticeMap.value(key).surname().isEmpty())
+        status = true;
+    return status;
+}
+
+void FSHKWindow::updateProjektData()
+{
+    if(skillMap.isEmpty())
+        return;
+
+    bool skillDataChanged = false;
+    QMapIterator<QString, ClassProjekt> it(projectMap);
+    while (it.hasNext())
+    {
+        it.next();
+
+        ClassProjekt pro = it.value();
+
+        // Copy all projects into the skill with the same identifier
+        foreach (ClassSkills sk, skillMap.values())
+        {
+
+            if(sk.identifier() == pro.identifier())
+            {
+                sk.insertProjekt(pro);
+                skillMap.insert(sk.getKey(), sk);
+                skillDataChanged = true;
+            }
+        }  
+    }
+
+    foreach (ClassSkills sk, skillMap.values())
+    {
+        QStringList skillProjectKeyList = sk.projectKeyList();
+        for(int i = 0; i < skillProjectKeyList.size(); i++)
+        {
+            if(!projectKeyList(sk.identifier()).contains(skillProjectKeyList.at(i)))
+            {
+                sk.removeProject(skillProjectKeyList.at(i));
+                skillMap.insert(sk.getKey(), sk);
+                skillDataChanged = true;
+
+            }
+        }
+    }
+
+    if(skillDataChanged){
+        saveDatas("Pruefungen.dat");
+        updateApprenticeData();
+    }
+
+
+}
+
+QStringList FSHKWindow::projectKeyList(const QString &identifier)
+{
+    QStringList keyList;
+    QMapIterator<QString, ClassProjekt> it(projectMap);
+    while (it.hasNext()) {
+        it.next();
+        ClassProjekt pro = it.value();
+        if(pro.identifier() == identifier)
+            keyList << pro.getKey();
+    }
+
+    return keyList;
+}
+
 /// !brief Depends on datas to enable action menu
 void FSHKWindow::setupMenu()
 {
@@ -712,11 +1136,11 @@ void FSHKWindow::readSettings()
     QRect wRect = settings.value("geometrie", QRect(0,0,930,640)).toRect();
     this->setGeometry(wRect);
 
-    QDateTime apprFileDate = settings.value("lehrling").toDateTime();
-    if(lastFileModified("Lehrlinge.dat") != apprFileDate)
-        QMessageBox::information(this, "Test", "Version Lehrlinge ist veraltet!");
+//    QDateTime apprFileDate = settings.value("lehrling").toDateTime();
+//    if(lastFileModified("Lehrlinge.dat") != apprFileDate)
+//        QMessageBox::information(this, "Test", "Version Lehrlinge ist veraltet!");
 
-    //qDebug() << "Read" << apprFileDate;
+     appSettingsMap.insert("overwriteEvaluatedSkills", false);
 }
 
 /// !brief Write the settings
@@ -729,5 +1153,4 @@ void FSHKWindow::writeSettings()
     settings.setValue("betrieb", lastFileModified("Betriebe.dat"));
 
 
-    //qDebug() << "Write" << lastFileModified("Betriebe.dat");
 }
