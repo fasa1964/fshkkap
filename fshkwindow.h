@@ -75,6 +75,7 @@ private:
     Ui::FSHKWindow *ui;
     QPushButton *dateButton;
 
+    QStringList skillKeyList(const QString &proIdentifier);
     bool skillSameIdentifier(const QString &proIdent);
     QStringList addProjectToSkill(const ClassProjekt &pro);
     QStringList removeProjectFromSkill(const ClassProjekt &pro);
@@ -115,6 +116,7 @@ private:
     void updateCompanyData();
     QStringList companyKeyList();
 
+    void updateApprenticeSkillData(const QStringList &skillKeyList, const QString &proKey ,const QString &order);
     void updateApprenticeData();
     bool apprenticeExist(const QString &key);
 

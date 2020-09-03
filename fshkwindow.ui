@@ -76,6 +76,10 @@
    </property>
   </action>
   <action name="actionCompany">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/House.svg</normaloff>:/images/House.svg</iconset>
+   </property>
    <property name="text">
     <string>&amp;Betriebe</string>
    </property>
@@ -84,6 +88,10 @@
    </property>
   </action>
   <action name="actionApprentice">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/Wrench.svg</normaloff>:/images/Wrench.svg</iconset>
+   </property>
    <property name="text">
     <string>&amp;Auszubildende</string>
    </property>
@@ -92,6 +100,10 @@
    </property>
   </action>
   <action name="actionProjects">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/Document.svg</normaloff>:/images/Document.svg</iconset>
+   </property>
    <property name="text">
     <string>&amp;Projekte</string>
    </property>
@@ -100,6 +112,10 @@
    </property>
   </action>
   <action name="actionSkill">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/Badge.svg</normaloff>:/images/Badge.svg</iconset>
+   </property>
    <property name="text">
     <string>Prüfungen</string>
    </property>
@@ -125,6 +141,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="images.qrc"/>
+ </resources>
  <connections/>
 </ui>

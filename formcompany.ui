@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1030</width>
-    <height>613</height>
+    <width>1336</width>
+    <height>638</height>
    </rect>
   </property>
   <property name="font">
@@ -19,62 +19,95 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="label">
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>30</red>
-           <green>170</green>
-           <blue>127</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>30</red>
-           <green>170</green>
-           <blue>127</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>165</red>
-           <green>167</green>
-           <blue>169</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
+   <item row="1" column="2">
+    <widget class="QFrame" name="frame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
      </property>
-     <property name="text">
-      <string>Betriebe</string>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>30</red>
+              <green>170</green>
+              <blue>127</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>30</red>
+              <green>170</green>
+              <blue>127</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>165</red>
+              <green>167</green>
+              <blue>169</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="text">
+         <string>Sortieren:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="sortBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QTableWidget" name="companyTableWidget"/>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="1" column="0" colspan="2">
     <widget class="QFrame" name="frame_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>525</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
      </property>
@@ -240,82 +273,7 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QFrame" name="frame">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="palette">
-         <palette>
-          <active>
-           <colorrole role="WindowText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>30</red>
-              <green>170</green>
-              <blue>127</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </active>
-          <inactive>
-           <colorrole role="WindowText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>30</red>
-              <green>170</green>
-              <blue>127</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </inactive>
-          <disabled>
-           <colorrole role="WindowText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>165</red>
-              <green>167</green>
-              <blue>169</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </disabled>
-         </palette>
-        </property>
-        <property name="text">
-         <string>Sortieren:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="sortBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QTableWidget" name="companyTableWidget"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
+   <item row="2" column="0" colspan="3">
     <widget class="QFrame" name="frame_3">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -460,6 +418,60 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QLabel" name="label">
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>30</red>
+           <green>170</green>
+           <blue>127</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>30</red>
+           <green>170</green>
+           <blue>127</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>165</red>
+           <green>167</green>
+           <blue>169</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Betriebe</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
     </widget>
    </item>
   </layout>

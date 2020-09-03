@@ -173,8 +173,8 @@ void FormSkills::deleteButtonClicked()
     emit saveSkillsMap(m_skillMap);
 
 
-    int delProjekt = QMessageBox::question(this, tr("Prüfung löschen"), tr("Sollen die Projekte aus der Prüfung auch gelöscht werden?"),
-                                          QMessageBox::Cancel | QMessageBox::Ok);
+    int delProjekt = QMessageBox::question(this, tr("Prüfung löschen"), tr("Sollen alle Projekte aus der Prüfung auch gelöscht werden?"),
+                                          QMessageBox::No | QMessageBox::Ok);
     if(delProjekt == QMessageBox::Ok)
         emit removeProjects(selectedSkill.getProjektMap());
 

@@ -54,6 +54,7 @@ public:
     void setSkillMap(const QMap<QString, ClassSkills> &skillMap);
 
     void insertSkill(ClassSkills skill);
+    ClassSkills getSkill(const QString &skillKey);
     bool containsSkill(const QString &skillKey);
     bool isSkillEvaluated(const QString &skillKey);
 
