@@ -72,3 +72,11 @@ FORMS += \
 
 RESOURCES += \
     images.qrc
+
+DISTFILES += \
+    images/Badge.svg \
+    images/Document.svg \
+    images/FSHKIcon.svg \
+    images/House.svg \
+    images/SplashPixmap.svg \
+    images/Wrench.svg

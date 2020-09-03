@@ -211,7 +211,7 @@ void FormProjekt::deleteButtonClicked()
 
     m_projektMap.remove(selectedProjekt.getKey());
     emit saveProjekte(m_projektMap);
-    emit projektRemoved(selectedProjekt);
+    emit projektRemoved(selectedProjekt.getKey());
 
     updateProjektTable(projektMap());
     updateSortBox();

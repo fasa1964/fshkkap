@@ -249,13 +249,86 @@ void FSHKWindow::saveProjectMap(const QMap<QString, ClassProjekt> &pMap)
 
 /// !brief Check if any skill has the
 /// removed project ask user to remove from skill
-void FSHKWindow::projectRemoved(const ClassProjekt &pro)
+void FSHKWindow::projectRemoved(const QString &proKey)
 {
-//    if(skillMap.isEmpty())
-//        return;
+    if(skillMap.isEmpty())
+        return;
 
-//    if(!skillSameIdentifier( pro.identifier() ))
-//        return;
+    // Delete projekt from skill and store the changed skill
+    QStringList skillKeyList;
+    foreach (ClassSkills s, skillMap.values()) {
+        if(s.containsProject( proKey )){
+            s.removeProject(proKey);
+            skillMap.insert(s.getKey(),s);
+            skillKeyList << s.getKey();
+        }
+    }
+
+    saveDatas("Pruefungen.dat");
+
+    if(skillKeyList.isEmpty())
+        return;
+
+    QMap<QString, QVariant> azuSkillMap;
+    foreach (ClassLehrling azu, apprenticeMap.values())
+    {
+        for(int i = 0; i < skillKeyList.size(); i++)
+        {
+            if(azu.containsSkill(skillKeyList.at(i)))
+            {
+                if(azu.isSkillEvaluated(skillKeyList.at(i)))
+                    azuSkillMap.insert(azu.getKey(), "evaluatedSkill");
+                else
+                    azuSkillMap.insert(azu.getKey(), "cleanSkill");
+            }
+        }
+    }
+
+    if(azuSkillMap.isEmpty())
+        return;
+
+    int result = QMessageBox::question(this, tr("Prüfungen"), tr("Die geänderte Prüfung wurde einige Auszubildenden zugeordnet."
+                                    "Sollen die Prüfungen auch geändert werden?"), QMessageBox::No | QMessageBox::Yes);
+
+    if(result == QMessageBox::No)
+        return;
+
+    QStringList azuKeyList;
+    azuKeyList << azuSkillMap.keys("cleanSkill");
+
+    if(!azuSkillMap.keys("evaluatedSkill").isEmpty())
+    {
+        QString title = "Auszubildende mit geänderten Prüfungen";
+        QString message = "Bei den unten aufgeführten Auszubildenden wurde die Prüfung bereits "
+                          "ganz oder teils ausgewertet. Durch die Änderung können Ausgewertete Daten verloren gehen!";
+
+        DialogApprenticeList *dlg = new  DialogApprenticeList( title, message, azuSkillMap.keys("evaluatedSkill") ,this);
+
+        if(dlg->exec() == QDialog::Accepted)
+            azuKeyList << azuSkillMap.keys("evaluatedSkill");;
+
+    }
+
+
+    foreach (QString key, azuKeyList)
+    {
+        ClassLehrling appr = apprenticeMap.value(key);
+        for(int i = 0; i < skillKeyList.size(); i++)
+        {
+            if(!appr.isSkillEvaluated(skillKeyList.at(i)))
+                appr.insertSkill( skillMap.value(skillKeyList.at(i)));
+            else {
+                ;
+            }
+
+            apprenticeMap.insert(appr.getKey(), appr);
+        }
+    }
+
+
+
+    saveDatas("Lehrlinge.dat");
+
 
 //    // Remove project from skill if skill has same identifier
 //    // Returns the changed skills key

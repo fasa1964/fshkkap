@@ -32,7 +32,7 @@ signals:
     void formProjectClosed();
     void projektChanged(const ClassProjekt &projekt);
     void projektAdded(const ClassProjekt &projekt);
-    void projektRemoved(const ClassProjekt &projekt);
+    void projektRemoved(const QString  &proKey);
     void invalidDateTime();
 
 private slots:
