@@ -79,6 +79,14 @@ QString ClassSkills::getKey()
     return key;
 }
 
+bool ClassSkills::isValid()
+{
+    if(name().isEmpty() || identifier().isEmpty())
+        return false;
+    else
+        return true;
+}
+
 int ClassSkills::maxPoints()
 {
     int maxpunkte = 0;

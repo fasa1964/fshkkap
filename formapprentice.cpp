@@ -28,6 +28,7 @@ FormLehrling::FormLehrling(QWidget *parent) :
     connect(ui->changeButton, &QPushButton::clicked, this, &FormLehrling::changeButtonClicked);
     connect(ui->saveButton, &QPushButton::clicked, this, &FormLehrling::saveButtonClicked);
     connect(ui->companyViewButton, &QToolButton::clicked, this, &FormLehrling::companyViewButtonClicked);
+    connect(ui->outsourceButton, &QToolButton::clicked, this, &FormLehrling::outsourceButtonClicked);
 
     connect(ui->klasseBox, &QComboBox::currentTextChanged, this, &FormLehrling::klasseBoxTextChanged);
 
@@ -59,7 +60,11 @@ void FormLehrling::createButtonClicked()
 void FormLehrling::deleteButtonClicked()
 {
     int result = QMessageBox::information(this, tr("Lösche Lehrling"), tr("Der Auszubildende: ") +
-                  seletedApprentice.getKey() + tr("\nwird unwiderruflich gelöscht!"), QMessageBox::Cancel | QMessageBox::Ok);
+                  seletedApprentice.getKey() + tr("\nwird unwiderruflich gelöscht!\n"
+                                                  "ACHTUNG! Beim Löschen werden auch die kopierten Projekte und Prüfungen gelöscht. "
+                                                  "Eine Wiederherstellung dieser Daten ist dann nicht mehr möglich!\n"
+                                                  "Auslagern der Daten ist eine gute Alternative. "),
+                  QMessageBox::Cancel | QMessageBox::Ok);
 
     if(result == QMessageBox::Cancel)
         return;
@@ -171,6 +176,11 @@ void FormLehrling::saveButtonClicked()
     ui->createButton->setEnabled(true);
     ui->saveButton->setEnabled(false);
     setFormReadOnly(true);
+}
+
+void FormLehrling::outsourceButtonClicked()
+{
+    emit outsourceApprentice();
 }
 
 /// !brief For selecting a company
@@ -339,13 +349,14 @@ void FormLehrling::sortApprenticeTable()
 /// !brief Returns a map sorted by year of training
 QMap<QString, ClassLehrling> FormLehrling::getApprenticeMap(int year)
 {
-    int todayYear = QDate::currentDate().year();
 
     QMap<QString, ClassLehrling> sortMap;
     QMapIterator<QString, ClassLehrling> it(apprenticeMap());
     while (it.hasNext()) {
         it.next();
-        int educationYear = todayYear - it.value().apprenticeshipDate().year();
+
+        int educationYear = it.value().apprenticeshipDate().daysTo(QDate::currentDate()) / 365;
+        educationYear++;
 
         if(educationYear == 0)
             educationYear = 1;

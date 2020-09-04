@@ -165,6 +165,26 @@ QString ClassProjekt::getKey()
     return key;
 }
 
+bool ClassProjekt::isValid()
+{
+    if(name().isEmpty() || identifier().isEmpty())
+        return false;
+    else
+        return true;
+}
+
+void ClassProjekt::clearValues()
+{
+    setPoints(0);
+    setPercent(0.0);
+    setEvaluated(false);
+    QMap<int, ClassFrage> qMap = questionMap();
+    foreach (ClassFrage frg, qMap.values()) {
+        frg.setPoints(0);
+    }
+    setQuestionMap(qMap);
+}
+
 bool ClassProjekt::getEvaluated() const
 {
     return m_evaluated;

@@ -570,6 +570,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="outsourceButton">
+        <property name="text">
+         <string>&amp;Auslagern</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="deleteButton">
         <property name="enabled">
          <bool>false</bool>

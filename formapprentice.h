@@ -37,7 +37,7 @@ signals:
     void saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap);
     void apprenticeWithoutCompany(const QString &apprKey);
     void apprenticeHasCompany(const QString &company, const QString &apprenticeKey);
-
+    void outsourceApprentice();
 
 private slots:
 
@@ -47,6 +47,7 @@ private slots:
     void deleteSkillButtonClicked();
     void changeButtonClicked();
     void saveButtonClicked();
+    void outsourceButtonClicked();
     void companyViewButtonClicked();
 
     void klasseBoxTextChanged(const QString &text);

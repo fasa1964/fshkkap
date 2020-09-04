@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     QGuiApplication::setApplicationName("FSHK-AP");
     QGuiApplication::setApplicationVersion("1.0");
 
-    QLocale local = QLocale::system();
+    //QLocale local = QLocale::system();
 
 
     QPixmap pix = QPixmap(":/images/SplashPixmap.svg");
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     app.processEvents();
 
     FSHKWindow window;
-    window.setLocale(local);
+    //window.setLocale(local);
     window.show();
     splash->finish(&window);
 

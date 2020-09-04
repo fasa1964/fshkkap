@@ -59,6 +59,7 @@ private slots:
     void saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap);
     void apprenticeWithoutCompany(const QString &apprKey);
     void apprenticeAssociatedCompany(const QString &company, const QString &apprenticeKey);
+    void outsourceApprentice();
 
     // Signals from FormProject
     void saveProjectMap(const QMap<QString, ClassProjekt> &pMap);
@@ -70,6 +71,9 @@ private slots:
     void saveSkillMap(const QMap<QString, ClassSkills> &sMap);
     void removeProjects(const QMap<QString, ClassProjekt> &proMap);
     void skillChanged(const ClassSkills &skill);
+
+    // Signal from FormEvaluation
+    void recoverAll();
 
 private:
     Ui::FSHKWindow *ui;
@@ -110,7 +114,7 @@ private:
     FormAllocate *formAllocate;
     FormEvaluation *formEvaluation;
 
-
+    QStringList getSkillDataIncomplete();
     QDateTime lastFileModified(const QString &filename);
 
     void updateCompanyData();

@@ -28,58 +28,88 @@ public:
      QMap<QString, ClassLehrling> getApprenticeMap() const;
      void setApprenticeMap(const QMap<QString, ClassLehrling> &apprenticeMap);
 
+//     void setRecoverButtonEnable(bool status, const QStringList &skillKeys);
+
 signals:
      void saveApprenticeMap(QMap<QString, ClassLehrling> apprMap);
+//     void recoverAll();
 
 private slots:
      void closeButtonClicked();
      void saveButtonClicked();
-     void sortBoxTextChanged(const QString &text);
-     void azubiBoxTextChanged(const QString &text);
-     void skillBoxTextChanged(const QString &text);
-     void projectBoxTextChanged(const QString &text);
 
+     void azubiSortBoxChanged(const QString &text);
+     void azubiListBoxChanged(const QString &text);
+     void azubiSkillBoxChanged(const QString &text);
+     void azubiProjectBoxChanged(const QString &text);
      void evaluatedCheckBoxChanged(int status);
+
+
      void questionTableCellChanged(int row, int column);
-     void resultTableItemClicked(QTreeWidgetItem *item, int column);
+     void resultTableItemClicked(QTreeWidgetItem *item, int);
+
+//     void recoverButtonClicked();
+//     void sortBoxTextChanged(const QString &text);
+//     void azubiBoxTextChanged(const QString &text);
+//     void skillBoxTextChanged(const QString &text);
+//     void projectBoxTextChanged(const QString &text);
+
+//     void evaluatedCheckBoxChanged(int status);
+
+//     void resultTableItemClicked(QTreeWidgetItem *item, int column);
+//     void factorBoxChanged(double value);
 
 private:
     Ui::FormEvaluation *ui;
 
     bool dirty;
-    ClassLehrling selectedLehrling;
+    ClassLehrling selectedApprentice;
     ClassSkills selectedSkill;
     ClassProjekt selectedProjekt;
+    QMap<QString, ClassSkills> selectedSkillMap;
+    QMap<QString, ClassProjekt> selectedProjectMap;
 
     QMap<QString, ClassLehrling> m_apprenticeMap;
 
+    QMap<QString, QString> apprYearMap;
+    void setupApprYearBox();    // Sort the apprentice by years
+
+    void setupQuestionTable(const ClassProjekt &pro);
+
     // Test result item map
-    QMap<QString, QVariant> resultMap;
+    double apprenticePercent(const ClassLehrling &);
+    double skillPercent(const ClassSkills &skill);
+    double projectPercent(const ClassProjekt &pro);
+    int projectPoints(const ClassProjekt &pro);
 
-    void setupProjectValue();
-    void setupQuestionTable(ClassProjekt pro);
-    void updateSkillBox(const ClassLehrling &azu);
-    QMap<QString, ClassLehrling> apprenticeship(int year);
+    void storeValues();
+    void setupResultTreeWidget(const ClassLehrling &appr);
+//    void setupProjectValue();
+//    void setupQuestionTable(ClassProjekt pro);
+//    void updateSkillBox(const ClassLehrling &azu);
+//    QMap<QString, ClassLehrling> apprenticeship(int year);
+//    void setTextColor(QWidget *widget, QColor color);
+
+//    // Test
+//    void setupResultWidget(const ClassLehrling &azu);
+//    void setupIdentifier(const ClassLehrling &azu);
+
+
+//    QStringList questionsIdentifierList(const ClassLehrling &azu);
+
+//    QList<ClassFrage> getQuestions(const ClassProjekt &pro, const QString &key);
+//    double getResultIdentifier(const QList<ClassFrage> questList);
+
+//    bool isSkillFactorValid();
+//    double getSkillFactor(const ClassSkills &skill);
+//    double getProjectPercent(const ClassProjekt &pro);
+//    int getProjectMaxPoint(const ClassProjekt &pro);
+//    int getProjectPoints(const ClassProjekt &pro);
+
+//    /// !brief Returns true if skill key
+//    bool isSkillKey(const QString &text);
+    bool isDigit(const QString &text);
     void setTextColor(QWidget *widget, QColor color);
-
-    // Test
-    void setupResultWidget(const ClassLehrling &azu);
-    void setupIdentifier(const ClassLehrling &azu);
-
-
-    QStringList questionsIdentifierList(const ClassLehrling &azu);
-
-    QList<ClassFrage> getQuestions(const ClassProjekt &pro, const QString &key);
-    double getResultIdentifier(const QList<ClassFrage> questList);
-
-
-    double getProjectPercent(const ClassProjekt &pro);
-    int getProjectMaxPoint(const ClassProjekt &pro);
-    int getProjectPoints(const ClassProjekt &pro);
-
-    /// !brief Returns true if skill key
-    bool isSkillKey(const QString &text);
-
 };
 
 

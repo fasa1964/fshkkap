@@ -54,6 +54,8 @@ public:
     void setLockSubject(bool lockSubject);
 
     QString getKey();
+    bool isValid();
+    void clearValues();
 
     bool getEvaluated() const;
     void setEvaluated(bool evaluated);

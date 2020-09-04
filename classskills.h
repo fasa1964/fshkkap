@@ -42,6 +42,7 @@ public:
     void setWert(int wert);
 
     QString getKey();
+    bool isValid();
 
     int maxPoints();
     int points();

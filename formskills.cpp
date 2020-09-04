@@ -109,11 +109,13 @@ void FormSkills::saveButtonClicked()
         return;
     }
 
-    // Check if identifier of skill exist by projects identifiers
-    if(!getProjectKennung(projektMap()).contains(ui->kennungEdit->text())){
-        QMessageBox::information(this, tr("Prüfung speichern"), tr("Die Kennung einer Prüfung muss mit einer der Kennungen"
-                                                                   " von den Projekten übereinstimmen!"));
-        return;
+    if(!changeSkill){
+        // Check if identifier of skill exist by projects identifiers
+        if(!getProjectKennung(projektMap()).contains(ui->kennungEdit->text())){
+            QMessageBox::information(this, tr("Prüfung speichern"), tr("Die Kennung einer Prüfung muss mit einer der Kennungen"
+                                                                       " von den Projekten übereinstimmen!"));
+            return;
+        }
     }
 
 
@@ -177,6 +179,10 @@ void FormSkills::deleteButtonClicked()
                                           QMessageBox::No | QMessageBox::Ok);
     if(delProjekt == QMessageBox::Ok)
         emit removeProjects(selectedSkill.getProjektMap());
+
+    clearForm();
+    if(!m_skillMap.isEmpty())
+        setSkillToForm(m_skillMap.values().first());
 
     setupSkillTable(m_skillMap);
 
