@@ -250,16 +250,11 @@ bool FormLehrling::companyExist(const QString &name)
     return status;
 }
 
-/// !brief Returns the education year
+/// !brief Returns the education year of apprentice
 int FormLehrling::getEducationYear(const ClassLehrling &appr)
 {
-    int year = -1;
-    int today = QDate::currentDate().year();
-    int appDate = appr.apprenticeshipDate().year();
-
-    year = today - appDate;
-    if(year == 0)
-        year = 1;
+    int year = appr.apprenticeshipDate().daysTo(QDate::currentDate()) / 365;
+    year++;
 
     if(year > 4)
         year = 5;

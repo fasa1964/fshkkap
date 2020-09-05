@@ -482,6 +482,8 @@ void FSHKWindow::projectChanged(const ClassProjekt &pro)
 
     bool skillDataChanged = false;
     QStringList skillKeyList;
+
+    // Copy project into skill, this will overwrite the old project
     foreach (ClassSkills sk, skillMap.values())
     {
         if(sk.identifier() == pro.identifier())
@@ -1231,7 +1233,7 @@ void FSHKWindow::updateApprenticeSkillData(const QStringList &skillKeyList, cons
     if(azuSkillMap.isEmpty())
         return;
 
-    int result = QMessageBox::question(this, tr("Prüfungen"), tr("Die geänderte Prüfung wurde einige Auszubildenden zugeordnet."
+    int result = QMessageBox::question(this, tr("Prüfungen"), tr("Die geänderte Prüfung wurde einige Auszubildenden zugeordnet.\n"
                                     "Sollen die Prüfungen auch geändert werden?"), QMessageBox::No | QMessageBox::Yes);
 
     if(result == QMessageBox::No)
@@ -1244,7 +1246,7 @@ void FSHKWindow::updateApprenticeSkillData(const QStringList &skillKeyList, cons
     {
         QString title = "Auszubildende mit geänderten Prüfungen";
         QString message = "Bei den unten aufgeführten Auszubildenden wurde die Prüfung bereits "
-                          "ganz oder teils ausgewertet. Durch die Änderung können Ausgewertete Daten verloren gehen!";
+                          "ganz oder teils ausgewertet.\nDurch die Änderung können ausgewertete Daten verloren gehen!";
 
         DialogApprenticeList *dlg = new  DialogApprenticeList( title, message, azuSkillMap.keys("evaluatedSkill") ,this);
 
@@ -1277,8 +1279,6 @@ void FSHKWindow::updateApprenticeSkillData(const QStringList &skillKeyList, cons
             apprenticeMap.insert(appr.getKey(), appr);
         }
     }
-
-
 
     saveDatas("Lehrlinge.dat");
 
