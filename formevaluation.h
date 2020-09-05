@@ -66,13 +66,14 @@ private:
     ClassLehrling selectedApprentice;
     ClassSkills selectedSkill;
     ClassProjekt selectedProjekt;
-    QMap<QString, ClassSkills> selectedSkillMap;
-    QMap<QString, ClassProjekt> selectedProjectMap;
+//    QMap<QString, ClassSkills> selectedSkillMap;
+//    QMap<QString, ClassProjekt> selectedProjectMap;
 
     QMap<QString, ClassLehrling> m_apprenticeMap;
 
-    QMap<QString, QString> apprYearMap;
+    //QMap<QString, QString> apprYearMap;
     void setupApprYearBox();    // Sort the apprentice by years
+    QStringList getApprenticeKeyList(int year);
 
     void setupQuestionTable(const ClassProjekt &pro);
 

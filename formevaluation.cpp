@@ -352,24 +352,39 @@ void FormEvaluation::saveButtonClicked()
 /// !brief Includes all apprentice keys sorted by years
 void FormEvaluation::azubiSortBoxChanged(const QString &text)
 {
-    ui->azubiListBox->clear();
-    ui->azubiListBox->addItems( apprYearMap.values(text) );
-    ui->countAzubiBox->setValue( apprYearMap.values(text).size() );
+    if(text.isEmpty())
+        return;
+
+    QStringList list;
+    if(text.at(0).isDigit()){
+        QString s = text.at(0);
+        int year = s.toInt();
+        list = getApprenticeKeyList( year );
+    }else
+        list = getApprenticeKeyList(5);
+
+    if(!list.isEmpty()){
+        ui->azubiListBox->clear();
+        ui->azubiListBox->addItems(  list );
+        ui->countAzubiBox->setValue( list.size()  );
+    }
 }
 
 /// !brief Includes all apprentice by name
 void FormEvaluation::azubiListBoxChanged(const QString &text)
 {
+    if(text.isEmpty())
+        return;
+
+    ui->skillListBox->clear();
     selectedApprentice = getApprenticeMap().value(text);
 
     ui->nrBox->setValue( selectedApprentice.nr() );
     ui->azuNameEdit->setText( selectedApprentice.firstname() + " " + selectedApprentice.surname());
 
-    selectedSkillMap = selectedApprentice.getSkillMap();
-    ui->countSkillBox->setValue( selectedSkillMap.size() );
-
-    ui->skillListBox->clear();
-    ui->skillListBox->addItems( selectedSkillMap.keys() );
+    //selectedSkillMap = selectedApprentice.getSkillMap();
+    ui->countSkillBox->setValue( selectedApprentice.getSkillMap().size() );
+    ui->skillListBox->addItems( selectedApprentice.getSkillMap().keys() );
 
     setupResultTreeWidget(selectedApprentice);
 }
@@ -377,20 +392,21 @@ void FormEvaluation::azubiListBoxChanged(const QString &text)
 /// !brief Includes the skills from selected apprentice
 void FormEvaluation::azubiSkillBoxChanged(const QString &text)
 {
-    selectedSkill = selectedSkillMap.value(text);
-    selectedProjectMap = selectedSkill.getProjektMap();
+
+    selectedSkill = selectedApprentice.getSkillMap().value(text); //  selectedSkillMap.value(text);
+    //selectedProjectMap = selectedSkill.getProjektMap();
 
     ui->projektListBox->clear();
-    ui->projektListBox->addItems( selectedProjectMap.keys());
-    ui->countProjektBox->setValue( selectedProjectMap.size() );
+    ui->projektListBox->addItems( selectedSkill.getProjektMap().keys());
+    ui->countProjektBox->setValue( selectedSkill.getProjektMap().size() );
 }
 
 /// !brief Update the values of the selected apprentice
 void FormEvaluation::azubiProjectBoxChanged(const QString &text)
 {
-    selectedProjekt = selectedProjectMap.value(text);
+    selectedProjekt = selectedSkill.getProjektMap().value(text);
 
-    ui->projektNameEdit->setText(selectedProjekt.name());
+    ui->projectLabel->setText(selectedProjekt.name());
 
     if(selectedProjekt.percent() >= 50.0)
         setTextColor(ui->percentBox, Qt::darkGreen);
@@ -409,14 +425,14 @@ void FormEvaluation::evaluatedCheckBoxChanged(int status)
     if(status == Qt::Checked && selectedProjekt.getEvaluated() != true){
         selectedProjekt.setEvaluated(true);
         ui->factorBox->setEnabled(false);
+        storeValues();
     }
 
     if(status == Qt::Unchecked  && selectedProjekt.getEvaluated() == true){
         selectedProjekt.setEvaluated(false);
         ui->factorBox->setEnabled(true);
+        storeValues();
     }
-
-    storeValues();
 }
 
 void FormEvaluation::questionTableCellChanged(int row, int column)
@@ -454,17 +470,19 @@ void FormEvaluation::questionTableCellChanged(int row, int column)
 }
 
 /// !brief When clicking on item then
-/// set the current project
+/// set the current project or skill
 void FormEvaluation::resultTableItemClicked(QTreeWidgetItem *item, int )
 {
     QString key = item->text(0);
 
-    if(selectedSkillMap.keys().contains(key)){
+    // User clicked on top item -> skill was choosed
+    if(selectedApprentice.getSkillMap().keys().contains(key)){
         ui->skillListBox->setCurrentText(key);
         return;
     }
 
-    if(selectedProjectMap.keys().contains(key)){
+    // User clicked on child item -> project was choosed
+    if(selectedSkill.getProjektMap().keys().contains(key)){
         ui->projektListBox->setCurrentText(key);
     }
 }
@@ -485,11 +503,30 @@ void FormEvaluation::setupApprYearBox()
         QString name = QString::number(teachYear,10)+".Lehrjahr";
         if(!keyList.contains(name))
             keyList << name;
-        apprYearMap.insertMulti(name, appr.getKey());
     }
 
     ui->azubiSortBox->clear();
     ui->azubiSortBox->addItems(keyList);
+}
+
+QStringList FormEvaluation::getApprenticeKeyList(int year)
+{
+    QStringList list;
+
+    QMapIterator<QString, ClassLehrling> it(m_apprenticeMap);
+    while (it.hasNext()) {
+        it.next();
+        int educationYear = it.value().apprenticeshipDate().daysTo(QDate::currentDate()) / 365;
+        educationYear++;
+        if(educationYear > 5)
+            educationYear = 5;
+
+        if(educationYear == year)
+            list << it.key();
+    }
+
+    return list;
+
 }
 
 /// !brief Update the questions from the selected project
@@ -541,8 +578,8 @@ void FormEvaluation::setupQuestionTable(const ClassProjekt &pro)
 double FormEvaluation::apprenticePercent(const ClassLehrling &)
 {
     double percent = 0.0;
-    foreach (ClassSkills skill, selectedSkillMap.values()) {
-        if(selectedSkillMap.size() > 1)
+    foreach (ClassSkills skill, selectedApprentice.getSkillMap().values()) {
+        if(selectedApprentice.getSkillMap().size() > 1)
             percent += skillPercent(skill) * (skill.getWert()/100.0);
         else
             percent += skillPercent(skill);
@@ -583,11 +620,8 @@ int FormEvaluation::projectPoints(const ClassProjekt &pro)
 
 void FormEvaluation::storeValues()
 {
-    selectedProjectMap.insert(selectedProjekt.getKey(), selectedProjekt);
-    selectedSkill.setProjektMap( selectedProjectMap );
     selectedSkill.insertProjekt(selectedProjekt);
-    selectedSkillMap.insert(selectedSkill.getKey(), selectedSkill);
-    selectedApprentice.setSkillMap(selectedSkillMap);
+    selectedApprentice.insertSkill(selectedSkill);
     m_apprenticeMap.insert(selectedApprentice.getKey(), selectedApprentice);
 
     setupResultTreeWidget(selectedApprentice);
@@ -604,7 +638,7 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
     headers << "Beschreibung" << "Ergebnis in %" << "Wert/Faktor" << "Auswertung nach";
     ui->resultTreeWidget->setHeaderLabels(headers);
 
-    QMapIterator<QString, ClassSkills> it(selectedSkillMap);
+    QMapIterator<QString, ClassSkills> it(appr.getSkillMap());
     while (it.hasNext()) {
         it.next();
 
@@ -617,7 +651,8 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
 
         topItem->setText(1, QString::number( skillPercent(skill),'g',3)+"%");
 
-        if(selectedSkillMap.size() == 1){
+        if(appr.getSkillMap().size() == 1)
+        {
             QString np = "100% (" + QString::number( skill.getWert() ,'g',3) + "%)";
             topItem->setText(2, np);
         }else
@@ -630,19 +665,28 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
         topItem->setFont(0,font);
         topItem->setFont(1,font);
         topItem->setFont(2,font);
+
+        // Set textcolor
         if(skillPercent(skill) >= 50.0)
             topItem->setTextColor(1, Qt::darkGreen);
         else
             topItem->setTextColor(1, Qt::red);
 
         // Insert child item
-        foreach (ClassProjekt pro, skill.getProjektMap().values()) {
+        foreach (ClassProjekt pro, skill.getProjektMap().values())
+        {
 
             QTreeWidgetItem *childItem = new QTreeWidgetItem(QStringList() << pro.getKey());
             topItem->addChild(childItem);
 
             childItem->setText(1, QString::number(pro.percent(), 'g', 3)+" %");
             childItem->setText(2, QString::number(pro.getFactor(), 'g', 2));
+
+            // Set textcolor
+            if(pro.percent() < 50.0)
+                childItem->setTextColor(1, Qt::red);
+            else
+                childItem->setTextColor(1, Qt::darkGreen);
         }
     }
 
