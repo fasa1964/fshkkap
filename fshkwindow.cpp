@@ -486,10 +486,13 @@ void FSHKWindow::projectChanged(const ClassProjekt &pro)
     // Copy project into skill, this will overwrite the old project
     foreach (ClassSkills sk, skillMap.values())
     {
+
         if(sk.identifier() == pro.identifier())
         {
             sk.insertProjekt(pro);
             skillMap.insert(sk.getKey(), sk);
+
+            // Store the changed skill's
             skillKeyList << sk.getKey();
             skillDataChanged = true;
         }
@@ -497,6 +500,7 @@ void FSHKWindow::projectChanged(const ClassProjekt &pro)
 
     if(skillDataChanged)
         saveDatas("Pruefungen.dat");
+
 
     if(skillKeyList.isEmpty())
         return;
@@ -579,6 +583,7 @@ void FSHKWindow::removeProjects(const QMap<QString, ClassProjekt> &proMap)
 
 void FSHKWindow::skillChanged(const ClassSkills &skill)
 {
+    // Change the base project
     ClassSkills sk = skill;
     bool projectDataChanged = false;
     foreach (ClassProjekt pro, sk.getProjektMap().values())
@@ -586,6 +591,7 @@ void FSHKWindow::skillChanged(const ClassSkills &skill)
         ClassProjekt basePro = projectMap.value(pro.getKey());
         if(basePro.isValid())
         {
+            // Compare factor of project
             if(basePro.getFactor() != pro.getFactor())
             {
                 basePro.setFactor( pro.getFactor() );
@@ -599,12 +605,14 @@ void FSHKWindow::skillChanged(const ClassSkills &skill)
         saveDatas("Projekte.dat");
 
 
-
+    // Chek if any apprentice has this skill
     bool apprenticeDataChanged = false;
     foreach (ClassLehrling azu, apprenticeMap.values())
     {
+        // If apprentice has the changed skill
         if(azu.containsSkill(sk.getKey()))
         {
+            // If no data has been evaluated
             if(!azu.isSkillEvaluated(sk.getKey()))
                 azu.insertSkill(sk);
             else
@@ -624,6 +632,12 @@ void FSHKWindow::skillChanged(const ClassSkills &skill)
                         oldSkill.insertProjekt(newPro);
 
                 }
+
+                // Set criteria of evaluation
+                oldSkill.setEvaluationType( sk.getEvaluationIndex() );
+
+                // Set factor of skill
+                oldSkill.setWert( sk.getWert() );
 
                 azu.insertSkill( oldSkill );
             }
@@ -1222,37 +1236,46 @@ void FSHKWindow::updateApprenticeSkillData(const QStringList &skillKeyList, cons
         {
             if(azu.containsSkill(skillKeyList.at(i)))
             {
+                // If skill is already evaluated
                 if(azu.isSkillEvaluated(skillKeyList.at(i)))
                     azuSkillMap.insert(azu.getKey(), "evaluatedSkill");
                 else
-                    azuSkillMap.insert(azu.getKey(), "cleanSkill");
+                {
+                    ClassSkills sk = azu.getSkill( skillKeyList.at(i));
+                    if(order == "remove")
+                        sk.removeProject(proKey);
+
+                    if(order == "add"){
+                        ClassProjekt pro = projectMap.value(proKey);
+                        sk.insertProjekt(pro);
+                    }
+
+                    azu.insertSkill(sk);
+                    apprenticeMap.insert(azu.getKey(), azu);
+                }
             }
         }
     }
 
+    saveDatas("Lehrlinge.dat");
+
+
     if(azuSkillMap.isEmpty())
         return;
 
-    int result = QMessageBox::question(this, tr("Prüfungen"), tr("Die geänderte Prüfung wurde einige Auszubildenden zugeordnet.\n"
-                                    "Sollen die Prüfungen auch geändert werden?"), QMessageBox::No | QMessageBox::Yes);
-
-    if(result == QMessageBox::No)
-        return;
-
     QStringList azuKeyList;
-    azuKeyList << azuSkillMap.keys("cleanSkill");
+    azuKeyList << azuSkillMap.keys("evaluatedSkill");
 
-    if(!azuSkillMap.keys("evaluatedSkill").isEmpty())
+    if(!azuKeyList.isEmpty())
     {
-        QString title = "Auszubildende mit geänderten Prüfungen";
+        QString title = "Geänderte Prüfunge";
         QString message = "Bei den unten aufgeführten Auszubildenden wurde die Prüfung bereits "
                           "ganz oder teils ausgewertet.\nDurch die Änderung können ausgewertete Daten verloren gehen!";
 
-        DialogApprenticeList *dlg = new  DialogApprenticeList( title, message, azuSkillMap.keys("evaluatedSkill") ,this);
+        DialogApprenticeList *dlg = new  DialogApprenticeList( title, message, azuKeyList ,this);
 
-        if(dlg->exec() == QDialog::Accepted)
-            azuKeyList << azuSkillMap.keys("evaluatedSkill");;
-
+        if(dlg->exec() == QDialog::Rejected)
+            return;
     }
 
 
@@ -1261,20 +1284,48 @@ void FSHKWindow::updateApprenticeSkillData(const QStringList &skillKeyList, cons
         ClassLehrling appr = apprenticeMap.value(key);
         for(int i = 0; i < skillKeyList.size(); i++)
         {
-            if(!appr.isSkillEvaluated(skillKeyList.at(i)))
-                appr.insertSkill( skillMap.value(skillKeyList.at(i)));
-            else {
+//            if(!appr.isSkillEvaluated(skillKeyList.at(i)))
+//                appr.insertSkill( skillMap.value(skillKeyList.at(i)));
+//            else {
                  ClassSkills sk = appr.getSkill( skillKeyList.at(i));
                  if(order == "remove")
                      sk.removeProject(proKey);
 
-                 if(order == "add"){
-                     ClassProjekt pro = projectMap.value(proKey);
-                     sk.insertProjekt(pro);
-                 }
+                 // Check what was changed
+                 if(order == "add")
+                 {
+                     ClassProjekt newPro = projectMap.value(proKey);
+                     ClassProjekt oldPro = sk.getProjektMap().value(proKey);
+
+                     oldPro.setEvaluated( false );
+                     oldPro.setFactor( newPro.getFactor() );
+                     oldPro.setMaxPoints( newPro.maxPoints() );
+
+                     // Compare questions
+                     if(oldPro.questionMap().size() != newPro.questionMap().size())
+                         oldPro.setQuestionMap( newPro.questionMap() );
+                     else
+                     {
+                         int index = 0;
+                         QMap<int, ClassFrage> oqMap;
+                         foreach (ClassFrage nq, newPro.questionMap().values())
+                         {
+                            ClassFrage oq = oldPro.questionMap().value(index);
+                            oq.setQuestion(nq.question());
+                            oq.setIdentifier( nq.identifier() );
+                            oq.setMaxPoints( nq.maxPoints() );
+                            oqMap.insert(index, oq);
+                            index++;
+                         }
+
+                         oldPro.setQuestionMap( oqMap );
+                     }
+
+                     sk.insertProjekt( oldPro );
+
 
                  appr.insertSkill(sk);
-            }
+                }
 
             apprenticeMap.insert(appr.getKey(), appr);
         }
