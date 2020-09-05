@@ -162,18 +162,14 @@ void FormAllocate::sortApprenticeTable()
 /// !brief Returns a map sorted by year of training
 QMap<QString, ClassLehrling> FormAllocate::getApprenticeMap(int year)
 {
-    int todayYear = QDate::currentDate().year();
 
     QMap<QString, ClassLehrling> sortMap;
     QMapIterator<QString, ClassLehrling> it(apprenticeMap());
     while (it.hasNext()) {
         it.next();
-        int educationYear = todayYear - it.value().apprenticeshipDate().year();
-
-        if(educationYear == 0)
-            educationYear = 1;
-
-        if(educationYear > 4)
+        int educationYear = it.value().apprenticeshipDate().daysTo(QDate::currentDate()) / 365;
+        educationYear++;
+        if(educationYear > 5)
             educationYear = 5;
 
         if(educationYear == year)
