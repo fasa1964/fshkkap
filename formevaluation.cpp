@@ -638,6 +638,9 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
     headers << "Beschreibung" << "Ergebnis in %" << "Wert/Faktor" << "Auswertung nach";
     ui->resultTreeWidget->setHeaderLabels(headers);
 
+    // key, percent , factor>
+    QMap<QString, double> resultMap;
+
     QMapIterator<QString, ClassSkills> it(appr.getSkillMap());
     while (it.hasNext()) {
         it.next();
@@ -687,6 +690,44 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
                 childItem->setTextColor(1, Qt::red);
             else
                 childItem->setTextColor(1, Qt::darkGreen);
+
+            // Testing resultMap
+            if(skill.getEvaluationIndex() == 1 && pro.identifierList().isEmpty()){
+                double pp = pro.percent() * pro.getFactor();
+                resultMap.insert(pro.getKey(), pp);
+            }
+
+            // If identifierNode
+            if(skill.getEvaluationIndex() == 1)
+            {
+                QStringList identList = pro.identifierList();
+                if(!identList.isEmpty())
+                {
+                    for(int i = 0; i < identList.size(); i++)
+                    {
+                        QTreeWidgetItem *identItem = new QTreeWidgetItem(QStringList() << identList.at(i));
+                        childItem->addChild( identItem );
+
+                        double idp = pro.getPercentIdent( identList.at(i) );
+                        identItem->setText(1, QString::number(idp, 'g', 2)+"%");
+
+                        if(resultMap.keys().contains( identList.at(i) ))
+                        {
+                            double pp = resultMap.value( identList.at(i) );
+                            pp += idp * pro.getFactor();
+                            resultMap.insert(identList.at(i), pp);
+
+
+                        }
+                        else
+                        {
+                            double pp = idp * pro.getFactor();
+                            resultMap.insert(identList.at(i), pp);
+                        }
+
+                    }
+                }
+            }
         }
     }
 
@@ -699,6 +740,27 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
     else
         setTextColor(ui->totalPercentBox, Qt::red);
     ui->totalPercentBox->setValue( apprPercent );
+
+    int grade = FSHKWindow::grade( apprPercent );
+    if(grade < 5)
+        setTextColor(ui->gradeBox, Qt::darkGreen);
+    else
+        setTextColor(ui->gradeBox, Qt::red);
+    ui->gradeBox->setValue( grade );
+
+    QMapIterator<QString, double> itest(resultMap);
+    while (itest.hasNext()) {
+        itest.next();
+
+        QTreeWidgetItem *topItem = new QTreeWidgetItem(QStringList() << itest.key());
+        ui->resultTreeWidget->addTopLevelItem(topItem);
+
+        topItem->setText(1, QString::number(itest.value(), 'g', 3));
+
+        qDebug() << itest.value() << itest.key();
+
+    }
+
 
 }
 
