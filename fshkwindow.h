@@ -36,6 +36,28 @@ public:
     explicit FSHKWindow(QWidget *parent = 0);
     ~FSHKWindow();
 
+    static int grade(double percent){
+
+        if(percent <= 100.0 && percent >= 92.0 )
+            return 1;
+
+        if(percent < 92.0 && percent >= 81.0 )
+            return 2;
+
+        if(percent < 81.0 && percent >= 67.0 )
+            return 3;
+
+        if(percent < 67.0 && percent >= 50.0 )
+            return 4;
+
+        if(percent < 50.0 && percent >= 30.0 )
+            return 5;
+
+        if(percent < 30.0 && percent >= 0.0 )
+            return 6;
+
+    }
+
 private slots:
     void actionCloseClicked();
     void actionInfoClicked();

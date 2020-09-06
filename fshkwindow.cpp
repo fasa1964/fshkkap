@@ -1284,50 +1284,51 @@ void FSHKWindow::updateApprenticeSkillData(const QStringList &skillKeyList, cons
         ClassLehrling appr = apprenticeMap.value(key);
         for(int i = 0; i < skillKeyList.size(); i++)
         {
-//            if(!appr.isSkillEvaluated(skillKeyList.at(i)))
-//                appr.insertSkill( skillMap.value(skillKeyList.at(i)));
-//            else {
-                 ClassSkills sk = appr.getSkill( skillKeyList.at(i));
-                 if(order == "remove")
-                     sk.removeProject(proKey);
 
-                 // Check what was changed
-                 if(order == "add")
+            ClassSkills sk = appr.getSkill( skillKeyList.at(i));
+
+            if(order == "remove")
+                sk.removeProject(proKey);
+
+             // Check what was changed if project exist
+             if(order == "add" && sk.containsProject(proKey)  )
+             {
+                 ClassProjekt newPro = projectMap.value(proKey);
+                 ClassProjekt oldPro = sk.getProjektMap().value(proKey);
+
+                 oldPro.setEvaluated( false );
+                 oldPro.setFactor( newPro.getFactor() );
+                 oldPro.setMaxPoints( newPro.maxPoints() );
+
+                 // Compare questions
+                 if(oldPro.questionMap().size() != newPro.questionMap().size())
+                     oldPro.setQuestionMap( newPro.questionMap() );
+                 else
                  {
-                     ClassProjekt newPro = projectMap.value(proKey);
-                     ClassProjekt oldPro = sk.getProjektMap().value(proKey);
-
-                     oldPro.setEvaluated( false );
-                     oldPro.setFactor( newPro.getFactor() );
-                     oldPro.setMaxPoints( newPro.maxPoints() );
-
-                     // Compare questions
-                     if(oldPro.questionMap().size() != newPro.questionMap().size())
-                         oldPro.setQuestionMap( newPro.questionMap() );
-                     else
+                     int index = 0;
+                     QMap<int, ClassFrage> oqMap;
+                     foreach (ClassFrage nq, newPro.questionMap().values())
                      {
-                         int index = 0;
-                         QMap<int, ClassFrage> oqMap;
-                         foreach (ClassFrage nq, newPro.questionMap().values())
-                         {
-                            ClassFrage oq = oldPro.questionMap().value(index);
-                            oq.setQuestion(nq.question());
-                            oq.setIdentifier( nq.identifier() );
-                            oq.setMaxPoints( nq.maxPoints() );
-                            oqMap.insert(index, oq);
-                            index++;
-                         }
-
-                         oldPro.setQuestionMap( oqMap );
+                        ClassFrage oq = oldPro.questionMap().value(index);
+                        oq.setQuestion(nq.question());
+                        oq.setIdentifier( nq.identifier() );
+                        oq.setMaxPoints( nq.maxPoints() );
+                        oqMap.insert(index, oq);
+                        index++;
                      }
 
-                     sk.insertProjekt( oldPro );
+                     oldPro.setQuestionMap( oqMap );
+                 }
 
-
+                 sk.insertProjekt( oldPro );
                  appr.insertSkill(sk);
-                }
-
-            apprenticeMap.insert(appr.getKey(), appr);
+             }
+             else // if project not exist
+             {
+                sk.insertProjekt( projectMap.value(proKey) );
+                appr.insertSkill(sk);
+             }
+             apprenticeMap.insert(appr.getKey(), appr);
         }
     }
 
