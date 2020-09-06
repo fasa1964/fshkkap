@@ -240,6 +240,24 @@ QStringList ClassProjekt::identifierList()
     return identList;
 }
 
+double ClassProjekt::getPercentIdent(const QString &id)
+{
+    int maxPoint = 0;
+    int points = 0;
+
+    QMapIterator<int, ClassFrage> it(questionMap());
+    while (it.hasNext()) {
+        it.next();
+        ClassFrage q = it.value();
+        if(q.identifier() == id){
+            maxPoint += q.maxPoints();
+            points += q.points();
+        }
+    }
+
+    return points * 100.0 / maxPoint;
+}
+
 QDataStream &operator<<(QDataStream &out, const ClassProjekt &dat)
 {
     out << dat.nr() << dat.name() << dat.identifier() << dat.countQuestion() << dat.maxPoints() <<

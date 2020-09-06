@@ -70,6 +70,9 @@ public:
 
     QStringList identifierList();
 
+    // Test
+    double getPercentIdent(const QString &id);
+
 private:
 
     QString m_name;
