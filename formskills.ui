@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1300</width>
-    <height>648</height>
+    <height>710</height>
    </rect>
   </property>
   <property name="font">
@@ -46,6 +46,179 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
+      <item row="3" column="4">
+       <widget class="QLabel" name="label_10">
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>200</red>
+              <green>133</green>
+              <blue>99</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>200</red>
+              <green>133</green>
+              <blue>99</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>120</red>
+              <green>120</green>
+              <blue>120</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="text">
+         <string>Dauer:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QDateTimeEdit" name="dateTimeEdit">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2" colspan="3">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>68</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="5">
+       <widget class="QSpinBox" name="durationBox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wird automatisch berechnet. &lt;/p&gt;&lt;p&gt;Abhängig von den Projekten.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string> min</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <number>999</number>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0" colspan="6">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QPushButton" name="deleteSkillProjektButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Projekt löschen</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="importProjekteButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Projekte &amp;importieren</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="4" column="5">
+       <widget class="QComboBox" name="criteriaBox"/>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLabel" name="label_5">
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>200</red>
+              <green>133</green>
+              <blue>99</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>200</red>
+              <green>133</green>
+              <blue>99</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>165</red>
+              <green>167</green>
+              <blue>169</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="text">
+         <string>Erst./Änd.-Datum:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="palette">
@@ -89,22 +262,6 @@
          <string>Nr:</string>
         </property>
        </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QSpinBox" name="nrBox"/>
-      </item>
-      <item row="0" column="2">
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_3">
@@ -150,75 +307,11 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
-       <widget class="QLabel" name="label_7">
-        <property name="palette">
-         <palette>
-          <active>
-           <colorrole role="WindowText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>200</red>
-              <green>133</green>
-              <blue>99</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </active>
-          <inactive>
-           <colorrole role="WindowText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>200</red>
-              <green>133</green>
-              <blue>99</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </inactive>
-          <disabled>
-           <colorrole role="WindowText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>165</red>
-              <green>167</green>
-              <blue>169</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </disabled>
-         </palette>
-        </property>
-        <property name="text">
-         <string>Datum:</string>
-        </property>
-       </widget>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="nrBox"/>
       </item>
       <item row="0" column="5">
        <widget class="QDateEdit" name="dateEdit"/>
-      </item>
-      <item row="2" column="1" colspan="2">
-       <widget class="QLineEdit" name="kennungEdit">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Die Kennung sollte den Kennungen der Projekten, die den Prüfungen zugeordnet werden,  entsprechen!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="placeholderText">
-         <string>Kennung</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QSpinBox" name="wertBox">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Die Gewichtung dieser Prüfung in %.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="suffix">
-         <string> %</string>
-        </property>
-        <property name="maximum">
-         <number>100</number>
-        </property>
-       </widget>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="label_9">
@@ -264,15 +357,31 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QLineEdit" name="nameEdit">
-        <property name="placeholderText">
-         <string>Name der Prüfung</string>
+      <item row="3" column="1">
+       <widget class="QSpinBox" name="wertBox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Die Gewichtung dieser Prüfung in %.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="suffix">
+         <string> %</string>
+        </property>
+        <property name="maximum">
+         <number>100</number>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_4">
+      <item row="2" column="1" colspan="2">
+       <widget class="QLineEdit" name="kennungEdit">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Die Kennung sollte den Kennungen der Projekten, die den Prüfungen zugeordnet werden,  entsprechen!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="placeholderText">
+         <string>Kennung</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="label_7">
         <property name="palette">
          <palette>
           <active>
@@ -311,7 +420,7 @@
          </palette>
         </property>
         <property name="text">
-         <string>Kennung:</string>
+         <string>Datum:</string>
         </property>
        </widget>
       </item>
@@ -419,97 +528,8 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="6">
-       <widget class="QTableWidget" name="skillProjektTable">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="dragDropMode">
-         <enum>QAbstractItemView::DragDrop</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4" colspan="2">
-       <widget class="QComboBox" name="kennungBox">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Die zur Verfügung stehenden Kennungen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0" colspan="6">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QPushButton" name="deleteSkillProjektButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Projekt löschen</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="importProjekteButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Projekte &amp;importieren</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="5">
-       <widget class="QDateTimeEdit" name="dateTimeEdit">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="2" colspan="3">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>68</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="3" column="5">
-       <widget class="QSpinBox" name="durationBox">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wird automatisch berechnet. &lt;/p&gt;&lt;p&gt;Abhängig von den Projekten.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="suffix">
-         <string> min</string>
-        </property>
-        <property name="prefix">
-         <string/>
-        </property>
-        <property name="maximum">
-         <number>999</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
-       <widget class="QLabel" name="label_10">
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_4">
         <property name="palette">
          <palette>
           <active>
@@ -538,9 +558,9 @@
            <colorrole role="WindowText">
             <brush brushstyle="SolidPattern">
              <color alpha="255">
-              <red>120</red>
-              <green>120</green>
-              <blue>120</blue>
+              <red>165</red>
+              <green>167</green>
+              <blue>169</blue>
              </color>
             </brush>
            </colorrole>
@@ -548,7 +568,34 @@
          </palette>
         </property>
         <property name="text">
-         <string>Dauer:</string>
+         <string>Kennung:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QLineEdit" name="nameEdit">
+        <property name="placeholderText">
+         <string>Name der Prüfung</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="6">
+       <widget class="QTableWidget" name="skillProjektTable">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="dragDropMode">
+         <enum>QAbstractItemView::DragDrop</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4" colspan="2">
+       <widget class="QComboBox" name="kennungBox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Die zur Verfügung stehenden Kennungen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -596,8 +643,14 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="4">
-       <widget class="QLabel" name="label_5">
+      <item row="4" column="1">
+       <widget class="QComboBox" name="identBox"/>
+      </item>
+      <item row="4" column="2">
+       <widget class="QDoubleSpinBox" name="identFactorBox"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="identLabel">
         <property name="palette">
          <palette>
           <active>
@@ -626,9 +679,9 @@
            <colorrole role="WindowText">
             <brush brushstyle="SolidPattern">
              <color alpha="255">
-              <red>165</red>
-              <green>167</green>
-              <blue>169</blue>
+              <red>120</red>
+              <green>120</green>
+              <blue>120</blue>
              </color>
             </brush>
            </colorrole>
@@ -636,12 +689,9 @@
          </palette>
         </property>
         <property name="text">
-         <string>Erst./Änd.-Datum:</string>
+         <string>Ident:</string>
         </property>
        </widget>
-      </item>
-      <item row="4" column="5">
-       <widget class="QComboBox" name="criteriaBox"/>
       </item>
      </layout>
     </widget>

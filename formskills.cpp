@@ -26,7 +26,8 @@ FormSkills::FormSkills(QWidget *parent) :
     connect(ui->changeButton, &QPushButton::clicked, this, &FormSkills::changeButtonClicked);
     connect(ui->saveButton, &QPushButton::clicked, this, &FormSkills::saveButtonClicked);
     connect(ui->deleteButton, &QPushButton::clicked, this, &FormSkills::deleteButtonClicked);
-//    connect(ui->deleteSkillProjektButton, &QPushButton::clicked, this, &FormSkills::deleteSkillProjektButtonClicked);
+    connect(ui->deleteSkillProjektButton, &QPushButton::clicked, this, &FormSkills::deleteSkillProjektButtonClicked);
+    connect(ui->criteriaBox, &QComboBox::currentTextChanged, this, &FormSkills::criteriaBoxChanged);
 
 //
     connect(ui->importProjekteButton, &QPushButton::clicked, this, &FormSkills::importProjectButtonClicked);
@@ -119,14 +120,10 @@ void FormSkills::saveButtonClicked()
     }
 
 
-    if(!projektFactorSimilarly()){
-        double f = getProjectFactor();
-        if(f != 1){
-            QMessageBox::information(this, tr("Prüfung speichern"), tr("Der Faktor muss ingesamt gleich 1.0 betragen!\n"
-                                                                       "Wenn alle Projekte 1.0 betragen, wird die Gewichtung gleichermaßen aufgeteilt!"));
-            return;
-       }
-    }
+//    if(!isProjectFactorValid()){
+//        QMessageBox::information(this, tr("Prüfung speichern"), tr("Der Faktor muss ingesamt gleich 1.0 betragen!\n"));
+//        return;
+//    }
 
     ClassSkills skill = readFromForm();
 
@@ -188,6 +185,38 @@ void FormSkills::deleteButtonClicked()
 
 }
 
+void FormSkills::deleteSkillProjektButtonClicked()
+{
+    QStringList keyList;
+    bool dataChanged = false;
+
+    for(int i = 0; i < ui->skillProjektTable->rowCount(); i++)
+    {
+        if(ui->skillProjektTable->item(i,6)->checkState() == Qt::Checked)
+        {
+            QString key = ui->skillProjektTable->item(i,1)->text()+"."+ui->skillProjektTable->item(i,2)->text();
+            keyList << key;
+        }
+    }
+
+    for(int s = 0; s < keyList.size(); s++)
+    {
+        if(selectedSkill.containsProject( keyList.at(s)))
+        {
+            selectedSkill.removeProject(keyList.at(s));
+            dataChanged = true;
+        }
+    }
+
+    if(dataChanged)
+    {
+        m_skillMap.insert(selectedSkill.getKey(), selectedSkill);
+        emit saveSkillsMap(m_skillMap);
+        emit skillChanged(selectedSkill);
+        setSkillToForm(selectedSkill);
+    }
+}
+
 /// !brief Import the selected projects from
 /// projectTable into the skillProjectTable
 void FormSkills::importProjectButtonClicked()
@@ -207,6 +236,45 @@ void FormSkills::importProjectButtonClicked()
 
         setupSkillProjectTable(pMap);
 
+    }
+}
+
+void FormSkills::criteriaBoxChanged(const QString &text)
+{
+    ui->identBox->clear();
+    QStringList identList;
+    if(text == "Nach Kennung (Fragen)")
+    {
+        ui->identBox->show();
+
+        ui->identFactorBox->show();
+        ui->identLabel->show();
+        foreach (ClassProjekt p, selectedSkill.getProjektMap().values())
+        {
+            QStringList list = p.identifierList();
+            foreach (QString s, list)
+            {
+                if(!identList.contains(s))
+                    identList << s;
+            }
+        }
+        ui->identBox->addItems(identList);
+    }
+    else {
+        ui->identBox->hide();
+        ui->identFactorBox->hide();
+        ui->identLabel->hide();
+    }
+
+    for(int i = 0; i < identList.size(); i++)
+    {
+        qDebug() << identList.at(i);
+//        ui->skillProjektTable->insertRow(ui->skillProjektTable->rowCount());
+//        QTableWidgetItem *itemIdent = new QTableWidgetItem( identList.at(i) );
+//        QTableWidgetItem *itemFaktor = new QTableWidgetItem("1");
+
+//        ui->skillProjektTable->setItem(ui->skillProjektTable->rowCount(), 0, itemIdent);
+//        ui->skillProjektTable->setItem(ui->skillProjektTable->rowCount(), 1, itemFaktor);
     }
 }
 
@@ -439,29 +507,34 @@ bool FormSkills::isItemChecked(QTableWidget *widget)
 
 }
 
-double FormSkills::getProjectFactor()
+bool FormSkills::isProjectFactorValid()
 {
-    double value;
+    double value = 0.0;
+    bool status = false;
     for(int i = 0; i < ui->skillProjektTable->rowCount(); i++){
         double val =  ui->skillProjektTable->item(i,3)->text().toDouble();
         value += val;
     }
-    return value;
-}
 
+    if(value == 1.0)
+        status = true;
 
-bool FormSkills::projektFactorSimilarly()
-{
-    bool status = true;
-    for(int i = 0; i < ui->skillProjektTable->rowCount(); i++){
-        double val = ui->skillProjektTable->item(i,3)->text().toDouble();
-        if(val != 1.0){
-            status = false;
-            break;
-        }
-    }
     return status;
 }
+
+
+//bool FormSkills::projektFactorSimilarly()
+//{
+//    bool status = true;
+//    for(int i = 0; i < ui->skillProjektTable->rowCount(); i++){
+//        double val = ui->skillProjektTable->item(i,3)->text().toDouble();
+//        if(val != 1.0){
+//            status = false;
+//            break;
+//        }
+//    }
+//    return status;
+//}
 
 void FormSkills::setupSkillTable(const QMap<QString, ClassSkills> &sMap)
 {
@@ -524,24 +597,13 @@ void FormSkills::setupSkillProjectTable(const QMap<QString, ClassProjekt> &pMap)
 
         ClassProjekt pro = it.value();
 
-//        QDoubleSpinBox *fac = new QDoubleSpinBox();
-//        fac->setRange(0.1 , 1.0);
-//        fac->setSingleStep(0.1);
-//        fac->setMaximumWidth(90);
-//        fac->setValue(pro.getFactor());
-
-
         QTableWidgetItem *itemNr = new QTableWidgetItem( QString::number(pro.nr(),10));
         QTableWidgetItem *itemName = new QTableWidgetItem( pro.name() );
         QTableWidgetItem *itemKennung = new QTableWidgetItem( pro.identifier() );
-        //QTableWidgetItem *itemFactor = new QTableWidgetItem();
         QTableWidgetItem *itemFactor = new QTableWidgetItem( QString::number(pro.getFactor(),'g',2) );
         QTableWidgetItem *itemMinutes = new QTableWidgetItem( QString::number(pro.getDuration(),10) );
         QTableWidgetItem *itemDate = new QTableWidgetItem( pro.createTime() );
         QTableWidgetItem *itemCheck = new QTableWidgetItem();
-
-        //ui->skillProjektTable->setCellWidget(row, 3, fac);
-
 
         ui->skillProjektTable->setItem(row, 0, itemNr);
         ui->skillProjektTable->setItem(row, 1, itemName);

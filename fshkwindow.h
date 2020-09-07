@@ -38,24 +38,26 @@ public:
 
     static int grade(double percent){
 
+        int gradeValue = 0;
         if(percent <= 100.0 && percent >= 92.0 )
-            return 1;
+            gradeValue = 1;
 
         if(percent < 92.0 && percent >= 81.0 )
-            return 2;
+            gradeValue = 2;
 
         if(percent < 81.0 && percent >= 67.0 )
-            return 3;
+            gradeValue = 3;
 
         if(percent < 67.0 && percent >= 50.0 )
-            return 4;
+            gradeValue = 4;
 
         if(percent < 50.0 && percent >= 30.0 )
-            return 5;
+            gradeValue = 5;
 
         if(percent < 30.0 && percent >= 0.0 )
-            return 6;
+            gradeValue = 6;
 
+        return gradeValue;
     }
 
 private slots:
