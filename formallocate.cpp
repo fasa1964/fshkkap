@@ -36,6 +36,9 @@ void FormAllocate::saveButtonClicked()
 
 void FormAllocate::importButtonClicked()
 {
+    // Store the current index of tab
+    int currentIndex = ui->tabWidget->currentIndex();
+
     QMap<QString, ClassLehrling> selectedAppMap;
 
     if(ui->tabWidget->currentIndex() == 0)
@@ -67,6 +70,8 @@ void FormAllocate::importButtonClicked()
         setApprenticeMap(m_apprenticeMap);
         ui->saveButton->setEnabled(true);
     }
+
+    ui->tabWidget->setCurrentIndex( currentIndex );
 }
 
 void FormAllocate::skillTableItemClicked(QListWidgetItem *item)
