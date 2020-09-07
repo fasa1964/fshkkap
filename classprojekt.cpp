@@ -258,10 +258,20 @@ double ClassProjekt::getPercentIdent(const QString &id)
     return points * 100.0 / maxPoint;
 }
 
+QString ClassProjekt::getDescrition() const
+{
+    return m_descrition;
+}
+
+void ClassProjekt::setDescrition(const QString &descrition)
+{
+    m_descrition = descrition;
+}
+
 QDataStream &operator<<(QDataStream &out, const ClassProjekt &dat)
 {
-    out << dat.nr() << dat.name() << dat.identifier() << dat.countQuestion() << dat.maxPoints() <<
-           dat.points() << dat.percent() << dat.note() << dat.questionMap() <<
+    out << dat.nr() << dat.name() << dat.identifier() << dat.getDescrition() << dat.countQuestion() <<
+           dat.maxPoints() << dat.points() << dat.percent() << dat.note() << dat.questionMap() <<
            dat.document() << dat.dateTime() << dat.createTime() << dat.lockSubject() <<
            dat.getEvaluated() << dat.getFactor() << dat.getDuration();
     return out;
@@ -271,6 +281,7 @@ QDataStream &operator>>(QDataStream &in, ClassProjekt &dat)
 {
     QString name;
     QString identifier;
+    QString desc;
     int nr;
     int countQuestion;
     int maxPoints;
@@ -286,7 +297,7 @@ QDataStream &operator>>(QDataStream &in, ClassProjekt &dat)
     double fac;
     int min;
 
-    in >> nr >> name >> identifier >> countQuestion >> maxPoints >> points
+    in >> nr >> name >> identifier >> desc >> countQuestion >> maxPoints >> points
        >> percent >> note >> frgMap >> doc >> dt >> dts >> sperr >> evaluated
        >> fac >> min;
 
@@ -294,6 +305,7 @@ QDataStream &operator>>(QDataStream &in, ClassProjekt &dat)
     dat.setNr(nr);
     dat.setName(name);
     dat.setIdentifier(identifier);
+    dat.setDescrition(desc);
     dat.setCountQuestion(countQuestion);
     dat.setMaxPoints(maxPoints);
     dat.setPoints(points);

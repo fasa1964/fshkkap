@@ -354,6 +354,7 @@ ClassProjekt FormProjekt::readFromForm()
     pro.setNr( ui->nrBox->value() );
     pro.setName( ui->nameEdit->text() );
     pro.setIdentifier( ui->kennungEdit->text() );
+    pro.setDescrition( ui->descriptionEdit->text() );
     pro.setCountQuestion( ui->anzahlFragenBox->value() );
     pro.setMaxPoints(ui->maxPunkteBox->value());
     pro.setDocument(ui->documentEdit->text());
@@ -440,6 +441,7 @@ void FormProjekt::setFormTextColor(QColor color)
     ui->nrBox->setPalette(palette);
     ui->nameEdit->setPalette(palette);
     ui->kennungEdit->setPalette(palette);
+    ui->descriptionEdit->setPalette(palette);
     ui->anzahlFragenBox->setPalette(palette);
     ui->maxPunkteBox->setPalette(palette);
     ui->dateTimeEdit->setPalette(palette);
@@ -455,6 +457,7 @@ void FormProjekt::setProjektToForm(const ClassProjekt &pro)
     ui->nrBox->setValue(pro.nr());
     ui->nameEdit->setText(pro.name());
     ui->kennungEdit->setText(pro.identifier());
+    ui->descriptionEdit->setText(pro.getDescrition());
     ui->anzahlFragenBox->setValue(pro.countQuestion());
     ui->maxPunkteBox->setValue(pro.maxPoints());
     ui->documentEdit->setText( pro.document() );

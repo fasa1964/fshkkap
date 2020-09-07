@@ -73,6 +73,9 @@ public:
     // Test
     double getPercentIdent(const QString &id);
 
+    QString getDescrition() const;
+    void setDescrition(const QString &descrition);
+
 private:
 
     QString m_name;
@@ -87,6 +90,7 @@ private:
     QString m_document;
     QDateTime m_dateTime;
     QString m_createTime;
+    QString m_descrition;
     bool m_lockSubject;
     bool m_evaluated;
     double m_factor;
