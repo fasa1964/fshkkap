@@ -635,7 +635,7 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
     ui->resultTreeWidget->clear();
 
     QStringList headers;
-    headers << "Beschreibung" << "Ergebnis in %" << "Wert/Faktor" << "Auswertung nach";
+    headers << "Titel" << "Ergebnis in %" << "Wert/Faktor" << "Auswertung nach";
     ui->resultTreeWidget->setHeaderLabels(headers);
 
     // key, percent , factor>
@@ -755,9 +755,7 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
         QTreeWidgetItem *topItem = new QTreeWidgetItem(QStringList() << itest.key());
         ui->resultTreeWidget->addTopLevelItem(topItem);
 
-        topItem->setText(1, QString::number(itest.value(), 'g', 3));
-
-        qDebug() << itest.value() << itest.key();
+        topItem->setText(1, QString::number(itest.value(), 'g', 3)+"%");
 
     }
 
