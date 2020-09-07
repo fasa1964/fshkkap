@@ -11,12 +11,10 @@ FormSkills::FormSkills(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    ui->tabWidget->setCurrentIndex(0);
-
     changeSkill = false;
     createSkill = false;
     selectedSkill = ClassSkills();
-//    projectFactorChanged = false;
+
 
     ui->criteriaBox->addItems(ClassSkills::supportedCriteria());
     setFormReadOnly(true);
@@ -27,9 +25,7 @@ FormSkills::FormSkills(QWidget *parent) :
     connect(ui->saveButton, &QPushButton::clicked, this, &FormSkills::saveButtonClicked);
     connect(ui->deleteButton, &QPushButton::clicked, this, &FormSkills::deleteButtonClicked);
     connect(ui->deleteSkillProjektButton, &QPushButton::clicked, this, &FormSkills::deleteSkillProjektButtonClicked);
-    connect(ui->criteriaBox, &QComboBox::currentTextChanged, this, &FormSkills::criteriaBoxChanged);
 
-//
     connect(ui->importProjekteButton, &QPushButton::clicked, this, &FormSkills::importProjectButtonClicked);
     connect(ui->sortKennunBox, &QComboBox::currentTextChanged, this, &FormSkills::sortProjectBoxTextChanged);
     connect(ui->skillProjektTable, &QTableWidget::itemClicked, this, &FormSkills::skillProjektTableItemClicked);
@@ -235,47 +231,12 @@ void FormSkills::importProjectButtonClicked()
         }
 
         setupSkillProjectTable(pMap);
-
     }
 }
 
 void FormSkills::criteriaBoxChanged(const QString &text)
 {
-    ui->identBox->clear();
-    QStringList identList;
-    if(text == "Nach Kennung (Fragen)")
-    {
-        ui->identBox->show();
-
-        ui->identFactorBox->show();
-        ui->identLabel->show();
-        foreach (ClassProjekt p, selectedSkill.getProjektMap().values())
-        {
-            QStringList list = p.identifierList();
-            foreach (QString s, list)
-            {
-                if(!identList.contains(s))
-                    identList << s;
-            }
-        }
-        ui->identBox->addItems(identList);
-    }
-    else {
-        ui->identBox->hide();
-        ui->identFactorBox->hide();
-        ui->identLabel->hide();
-    }
-
-    for(int i = 0; i < identList.size(); i++)
-    {
-        qDebug() << identList.at(i);
-//        ui->skillProjektTable->insertRow(ui->skillProjektTable->rowCount());
-//        QTableWidgetItem *itemIdent = new QTableWidgetItem( identList.at(i) );
-//        QTableWidgetItem *itemFaktor = new QTableWidgetItem("1");
-
-//        ui->skillProjektTable->setItem(ui->skillProjektTable->rowCount(), 0, itemIdent);
-//        ui->skillProjektTable->setItem(ui->skillProjektTable->rowCount(), 1, itemFaktor);
-    }
+    ui->identFactorBox->setValue( selectedSkill.getIdentMap().value(text));
 }
 
 void FormSkills::skillTableItemClicked(QTableWidgetItem *item)
@@ -359,6 +320,17 @@ void FormSkills::skillProjektTableCellClicked(int row, int column)
         return;
     }
 
+}
+
+void FormSkills::identFactorValueChanged(double val)
+{
+    if(!changeSkill || !createSkill )
+        return;
+
+    if(selectedSkill.isValid())
+    {
+        ;
+    }
 }
 
 void FormSkills::kennungBoxTextChanged(const QString &text)
@@ -694,6 +666,9 @@ void FormSkills::setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::
 
 void FormSkills::setSkillToForm(const ClassSkills &skill)
 {
+    ui->identBox->clear();
+    disconnect(ui->criteriaBox, &QComboBox::currentTextChanged, this, &FormSkills::criteriaBoxChanged);
+
     ui->nrBox->setValue( skill.getNr());
     ui->nameEdit->setText(skill.name());
     ui->dateEdit->setDate(skill.date());
@@ -711,9 +686,27 @@ void FormSkills::setSkillToForm(const ClassSkills &skill)
     }
     ui->durationBox->setValue(min);
 
+    // Get criteria values
     int index = skill.getEvaluationIndex();
     QString criteriaText = skill.getEvaluationText(index);
     ui->criteriaBox->setCurrentText(criteriaText);
+
+    // Set the value of identifier from project
+    if(skill.getIdentMap().isEmpty())
+    {
+        ui->identBox->hide();
+        ui->identFactorBox->hide();
+        ui->identLabel->hide();
+    }
+    else
+    {
+        ui->identBox->show();
+        ui->identFactorBox->show();
+        ui->identLabel->show();
+
+        ui->identBox->addItems( skill.getIdentMap().keys() );
+        connect(ui->criteriaBox, &QComboBox::currentTextChanged, this, &FormSkills::criteriaBoxChanged);
+    }
 
 }
 

@@ -8,7 +8,6 @@ ClassSkills::ClassSkills()
     m_wert = 0;
     m_date = QDate();
     m_evaluationType = CriteriaTypes::projectNode;
-
 }
 
 
@@ -206,11 +205,31 @@ QStringList ClassSkills::projectKeyList()
     return keyList;
 }
 
+QMap<QString, double> ClassSkills::getIdentMap() const
+{
+    return identMap;
+}
+
+void ClassSkills::setIdentMap(const QMap<QString, double> &iMap)
+{
+    identMap = iMap;
+}
+
+void ClassSkills::setIdentFactor(const QString &key, double value)
+{
+    identMap.insert(key, value);
+}
+
+double ClassSkills::getIdentFactor(const QString &key)
+{
+    return identMap.value(key);
+}
+
 
 QDataStream &operator<<(QDataStream &out, const ClassSkills &dat)
 {
     out << dat.getNr() << dat.name() << dat.identifier() << dat.date() << dat.getWert() <<
-           dat.getCreatedDate() << dat.getProjektMap() << dat.getEvaluationIndex();
+           dat.getCreatedDate() << dat.getProjektMap() << dat.getIdentMap() << dat.getEvaluationIndex();
     return out;
 }
 
@@ -223,9 +242,10 @@ QDataStream &operator>>(QDataStream &in, ClassSkills &dat)
     QDateTime createdDate;
     int wert;
     QMap<QString, ClassProjekt> pMap;
+    QMap<QString, double> iMap;
     int evalType;
 
-    in >> nr >> name >> identifier >> date >> wert >> createdDate >> pMap >> evalType;
+    in >> nr >> name >> identifier >> date >> wert >> createdDate >> pMap >> iMap >> evalType;
 
     dat.setNr( nr );
     dat.setName( name );
@@ -234,6 +254,7 @@ QDataStream &operator>>(QDataStream &in, ClassSkills &dat)
     dat.setDate( date );
     dat.setCreatedDate( createdDate );
     dat.setProjektMap( pMap );
+    dat.setIdentMap( iMap );
     dat.setEvaluationType(evalType);
 
     return in;

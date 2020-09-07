@@ -47,6 +47,11 @@ public:
     int maxPoints();
     int points();
 
+    QMap<QString, double> getIdentMap() const;
+    void setIdentMap(const QMap<QString, double> &iMap);
+    void setIdentFactor(const QString &key, double value);
+    double getIdentFactor(const QString &key);
+
     bool isEvaluated();
 
     /// !brief Evaluation criteria
@@ -66,7 +71,6 @@ public:
     bool removeProject( const QString &proKey );
     QStringList projectKeyList();
 
-
 private:
 
     int m_nr;
@@ -78,6 +82,7 @@ private:
     CriteriaTypes m_evaluationType;
 
     QMap<QString, ClassProjekt> projektMap;
+    QMap<QString, double> identMap;
 
 
 };

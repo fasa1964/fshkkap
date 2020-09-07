@@ -33,8 +33,6 @@ signals:
     void skillChanged(const ClassSkills &skill);
     void removeProjects(const QMap<QString, ClassProjekt> &proMap);
 
-    //    void skillChanged(ClassSkills skill);
-//    void skillProjektChanged(ClassProjekt pro);
 
 private slots:
     void closeButtonClicked();
@@ -44,20 +42,15 @@ private slots:
     void deleteButtonClicked();
     void deleteSkillProjektButtonClicked();
 
-//
     void importProjectButtonClicked();
     void criteriaBoxChanged(const QString &text);
-//    void dragDropButtonClicked();
-
-
-//    void sortKennungBoxTextChanged(const QString &text);
-//    void projektTableItemClicked(QTableWidgetItem *);
 
     void skillTableItemClicked(QTableWidgetItem *item);
     void projektTableItemClicked(QTableWidgetItem *);
     void skillProjektTableItemClicked(QTableWidgetItem *);
     void skillProjektTableCellClicked(int row, int column);
 
+    void identFactorValueChanged(double val);
 
     void kennungBoxTextChanged(const QString &text);
     void sortProjectBoxTextChanged(const QString &text);
