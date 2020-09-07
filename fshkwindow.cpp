@@ -210,7 +210,6 @@ void FSHKWindow::saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap)
     saveDatas("Lehrlinge.dat");
     formApprentice->setLastModified(lastFileModified("Lehrlinge.dat"));
     setupMenu();
-    //updateApprenticeData();
 }
 
 /// !brief Signal emitt when editing an apprentice
