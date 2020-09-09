@@ -440,6 +440,17 @@ void FormEvaluation::questionTableCellChanged(int row, int column)
     if(column != 1)
         return;
 
+    if(ui->evaluatedCheckBox->isChecked()){
+        QMessageBox::information(this,"Auswertung", "Das Projekte wurde bereits ausgewertet.\n"
+                                     "Für Änderungen deselektieren sie bitte Ausgewertet!");
+
+        // Get old value and put it back to cell
+        int v = selectedProjekt.questionMap().value( row ).points();
+        ui->questionTableWidget->item(row, 1)->setText( QString::number(v,10));
+
+        return;
+    }
+
     QString val = ui->questionTableWidget->item(row, column)->text();
 
     if(!isDigit(val)){
@@ -639,7 +650,7 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
     ui->resultTreeWidget->setHeaderLabels(headers);
 
     // key, percent , factor>
-    QMap<QString, double> resultMap;
+    QMap<QString, double> identifierResultMap;
 
     QMapIterator<QString, ClassSkills> it(appr.getSkillMap());
     while (it.hasNext()) {
@@ -692,12 +703,14 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
                 childItem->setTextColor(1, Qt::darkGreen);
 
             // Testing resultMap
+            // When the skill evaluation method is idententifier question
+            // but the project has no identifier
             if(skill.getEvaluationIndex() == 1 && pro.identifierList().isEmpty()){
                 double pp = pro.percent() * pro.getFactor();
-                resultMap.insert(pro.getKey(), pp);
+                identifierResultMap.insert(pro.getKey(), pp);
             }
 
-            // If identifierNode
+            // When the skill evaluation method is idententifier question
             if(skill.getEvaluationIndex() == 1)
             {
                 QStringList identList = pro.identifierList();
@@ -710,12 +723,13 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
 
                         double idp = pro.getPercentIdent( identList.at(i) );
                         identItem->setText(1, QString::number(idp, 'g', 2)+"%");
+                        identItem->setText(2, QString::number(skill.getIdentFactor( identList.at(i) ), 'g', 2) );
 
-                        if(resultMap.keys().contains( identList.at(i) ))
+                        if(identifierResultMap.keys().contains( identList.at(i) ))
                         {
                             double pp = resultMap.value( identList.at(i) );
                             pp += idp * pro.getFactor();
-                            resultMap.insert(identList.at(i), pp);
+                            identifierResultMap.insert(identList.at(i), pp);
 
 
                         }
@@ -748,7 +762,7 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
         setTextColor(ui->gradeBox, Qt::red);
     ui->gradeBox->setValue( grade );
 
-    QMapIterator<QString, double> itest(resultMap);
+    QMapIterator<QString, double> itest(identifierResultMap);
     while (itest.hasNext()) {
         itest.next();
 
@@ -756,6 +770,7 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
         ui->resultTreeWidget->addTopLevelItem(topItem);
 
         topItem->setText(1, QString::number(itest.value(), 'g', 3)+"%");
+        topItem->setText(2, QString::number( selectedSkill.getIdentFactor( itest.key() ), 'g', 3) );
 
     }
 
