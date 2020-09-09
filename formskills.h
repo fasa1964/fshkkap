@@ -43,7 +43,7 @@ private slots:
     void deleteSkillProjektButtonClicked();
 
     void importProjectButtonClicked();
-    void criteriaBoxChanged(const QString &text);
+    void criteriaBoxChanged(int index);
 
     void skillTableItemClicked(QTableWidgetItem *item);
     void projektTableItemClicked(QTableWidgetItem *);
@@ -51,6 +51,7 @@ private slots:
     void skillProjektTableCellClicked(int row, int column);
 
     void identFactorValueChanged(double val);
+    void identBoxTextChanged(const QString &text);
 
     void kennungBoxTextChanged(const QString &text);
     void sortProjectBoxTextChanged(const QString &text);
@@ -61,6 +62,7 @@ private:
     bool changeSkill;
     bool createSkill;
     ClassSkills selectedSkill;
+    QMap<QString, double> selectedIdentMap;
 
 //    bool projectFactorChanged;
 
@@ -86,7 +88,7 @@ private:
     QMap<QString, ClassProjekt> getSelectedProjects();
     bool isItemChecked(QTableWidget *widget);
 
-    bool isProjectFactorValid();
+    //bool isProjectFactorValid();
     //bool projektFactorSimilarly();
 
     void setupSkillTable(const QMap<QString, ClassSkills> &sMap);

@@ -15,8 +15,13 @@ FormSkills::FormSkills(QWidget *parent) :
     createSkill = false;
     selectedSkill = ClassSkills();
 
+    ui->identBox->hide();
+    ui->identFactorBox->hide();
+    ui->identLabel->hide();
+
 
     ui->criteriaBox->addItems(ClassSkills::supportedCriteria());
+    ui->criteriaBox->setCurrentIndex(0);
     setFormReadOnly(true);
 
     connect(ui->closeButton, &QPushButton::clicked, this, &FormSkills::closeButtonClicked);
@@ -31,6 +36,12 @@ FormSkills::FormSkills(QWidget *parent) :
     connect(ui->skillProjektTable, &QTableWidget::itemClicked, this, &FormSkills::skillProjektTableItemClicked);
     connect(ui->projektTable, &QTableWidget::itemClicked, this, &FormSkills::projektTableItemClicked);
     connect(ui->kennungBox, &QComboBox::currentTextChanged, this, &FormSkills::kennungBoxTextChanged);
+    connect(ui->criteriaBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+          [=](int index){ criteriaBoxChanged(index); });
+
+    connect(ui->identBox, &QComboBox::currentTextChanged, this, &FormSkills::identBoxTextChanged);
+    connect(ui->identFactorBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          [=](double d){ identFactorValueChanged(d); });
 
     connect(ui->projektTable, &QTableWidget::itemClicked, this, &FormSkills::projektTableItemClicked);
     connect(ui->skillTable, &QTableWidget::itemClicked, this, &FormSkills::skillTableItemClicked);
@@ -217,30 +228,90 @@ void FormSkills::deleteSkillProjektButtonClicked()
 /// projectTable into the skillProjectTable
 void FormSkills::importProjectButtonClicked()
 {
+    ui->identBox->clear();
+
     if(createSkill)
         setupSkillProjectTable( getSelectedProjects() );
 
-    if(changeSkill){
+    if(changeSkill)
+    {
         QMap<QString, ClassProjekt> pMap = getSelectedProjects();
-        if(selectedSkill.getProjektMap().size() > 0){
-            //QMap<QString, ClassProjekt> spMap = selectedSkill.getProjektMap();
-            foreach (ClassProjekt pro, selectedSkill.getProjektMap().values()) {
+        if(selectedSkill.getProjektMap().size() > 0)
+        {
+            foreach (ClassProjekt pro, selectedSkill.getProjektMap().values())
+            {
                 pMap.insert(pro.getKey(), pro);
-
             }
         }
-
         setupSkillProjectTable(pMap);
+    }
+
+    // Check for identifier questions
+    QStringList identList;
+    foreach (ClassProjekt pro, getSelectedProjects().values())
+    {
+        QStringList list = pro.identifierList();
+        if(!list.isEmpty())
+        {
+            foreach (QString s, list)
+            {
+                if(!identList.contains(s))
+                    identList << s;
+            }
+        }
+    }
+
+    // Setup the identMap for skill
+    if(!identList.isEmpty())
+    {
+        QMap<QString, double> iMap;
+        for(int i = 0; i < identList.size(); i++)
+        {
+            double f = 1.0 / identList.size();
+            iMap.insert(identList.at(i), f);
+        }
+
+        selectedSkill.setIdentMap( iMap );
+        m_skillMap.insert(selectedSkill.getKey(), selectedSkill);
+        ui->identBox->addItems(identList);
+        ui->criteriaBox->setCurrentIndex(1);
+
+        QMessageBox::information(this, tr("Prüfung"), tr("In den Prüfungsfragen wurden Kennungen in den Fragen erkannt.\n"
+                                        "Sie haben jetzt und auch später die Möglichkeit die Faktoren der Kennungen festzulegen."));
     }
 }
 
-void FormSkills::criteriaBoxChanged(const QString &text)
+void FormSkills::criteriaBoxChanged(int index)
 {
-    ui->identFactorBox->setValue( selectedSkill.getIdentMap().value(text));
+    ui->identBox->clear();
+    if(index == 1) // Evaluation method questions identifier
+    {
+        if(!selectedSkill.getIdentMap().isEmpty())
+        {
+            ui->identBox->show();
+            ui->identFactorBox->show();
+            ui->identLabel->show();
+        }
+        else
+        {
+            QMessageBox::information(this, tr("Prüfung"), tr("Keiner der Fragen, von den zugeordneten Projekte, besitzt eine Kennung!\n"
+                                                             "Daher kann auch keine Auswertung nach Kennung (Fragen) stattfinden!"));
+            ui->criteriaBox->setCurrentIndex(0);
+        }
+
+
+    }
+    else           // Evaluation method projects
+    {
+        ui->identBox->hide();
+        ui->identFactorBox->hide();
+        ui->identLabel->hide();
+    }
 }
 
 void FormSkills::skillTableItemClicked(QTableWidgetItem *item)
 {
+    selectedIdentMap.clear();
     int row = item->row();
     QString key = ui->skillTable->item(row,1)->text()+"."+ui->skillTable->item(row,2)->text();
 
@@ -324,13 +395,22 @@ void FormSkills::skillProjektTableCellClicked(int row, int column)
 
 void FormSkills::identFactorValueChanged(double val)
 {
-    if(!changeSkill || !createSkill )
+    if(!changeSkill && !createSkill )
         return;
 
     if(selectedSkill.isValid())
     {
-        ;
+        selectedIdentMap.insert(ui->identBox->currentText(), val);
     }
+}
+
+void FormSkills::identBoxTextChanged(const QString &text)
+{
+    if(!changeSkill && !createSkill)
+        return;
+
+    double fac = selectedIdentMap.value(text);
+    ui->identFactorBox->setValue(fac);
 }
 
 void FormSkills::kennungBoxTextChanged(const QString &text)
@@ -407,6 +487,11 @@ ClassSkills FormSkills::readFromForm()
 
     skill.setProjektMap( getSkillProjectMap() );
 
+    if(!selectedIdentMap.isEmpty())
+    {
+        skill.setIdentMap(selectedIdentMap);
+    }
+
     return skill;
 }
 
@@ -457,7 +542,8 @@ QMap<QString, ClassProjekt> FormSkills::getSelectedProjects()
         if(ui->projektTable->item(i,6)->checkState() == Qt::Checked){
             QString key = ui->projektTable->item(i,1)->text()+"."+ui->projektTable->item(i,2)->text();
             ClassProjekt pro = m_projektMap.value(key);
-            pMap.insert(key, pro);
+            if(pro.isValid())
+                pMap.insert(key, pro);
         }
     }
 
@@ -479,20 +565,20 @@ bool FormSkills::isItemChecked(QTableWidget *widget)
 
 }
 
-bool FormSkills::isProjectFactorValid()
-{
-    double value = 0.0;
-    bool status = false;
-    for(int i = 0; i < ui->skillProjektTable->rowCount(); i++){
-        double val =  ui->skillProjektTable->item(i,3)->text().toDouble();
-        value += val;
-    }
+//bool FormSkills::isProjectFactorValid()
+//{
+//    double value = 0.0;
+//    bool status = false;
+//    for(int i = 0; i < ui->skillProjektTable->rowCount(); i++){
+//        double val =  ui->skillProjektTable->item(i,3)->text().toDouble();
+//        value += val;
+//    }
 
-    if(value == 1.0)
-        status = true;
+//    if(value == 1.0)
+//        status = true;
 
-    return status;
-}
+//    return status;
+//}
 
 
 //bool FormSkills::projektFactorSimilarly()
@@ -666,8 +752,8 @@ void FormSkills::setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::
 
 void FormSkills::setSkillToForm(const ClassSkills &skill)
 {
-    ui->identBox->clear();
-    disconnect(ui->criteriaBox, &QComboBox::currentTextChanged, this, &FormSkills::criteriaBoxChanged);
+    //ui->identBox->clear();
+    //disconnect(ui->criteriaBox, &QComboBox::currentIndexChanged, this, &FormSkills::criteriaBoxChanged);
 
     ui->nrBox->setValue( skill.getNr());
     ui->nameEdit->setText(skill.name());
@@ -677,7 +763,7 @@ void FormSkills::setSkillToForm(const ClassSkills &skill)
     ui->dateTimeEdit->setDateTime(skill.getCreatedDate());
 
     ui->kennungBox->setCurrentText( skill.identifier() );
-    setupSkillProjectTable(skill.getProjektMap());
+    setupSkillProjectTable( skill.getProjektMap() );
 
     // calculate the duration time of skill
     int min = 0;
@@ -691,23 +777,12 @@ void FormSkills::setSkillToForm(const ClassSkills &skill)
     QString criteriaText = skill.getEvaluationText(index);
     ui->criteriaBox->setCurrentText(criteriaText);
 
-    // Set the value of identifier from project
-    if(skill.getIdentMap().isEmpty())
-    {
-        ui->identBox->hide();
-        ui->identFactorBox->hide();
-        ui->identLabel->hide();
+    // Get identifier question values
+    if(!skill.getIdentMap().isEmpty()){
+        selectedIdentMap = skill.getIdentMap();
+        ui->identBox->addItems( selectedIdentMap.keys() );
+        ui->identFactorBox->setValue( selectedIdentMap.value(ui->identBox->currentText()));
     }
-    else
-    {
-        ui->identBox->show();
-        ui->identFactorBox->show();
-        ui->identLabel->show();
-
-        ui->identBox->addItems( skill.getIdentMap().keys() );
-        connect(ui->criteriaBox, &QComboBox::currentTextChanged, this, &FormSkills::criteriaBoxChanged);
-    }
-
 }
 
 QMap<QString, ClassProjekt> FormSkills::projektMap() const
@@ -1300,6 +1375,10 @@ void FormSkills::setFormReadOnly(bool status)
     ui->kennungEdit->setReadOnly(status);
     ui->kennungBox->setEnabled(!status);
     ui->criteriaBox->setEnabled(!status);
+
+    ui->identBox->setEnabled(!status);
+    ui->identFactorBox->setReadOnly(status);
+
 }
 
 void FormSkills::clearForm()
@@ -1311,6 +1390,7 @@ void FormSkills::clearForm()
     ui->wertBox->setValue(0);
     ui->durationBox->setValue(0);
 
+    ui->identBox->clear();
     ui->skillProjektTable->setRowCount(0);
     ui->skillProjektTable->clear();
 }
