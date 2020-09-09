@@ -225,6 +225,31 @@ double ClassSkills::getIdentFactor(const QString &key)
     return identMap.value(key);
 }
 
+/// !brief Returns identifier items from
+/// projects
+QStringList ClassSkills::getIdentifierList()
+{
+    QStringList iList;
+    if(getIdentMap().isEmpty())
+    {
+        foreach (ClassProjekt p, getProjektMap().values())
+        {
+            QStringList list = p.identifierList();
+            for(int i = 0; i < list.size(); i++)
+            {
+                if(!iList.contains(list.at(i)))
+                    iList << list.at(i);
+            }
+
+        }
+    }
+    else
+        iList = getIdentMap().keys();
+
+    return iList;
+
+}
+
 
 QDataStream &operator<<(QDataStream &out, const ClassSkills &dat)
 {
