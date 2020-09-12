@@ -39,7 +39,8 @@ SOURCES += \
     formskills.cpp \
     formallocate.cpp \
     formevaluation.cpp \
-    dialogapprenticelist.cpp
+    dialogapprenticelist.cpp \
+    formquestionidentsettings.cpp
 
 HEADERS += \
         fshkwindow.h \
@@ -56,7 +57,8 @@ HEADERS += \
     formskills.h \
     formallocate.h \
     formevaluation.h \
-    dialogapprenticelist.h
+    dialogapprenticelist.h \
+    formquestionidentsettings.h
 
 FORMS += \
         fshkwindow.ui \
@@ -68,7 +70,8 @@ FORMS += \
     formskills.ui \
     formallocate.ui \
     formevaluation.ui \
-    dialogapprenticelist.ui
+    dialogapprenticelist.ui \
+    formquestionidentsettings.ui
 
 RESOURCES += \
     images.qrc

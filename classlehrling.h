@@ -59,6 +59,7 @@ public:
     bool isSkillEvaluated(const QString &skillKey);
 
     bool removeProject(const QString &proKey);
+    int getSkillTotalPercent();
 
 
 private:

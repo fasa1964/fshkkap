@@ -178,9 +178,20 @@ bool ClassLehrling::removeProject(const QString &proKey)
             }
         }
     }
-
-
     return status;
+}
+
+int ClassLehrling::getSkillTotalPercent()
+{
+    int value = 0;
+    foreach (ClassSkills s, getSkillMap().values()) {
+        value += s.getWert();
+    }
+
+    if(getSkillMap().size() == 1)
+        value = 100;
+
+    return value;
 }
 
 QString ClassLehrling::note() const
