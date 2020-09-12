@@ -51,6 +51,7 @@ public:
     void setIdentMap(const QMap<QString, double> &iMap);
     void setIdentFactor(const QString &key, double value);
     double getIdentFactor(const QString &key);
+    double getIdentPercent(const QString &key);
     QStringList getIdentifierList();
 
     bool isEvaluated();

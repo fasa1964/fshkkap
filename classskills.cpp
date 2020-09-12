@@ -225,6 +225,25 @@ double ClassSkills::getIdentFactor(const QString &key)
     return identMap.value(key);
 }
 
+double ClassSkills::getIdentPercent(const QString &key)
+{
+    int mp = 0;
+    double point;
+
+    foreach (ClassProjekt p, getProjektMap().values())
+    {
+        if(!p.identifierList().isEmpty())
+        {
+            point += p.getPointsIdent(key);
+            mp += p.getMaxPointsIdent(key);
+        }
+    }
+
+    return  point * 100.0 / mp;
+}
+
+
+
 /// !brief Returns identifier items from
 /// projects
 QStringList ClassSkills::getIdentifierList()
@@ -240,7 +259,6 @@ QStringList ClassSkills::getIdentifierList()
                 if(!iList.contains(list.at(i)))
                     iList << list.at(i);
             }
-
         }
     }
     else

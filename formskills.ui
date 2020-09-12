@@ -643,28 +643,12 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QComboBox" name="identBox"/>
-      </item>
-      <item row="4" column="2">
-       <widget class="QDoubleSpinBox" name="identFactorBox">
-        <property name="maximum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="identLabel">
+      <item row="4" column="0" colspan="3">
+       <widget class="QPushButton" name="settingIdentButton">
         <property name="palette">
          <palette>
           <active>
-           <colorrole role="WindowText">
+           <colorrole role="ButtonText">
             <brush brushstyle="SolidPattern">
              <color alpha="255">
               <red>200</red>
@@ -675,7 +659,7 @@
            </colorrole>
           </active>
           <inactive>
-           <colorrole role="WindowText">
+           <colorrole role="ButtonText">
             <brush brushstyle="SolidPattern">
              <color alpha="255">
               <red>200</red>
@@ -686,7 +670,7 @@
            </colorrole>
           </inactive>
           <disabled>
-           <colorrole role="WindowText">
+           <colorrole role="ButtonText">
             <brush brushstyle="SolidPattern">
              <color alpha="255">
               <red>120</red>
@@ -698,8 +682,13 @@
           </disabled>
          </palette>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
         <property name="text">
-         <string>Ident:</string>
+         <string>Einstellung Fragen</string>
         </property>
        </widget>
       </item>

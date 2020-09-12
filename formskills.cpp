@@ -15,11 +15,6 @@ FormSkills::FormSkills(QWidget *parent) :
     createSkill = false;
     selectedSkill = ClassSkills();
 
-    ui->identBox->hide();
-    ui->identFactorBox->hide();
-    ui->identLabel->hide();
-
-
     ui->criteriaBox->addItems(ClassSkills::supportedCriteria());
     ui->criteriaBox->setCurrentIndex(0);
     setFormReadOnly(true);
@@ -35,13 +30,6 @@ FormSkills::FormSkills(QWidget *parent) :
     connect(ui->sortKennunBox, &QComboBox::currentTextChanged, this, &FormSkills::sortProjectBoxTextChanged);
     connect(ui->skillProjektTable, &QTableWidget::itemClicked, this, &FormSkills::skillProjektTableItemClicked);
     connect(ui->projektTable, &QTableWidget::itemClicked, this, &FormSkills::projektTableItemClicked);
-    connect(ui->kennungBox, &QComboBox::currentTextChanged, this, &FormSkills::kennungBoxTextChanged);
-    connect(ui->criteriaBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          [=](int index){ criteriaBoxChanged(index); });
-
-    connect(ui->identBox, &QComboBox::currentTextChanged, this, &FormSkills::identBoxTextChanged);
-    connect(ui->identFactorBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-          [=](double d){ identFactorValueChanged(d); });
 
     connect(ui->projektTable, &QTableWidget::itemClicked, this, &FormSkills::projektTableItemClicked);
     connect(ui->skillTable, &QTableWidget::itemClicked, this, &FormSkills::skillTableItemClicked);
@@ -228,7 +216,7 @@ void FormSkills::deleteSkillProjektButtonClicked()
 /// projectTable into the skillProjectTable
 void FormSkills::importProjectButtonClicked()
 {
-    ui->identBox->clear();
+
 
     if(createSkill)
         setupSkillProjectTable( getSelectedProjects() );
@@ -261,57 +249,24 @@ void FormSkills::importProjectButtonClicked()
         }
     }
 
-    // Setup the identMap for skill
-    if(!identList.isEmpty())
-    {
-        QMap<QString, double> iMap;
-        for(int i = 0; i < identList.size(); i++)
-        {
-            double f = 1.0 / identList.size();
-            iMap.insert(identList.at(i), f);
-        }
-
-        selectedSkill.setIdentMap( iMap );
-        m_skillMap.insert(selectedSkill.getKey(), selectedSkill);
-        ui->identBox->addItems(identList);
-        ui->criteriaBox->setCurrentIndex(1);
-
-        QMessageBox::information(this, tr("Prüfung"), tr("In den Prüfungsfragen wurden Kennungen in den Fragen erkannt.\n"
-                                        "Sie haben jetzt und auch später die Möglichkeit die Faktoren der Kennungen festzulegen."));
-    }
 }
 
 void FormSkills::criteriaBoxChanged(int index)
 {
-    ui->identBox->clear();
-    if(index == 1) // Evaluation method questions identifier
-    {
-        if(!selectedSkill.getIdentMap().isEmpty())
-        {
-            ui->identBox->show();
-            ui->identFactorBox->show();
-            ui->identLabel->show();
-        }
-        else
-        {
+
+    if(!changeSkill && !createSkill)
+        return;
+
+
             QMessageBox::information(this, tr("Prüfung"), tr("Keiner der Fragen, von den zugeordneten Projekte, besitzt eine Kennung!\n"
                                                              "Daher kann auch keine Auswertung nach Kennung (Fragen) stattfinden!"));
             ui->criteriaBox->setCurrentIndex(0);
-        }
 
-
-    }
-    else           // Evaluation method projects
-    {
-        ui->identBox->hide();
-        ui->identFactorBox->hide();
-        ui->identLabel->hide();
-    }
 }
 
 void FormSkills::skillTableItemClicked(QTableWidgetItem *item)
 {
-    selectedIdentMap.clear();
+
     int row = item->row();
     QString key = ui->skillTable->item(row,1)->text()+"."+ui->skillTable->item(row,2)->text();
 
@@ -393,33 +348,7 @@ void FormSkills::skillProjektTableCellClicked(int row, int column)
 
 }
 
-void FormSkills::identFactorValueChanged(double val)
-{
-    if(!changeSkill && !createSkill )
-        return;
 
-    if(selectedSkill.isValid())
-    {
-        selectedIdentMap.insert(ui->identBox->currentText(), val);
-    }
-}
-
-void FormSkills::identBoxTextChanged(const QString &text)
-{
-    if(!changeSkill && !createSkill)
-        return;
-
-    double fac = selectedIdentMap.value(text);
-    ui->identFactorBox->setValue(fac);
-}
-
-void FormSkills::kennungBoxTextChanged(const QString &text)
-{
-    if(!changeSkill && !createSkill)
-        return;
-
-    ui->kennungEdit->setText(text);
-}
 
 //void FormSkills::skillProjektTableCellClicked(int row, int column)
 //{
@@ -486,11 +415,6 @@ ClassSkills FormSkills::readFromForm()
     skill.setEvaluationType(ui->criteriaBox->currentIndex());
 
     skill.setProjektMap( getSkillProjectMap() );
-
-    if(!selectedIdentMap.isEmpty())
-    {
-        skill.setIdentMap(selectedIdentMap);
-    }
 
     return skill;
 }
@@ -752,8 +676,6 @@ void FormSkills::setupProjektTable(const QMap<QString, ClassProjekt> &pMap, Qt::
 
 void FormSkills::setSkillToForm(const ClassSkills &skill)
 {
-    //ui->identBox->clear();
-    //disconnect(ui->criteriaBox, &QComboBox::currentIndexChanged, this, &FormSkills::criteriaBoxChanged);
 
     ui->nrBox->setValue( skill.getNr());
     ui->nameEdit->setText(skill.name());
@@ -777,12 +699,6 @@ void FormSkills::setSkillToForm(const ClassSkills &skill)
     QString criteriaText = skill.getEvaluationText(index);
     ui->criteriaBox->setCurrentText(criteriaText);
 
-    // Get identifier question values
-    if(!skill.getIdentMap().isEmpty()){
-        selectedIdentMap = skill.getIdentMap();
-        ui->identBox->addItems( selectedIdentMap.keys() );
-        ui->identFactorBox->setValue( selectedIdentMap.value(ui->identBox->currentText()));
-    }
 }
 
 QMap<QString, ClassProjekt> FormSkills::projektMap() const
@@ -1375,9 +1291,13 @@ void FormSkills::setFormReadOnly(bool status)
     ui->kennungEdit->setReadOnly(status);
     ui->kennungBox->setEnabled(!status);
     ui->criteriaBox->setEnabled(!status);
+    ui->settingIdentButton->setEnabled(!status);
 
-    ui->identBox->setEnabled(!status);
-    ui->identFactorBox->setReadOnly(status);
+    if(!status && !selectedSkill.getIdentifierList().isEmpty())
+        ui->settingIdentButton->setEnabled(true);
+    else {
+        ui->settingIdentButton->setEnabled(false);
+    }
 
 }
 
@@ -1390,7 +1310,6 @@ void FormSkills::clearForm()
     ui->wertBox->setValue(0);
     ui->durationBox->setValue(0);
 
-    ui->identBox->clear();
     ui->skillProjektTable->setRowCount(0);
     ui->skillProjektTable->clear();
 }

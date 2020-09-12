@@ -50,10 +50,6 @@ private slots:
     void skillProjektTableItemClicked(QTableWidgetItem *);
     void skillProjektTableCellClicked(int row, int column);
 
-    void identFactorValueChanged(double val);
-    void identBoxTextChanged(const QString &text);
-
-    void kennungBoxTextChanged(const QString &text);
     void sortProjectBoxTextChanged(const QString &text);
 
 private:
@@ -62,34 +58,18 @@ private:
     bool changeSkill;
     bool createSkill;
     ClassSkills selectedSkill;
-    QMap<QString, double> selectedIdentMap;
-
-//    bool projectFactorChanged;
 
     QMap<QString, ClassSkills> m_skillMap;
     ClassSkills readFromForm();
 
 
-//    ClassSkills selectedSkill;
-//    void setSkillToForm(const ClassSkills &skill);
-//    void setSkillProjektToForm(const QMap<QString, ClassProjekt> &proMap);
-
-//    QMap<QString, ClassProjekt> getSkillProjektMap();
-//    double totalProjectFactor(const ClassSkills &skill);
-
     QMap<QString, ClassProjekt> m_projektMap;
-//    void setupKennungBox(const QMap<QString, ClassProjekt> &proMap);
-//    void setupProjektTable(const QMap<QString, ClassProjekt> &proMap, Qt::CheckState state);
-//    void setupProjektIconTable(const QMap<QString, ClassProjekt> &proMap, Qt::CheckState state);
-//    double getSkillProjectFactor();
+
 
     QStringList getProjectKennung(const QMap<QString, ClassProjekt> &pMap);
     QMap<QString, ClassProjekt> getSkillProjectMap();
     QMap<QString, ClassProjekt> getSelectedProjects();
     bool isItemChecked(QTableWidget *widget);
-
-    //bool isProjectFactorValid();
-    //bool projektFactorSimilarly();
 
     void setupSkillTable(const QMap<QString, ClassSkills> &sMap);
     void setupSkillProjectTable(const QMap<QString, ClassProjekt> &pMap);
