@@ -110,7 +110,9 @@ private:
 //    /// !brief Returns true if skill key
 //    bool isSkillKey(const QString &text);
     bool isDigit(const QString &text);
-    void setTextColor(QWidget *widget, QColor color);
+//    void setTextColor(QWidget *widget, QColor color);
+    void setTextColor(QWidget *widget, double percent);
+    void setItemColor(QTreeWidgetItem *item, double percent);
 };
 
 

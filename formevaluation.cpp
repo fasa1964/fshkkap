@@ -651,131 +651,438 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
 
     // key, percent , factor>
     QMap<QString, double> identifierResultMap;
+    QMap<QString, double> identifierFactorMap;
+    QMap<QString, QPair<double, double>> calculatedMap;
 
+    QFont topItemFont;
+
+    // Calculate results
     QMapIterator<QString, ClassSkills> it(appr.getSkillMap());
-    while (it.hasNext()) {
+    while (it.hasNext())
+    {
         it.next();
 
         ClassSkills skill = it.value();
 
-        // Insert top items
+        // If skill evaluation method is project
         QTreeWidgetItem *topItem = new QTreeWidgetItem(QStringList() << it.key());
         ui->resultTreeWidget->addTopLevelItem(topItem);
         ui->resultTreeWidget->expandItem(topItem);
 
+        // Shows the percent of skill, calculated by project with factor
         topItem->setText(1, QString::number( skillPercent(skill),'g',3)+"%");
-
-        if(appr.getSkillMap().size() == 1)
-        {
-            QString np = "100% (" + QString::number( skill.getWert() ,'g',3) + "%)";
-            topItem->setText(2, np);
-        }else
-            topItem->setText(2, QString::number( skill.getWert() ,'g',3)+"%");
-
+        setItemColor(topItem, skillPercent(skill) );
+        topItem->setText(2, QString::number( skill.getWert() ,'g',3)+"%");
         topItem->setText(3, skill.getEvaluationText( skill.getEvaluationIndex() ));
 
-        QFont font = topItem->font(0);
-        font.setBold(true);
-        topItem->setFont(0,font);
-        topItem->setFont(1,font);
-        topItem->setFont(2,font);
+        // Set top item font
+        topItemFont = topItem->font(0);
+        topItemFont.setBold(true);
+        topItem->setFont(0,topItemFont);
+        topItem->setFont(1,topItemFont);
+        topItem->setFont(2,topItemFont);
 
-        // Set textcolor
-        if(skillPercent(skill) >= 50.0)
-            topItem->setTextColor(1, Qt::darkGreen);
-        else
-            topItem->setTextColor(1, Qt::red);
 
-        // Insert child item
-        foreach (ClassProjekt pro, skill.getProjektMap().values())
+
+        if(skill.getEvaluationIndex() == 1 && !skill.getIdentifierList().isEmpty())
         {
+            QStringList iList = skill.getIdentifierList();
+            for(int i = 0; i < iList.size() ; i++)
+            {
+                QTreeWidgetItem *childItem = new QTreeWidgetItem(QStringList() << iList.at(i));
+                topItem->addChild(childItem);
 
-            QTreeWidgetItem *childItem = new QTreeWidgetItem(QStringList() << pro.getKey());
-            topItem->addChild(childItem);
+                childItem->setText(1, QString::number( skill.getIdentPercent( iList.at(i) ) ,'g',3)+"%");
+                childItem->setText(2, QString::number( skill.getIdentFactor( iList.at(i)) ,'g',3));
+                setItemColor(childItem,  skill.getIdentPercent( iList.at(i) ) );
 
-            childItem->setText(1, QString::number(pro.percent(), 'g', 3)+" %");
-            childItem->setText(2, QString::number(pro.getFactor(), 'g', 2));
-
-            // Set textcolor
-            if(pro.percent() < 50.0)
-                childItem->setTextColor(1, Qt::red);
-            else
-                childItem->setTextColor(1, Qt::darkGreen);
-
-            // Testing resultMap
-            // When the skill evaluation method is idententifier question
-            // but the project has no identifier
-            if(skill.getEvaluationIndex() == 1 && pro.identifierList().isEmpty()){
-                double pp = pro.percent() * pro.getFactor();
-                identifierResultMap.insert(pro.getKey(), pp);
             }
 
-            // When the skill evaluation method is idententifier question
-            if(skill.getEvaluationIndex() == 1)
+            foreach (ClassProjekt pro, skill.getProjektMap().values())
             {
-                QStringList identList = pro.identifierList();
-                if(!identList.isEmpty())
+                if(pro.identifierList().isEmpty() && pro.isValid())
                 {
-                    for(int i = 0; i < identList.size(); i++)
-                    {
-                        QTreeWidgetItem *identItem = new QTreeWidgetItem(QStringList() << identList.at(i));
-                        childItem->addChild( identItem );
+                    QTreeWidgetItem *childItem = new QTreeWidgetItem(QStringList() << pro.getKey());
+                    topItem->addChild(childItem);
+                    childItem->setText(1, QString::number(pro.percent(), 'g', 3)+" %");
+                    childItem->setText(2, QString::number(pro.getFactor(), 'g', 2));
+                    setItemColor(childItem, pro.percent());
 
-                        double idp = pro.getPercentIdent( identList.at(i) );
-                        identItem->setText(1, QString::number(idp, 'g', 2)+"%");
-                        identItem->setText(2, QString::number(skill.getIdentFactor( identList.at(i) ), 'g', 2) );
-
-                        if(identifierResultMap.keys().contains( identList.at(i) ))
-                        {
-                            double pp = resultMap.value( identList.at(i) );
-                            pp += idp * pro.getFactor();
-                            identifierResultMap.insert(identList.at(i), pp);
-
-
-                        }
-                        else
-                        {
-                            double pp = idp * pro.getFactor();
-                            resultMap.insert(identList.at(i), pp);
-                        }
-
-                    }
                 }
             }
         }
+
+        // Add projects as child item
+        foreach (ClassProjekt pro, skill.getProjektMap().values())
+        {
+
+            if(skill.getEvaluationIndex() == 0 && pro.isValid())
+            {
+
+                QTreeWidgetItem *childItem = new QTreeWidgetItem(QStringList() << pro.getKey());
+                topItem->addChild(childItem);
+                childItem->setText(1, QString::number(pro.percent(), 'g', 3)+" %");
+                childItem->setText(2, QString::number(pro.getFactor(), 'g', 2));
+                setItemColor(childItem, pro.percent());
+            }
+
+            ui->resultTreeWidget->resizeColumnToContents(0);
+        }
+
     }
+
+
+    double total = 0.0;
+
+
+
+//        // Set textcolor
+//        setItemColor(topItem, itc.value().first );
+
+//        // Calculate the total result
+//        total += itc.value().first * itc.value().second;
+
+        // Add projects as child item
+//        foreach (ClassProjekt pro, skill.getProjektMap().values())
+//        {
+//            QTreeWidgetItem *childItem = new QTreeWidgetItem(QStringList() << pro.getKey());
+//            topItem->addChild(childItem);
+
+//            childItem->setText(1, QString::number(pro.percent(), 'g', 3)+" %");
+//            childItem->setText(2, QString::number(pro.getFactor(), 'g', 2));
+
+//            // Set textcolor
+//            setItemColor(childItem, pro.percent());
+
+//            ui->resultTreeWidget->resizeColumnToContents(0);
+//        }
+//    }
 
     ui->resultTreeWidget->resizeColumnToContents(0);
 
-    // Set total result in percent
-    double apprPercent =  apprenticePercent(selectedApprentice);
-    if(apprPercent >= 50.0)
-        setTextColor(ui->totalPercentBox, Qt::darkGreen);
-    else
-        setTextColor(ui->totalPercentBox, Qt::red);
-    ui->totalPercentBox->setValue( apprPercent );
-
-    int grade = FSHKWindow::grade( apprPercent );
-    if(grade < 5)
-        setTextColor(ui->gradeBox, Qt::darkGreen);
-    else
-        setTextColor(ui->gradeBox, Qt::red);
-    ui->gradeBox->setValue( grade );
-
-    QMapIterator<QString, double> itest(identifierResultMap);
-    while (itest.hasNext()) {
-        itest.next();
-
-        QTreeWidgetItem *topItem = new QTreeWidgetItem(QStringList() << itest.key());
-        ui->resultTreeWidget->addTopLevelItem(topItem);
-
-        topItem->setText(1, QString::number(itest.value(), 'g', 3)+"%");
-        topItem->setText(2, QString::number( selectedSkill.getIdentFactor( itest.key() ), 'g', 3) );
-
-    }
-
-
+    ui->totalPercentBox->setValue(total);
+    setTextColor(ui->totalPercentBox, total);
+    ui->gradeBox->setValue( FSHKWindow::grade(total) );
 }
+//        // Insert top items
+//        QTreeWidgetItem *topItem = new QTreeWidgetItem(QStringList() << it.key());
+//        ui->resultTreeWidget->addTopLevelItem(topItem);
+//        ui->resultTreeWidget->expandItem(topItem);
+
+//        // Shows the percent of skill, calculated by project with factor
+//        topItem->setText(1, QString::number( skillPercent(skill),'g',3)+"%");
+
+//        // Check if only one skill, the evaluation weight is 100% even
+//        // when the settings is less
+//        if(appr.getSkillMap().size() == 1)
+//        {
+//            QString np = "100% (" + QString::number( skill.getWert() ,'g',3) + "%)";
+//            topItem->setText(2, np);
+
+//            // Insert into calculateMap for calculate the total results
+//            QPair<double, double> p; p.first = skillPercent(skill); p.second = 1.0;
+//            calculatedMap.insert(skill.getKey(), p);
+
+
+//        }else{
+//            topItem->setText(2, QString::number( skill.getWert() ,'g',3)+"%");
+
+//            // Insert into calculateMap for calculate the total results
+//            QPair<double, double> p; p.first = skillPercent(skill); p.second = skill.getWert()/100.0;
+//            calculatedMap.insert(skill.getKey(), p);
+
+//        }
+
+//        // Shows the method of evaluation
+//        topItem->setText(3, skill.getEvaluationText( skill.getEvaluationIndex() ));
+
+//        // Set top item font
+//        topItemFont = topItem->font(0);
+//        topItemFont.setBold(true);
+//        topItem->setFont(0,topItemFont);
+//        topItem->setFont(1,topItemFont);
+//        topItem->setFont(2,topItemFont);
+
+//        // Set textcolor
+//        if(skillPercent(skill) >= 50.0)
+//            topItem->setTextColor(1, Qt::darkGreen);
+//        else
+//            topItem->setTextColor(1, Qt::red);
+
+//        // Insert child item for informative purposes
+//        foreach (ClassProjekt pro, skill.getProjektMap().values())
+//        {
+
+//            QTreeWidgetItem *childItem = new QTreeWidgetItem(QStringList() << pro.getKey());
+//            topItem->addChild(childItem);
+
+//            childItem->setText(1, QString::number(pro.percent(), 'g', 3)+" %");
+//            childItem->setText(2, QString::number(pro.getFactor(), 'g', 2));
+
+//            // Set textcolor
+//            if(pro.percent() < 50.0)
+//                childItem->setTextColor(1, Qt::red);
+//            else
+//                childItem->setTextColor(1, Qt::darkGreen);
+
+//            // Testing resultMap
+//            // When the skill evaluation method is idententifier question
+//            // but the project has no identifier insert to identifierResultMap
+//            if(skill.getEvaluationIndex() == 1 && pro.identifierList().isEmpty()){
+//                double pp = pro.percent() * pro.getFactor();
+//                identifierResultMap.insert(pro.getKey(), pp);
+//                identifierFactorMap.insert(pro.getKey(), pro.getFactor());
+
+//                // Insert into calculateMap for calculate the total results
+//                QPair<double, double> p; p.first = pro.percent(); p.second = pro.getFactor();
+//                calculatedMap.insert(pro.getKey(), p);
+
+//            }
+
+//            // When the skill evaluation method is idententifier question
+//            // And the project has questions with ident
+//            if(skill.getEvaluationIndex() == 1)
+//            {
+//                QStringList identList = pro.identifierList();
+//                if(!identList.isEmpty())
+//                {
+//                    for(int i = 0; i < identList.size(); i++)
+//                    {
+//                        QTreeWidgetItem *identItem = new QTreeWidgetItem(QStringList() << identList.at(i));
+//                        childItem->addChild( identItem );
+
+//                        double idp = pro.getPercentIdent( identList.at(i) );
+//                        identItem->setText(1, QString::number(idp, 'g', 3)+"%");
+//                        identItem->setText(2, QString::number(skill.getIdentFactor( identList.at(i) ), 'g', 3) );
+
+//                        if(identifierResultMap.keys().contains( identList.at(i) ))
+//                        {
+//                            double pp = identifierResultMap.value( identList.at(i) );
+//                            pp += idp * pro.getFactor(); // Not sure have to check this....
+//                            identifierResultMap.insert(identList.at(i), pp);
+//                            identifierFactorMap.insert(identList.at(i), skill.getIdentFactor(identList.at(i)));
+
+//                            // Insert into calculateMap for calculate the total results
+//                            QPair<double, double> p; p.first = pp; p.second = skill.getIdentFactor(identList.at(i));
+//                            calculatedMap.insert(identList.at(i), p);
+//                        }
+//                        else
+//                        {
+//                            double pp = idp * pro.getFactor();
+//                            identifierResultMap.insert(identList.at(i), pp);
+//                        }
+
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    ui->resultTreeWidget->resizeColumnToContents(0);
+
+//    // Set total result in percent
+//    double apprPercent =  apprenticePercent(selectedApprentice);
+//    if(apprPercent >= 50.0)
+//        setTextColor(ui->totalPercentBox, Qt::darkGreen);
+//    else
+//        setTextColor(ui->totalPercentBox, Qt::red);
+//    ui->totalPercentBox->setValue( apprPercent );
+
+//    int grade = FSHKWindow::grade( apprPercent );
+//    if(grade < 5)
+//        setTextColor(ui->gradeBox, Qt::darkGreen);
+//    else
+//        setTextColor(ui->gradeBox, Qt::red);
+//    ui->gradeBox->setValue( grade );
+
+//    // Set new top item
+//    QMapIterator<QString, double> itest(identifierResultMap);
+//    while (itest.hasNext()) {
+//        itest.next();
+
+//        QTreeWidgetItem *topItem = new QTreeWidgetItem(QStringList() << itest.key());
+//        ui->resultTreeWidget->addTopLevelItem(topItem);
+//        topItem->setFont(0, topItemFont);
+
+//        topItem->setText(1, QString::number(itest.value(), 'g', 3)+"%");
+//        double fac = identifierFactorMap.value(itest.key(), 0.0);
+//        topItem->setText(2, QString::number(fac, 'g', 3));
+
+//    }
+
+
+//}
+
+//void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
+//{
+//    ui->resultTreeWidget->clear();
+
+//    QStringList headers;
+//    headers << "Titel" << "Ergebnis in %" << "Wert/Faktor" << "Auswertung nach";
+//    ui->resultTreeWidget->setHeaderLabels(headers);
+
+//    // key, percent , factor>
+//    QMap<QString, double> identifierResultMap;
+//    QMap<QString, double> identifierFactorMap;
+//    QMap<QString, QPair<double, double>> calculatedMap;
+
+//    QFont topItemFont;
+
+//    QMapIterator<QString, ClassSkills> it(appr.getSkillMap());
+//    while (it.hasNext())
+//    {
+//        it.next();
+
+//        ClassSkills skill = it.value();
+
+//        // Insert top items
+//        QTreeWidgetItem *topItem = new QTreeWidgetItem(QStringList() << it.key());
+//        ui->resultTreeWidget->addTopLevelItem(topItem);
+//        ui->resultTreeWidget->expandItem(topItem);
+
+//        // Shows the percent of skill, calculated by project with factor
+//        topItem->setText(1, QString::number( skillPercent(skill),'g',3)+"%");
+
+//        // Check if only one skill, the evaluation weight is 100% even
+//        // when the settings is less
+//        if(appr.getSkillMap().size() == 1)
+//        {
+//            QString np = "100% (" + QString::number( skill.getWert() ,'g',3) + "%)";
+//            topItem->setText(2, np);
+
+//            // Insert into calculateMap for calculate the total results
+//            QPair<double, double> p; p.first = skillPercent(skill); p.second = 1.0;
+//            calculatedMap.insert(skill.getKey(), p);
+
+
+//        }else{
+//            topItem->setText(2, QString::number( skill.getWert() ,'g',3)+"%");
+
+//            // Insert into calculateMap for calculate the total results
+//            QPair<double, double> p; p.first = skillPercent(skill); p.second = skill.getWert()/100.0;
+//            calculatedMap.insert(skill.getKey(), p);
+
+//        }
+
+//        // Shows the method of evaluation
+//        topItem->setText(3, skill.getEvaluationText( skill.getEvaluationIndex() ));
+
+//        // Set top item font
+//        topItemFont = topItem->font(0);
+//        topItemFont.setBold(true);
+//        topItem->setFont(0,topItemFont);
+//        topItem->setFont(1,topItemFont);
+//        topItem->setFont(2,topItemFont);
+
+//        // Set textcolor
+//        if(skillPercent(skill) >= 50.0)
+//            topItem->setTextColor(1, Qt::darkGreen);
+//        else
+//            topItem->setTextColor(1, Qt::red);
+
+//        // Insert child item for informative purposes
+//        foreach (ClassProjekt pro, skill.getProjektMap().values())
+//        {
+
+//            QTreeWidgetItem *childItem = new QTreeWidgetItem(QStringList() << pro.getKey());
+//            topItem->addChild(childItem);
+
+//            childItem->setText(1, QString::number(pro.percent(), 'g', 3)+" %");
+//            childItem->setText(2, QString::number(pro.getFactor(), 'g', 2));
+
+//            // Set textcolor
+//            if(pro.percent() < 50.0)
+//                childItem->setTextColor(1, Qt::red);
+//            else
+//                childItem->setTextColor(1, Qt::darkGreen);
+
+//            // Testing resultMap
+//            // When the skill evaluation method is idententifier question
+//            // but the project has no identifier insert to identifierResultMap
+//            if(skill.getEvaluationIndex() == 1 && pro.identifierList().isEmpty()){
+//                double pp = pro.percent() * pro.getFactor();
+//                identifierResultMap.insert(pro.getKey(), pp);
+//                identifierFactorMap.insert(pro.getKey(), pro.getFactor());
+
+//                // Insert into calculateMap for calculate the total results
+//                QPair<double, double> p; p.first = pro.percent(); p.second = pro.getFactor();
+//                calculatedMap.insert(pro.getKey(), p);
+
+//            }
+
+//            // When the skill evaluation method is idententifier question
+//            // And the project has questions with ident
+//            if(skill.getEvaluationIndex() == 1)
+//            {
+//                QStringList identList = pro.identifierList();
+//                if(!identList.isEmpty())
+//                {
+//                    for(int i = 0; i < identList.size(); i++)
+//                    {
+//                        QTreeWidgetItem *identItem = new QTreeWidgetItem(QStringList() << identList.at(i));
+//                        childItem->addChild( identItem );
+
+//                        double idp = pro.getPercentIdent( identList.at(i) );
+//                        identItem->setText(1, QString::number(idp, 'g', 3)+"%");
+//                        identItem->setText(2, QString::number(skill.getIdentFactor( identList.at(i) ), 'g', 3) );
+
+//                        if(identifierResultMap.keys().contains( identList.at(i) ))
+//                        {
+//                            double pp = identifierResultMap.value( identList.at(i) );
+//                            pp += idp * pro.getFactor(); // Not sure have to check this....
+//                            identifierResultMap.insert(identList.at(i), pp);
+//                            identifierFactorMap.insert(identList.at(i), skill.getIdentFactor(identList.at(i)));
+
+//                            // Insert into calculateMap for calculate the total results
+//                            QPair<double, double> p; p.first = pp; p.second = skill.getIdentFactor(identList.at(i));
+//                            calculatedMap.insert(identList.at(i), p);
+//                        }
+//                        else
+//                        {
+//                            double pp = idp * pro.getFactor();
+//                            identifierResultMap.insert(identList.at(i), pp);
+//                        }
+
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    ui->resultTreeWidget->resizeColumnToContents(0);
+
+//    // Set total result in percent
+//    double apprPercent =  apprenticePercent(selectedApprentice);
+//    if(apprPercent >= 50.0)
+//        setTextColor(ui->totalPercentBox, Qt::darkGreen);
+//    else
+//        setTextColor(ui->totalPercentBox, Qt::red);
+//    ui->totalPercentBox->setValue( apprPercent );
+
+//    int grade = FSHKWindow::grade( apprPercent );
+//    if(grade < 5)
+//        setTextColor(ui->gradeBox, Qt::darkGreen);
+//    else
+//        setTextColor(ui->gradeBox, Qt::red);
+//    ui->gradeBox->setValue( grade );
+
+//    // Set new top item
+//    QMapIterator<QString, double> itest(identifierResultMap);
+//    while (itest.hasNext()) {
+//        itest.next();
+
+//        QTreeWidgetItem *topItem = new QTreeWidgetItem(QStringList() << itest.key());
+//        ui->resultTreeWidget->addTopLevelItem(topItem);
+//        topItem->setFont(0, topItemFont);
+
+//        topItem->setText(1, QString::number(itest.value(), 'g', 3)+"%");
+//        double fac = identifierFactorMap.value(itest.key(), 0.0);
+//        topItem->setText(2, QString::number(fac, 'g', 3));
+
+//    }
+
+
+//}
 
 bool FormEvaluation::isDigit(const QString &text)
 {
@@ -787,13 +1094,28 @@ bool FormEvaluation::isDigit(const QString &text)
     return status;
 }
 
-void FormEvaluation::setTextColor(QWidget *widget, QColor color)
+void FormEvaluation::setTextColor(QWidget *widget, double percent)
 {
     QPalette pal;
+    QColor c;
+
     pal = widget->palette();
-    pal.setColor(QPalette::WindowText, color);
-    pal.setColor(QPalette::Text, color);
+    if(percent < 50)
+        c = Qt::red;
+    else
+        c = Qt::darkGreen;
+
+    pal.setColor(QPalette::WindowText, c);
+    pal.setColor(QPalette::Text, c);
     widget->setPalette(pal);
+}
+
+void FormEvaluation::setItemColor(QTreeWidgetItem *item, double percent)
+{
+    if(percent < 50.0)
+        item->setTextColor(1, Qt::red);
+    else
+        item->setTextColor(1, Qt::darkGreen);
 }
 
 //void FormEvaluation::saveButtonClicked()
