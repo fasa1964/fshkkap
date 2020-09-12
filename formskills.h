@@ -41,6 +41,7 @@ private slots:
     void saveButtonClicked();
     void deleteButtonClicked();
     void deleteSkillProjektButtonClicked();
+    void settingIdentButtonClicked();
 
     void importProjectButtonClicked();
     void criteriaBoxChanged(int index);
@@ -49,6 +50,7 @@ private slots:
     void projektTableItemClicked(QTableWidgetItem *);
     void skillProjektTableItemClicked(QTableWidgetItem *);
     void skillProjektTableCellClicked(int row, int column);
+    void kennungTextChanged(const QString &text);
 
     void sortProjectBoxTextChanged(const QString &text);
 
@@ -61,6 +63,7 @@ private:
 
     QMap<QString, ClassSkills> m_skillMap;
     ClassSkills readFromForm();
+    void updateIdentQuestion(ClassSkills skill);
 
 
     QMap<QString, ClassProjekt> m_projektMap;

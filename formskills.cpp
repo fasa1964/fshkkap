@@ -5,6 +5,8 @@
 #include <QPalette>
 #include <QDebug>
 
+#include <formquestionidentsettings.h>
+
 FormSkills::FormSkills(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FormSkills)
@@ -25,9 +27,11 @@ FormSkills::FormSkills(QWidget *parent) :
     connect(ui->saveButton, &QPushButton::clicked, this, &FormSkills::saveButtonClicked);
     connect(ui->deleteButton, &QPushButton::clicked, this, &FormSkills::deleteButtonClicked);
     connect(ui->deleteSkillProjektButton, &QPushButton::clicked, this, &FormSkills::deleteSkillProjektButtonClicked);
+    connect(ui->settingIdentButton, &QPushButton::clicked, this, &FormSkills::settingIdentButtonClicked);
 
     connect(ui->importProjekteButton, &QPushButton::clicked, this, &FormSkills::importProjectButtonClicked);
     connect(ui->sortKennunBox, &QComboBox::currentTextChanged, this, &FormSkills::sortProjectBoxTextChanged);
+    connect(ui->kennungBox, &QComboBox::currentTextChanged, this, &FormSkills::kennungTextChanged);
     connect(ui->skillProjektTable, &QTableWidget::itemClicked, this, &FormSkills::skillProjektTableItemClicked);
     connect(ui->projektTable, &QTableWidget::itemClicked, this, &FormSkills::projektTableItemClicked);
 
@@ -122,6 +126,12 @@ void FormSkills::saveButtonClicked()
 
     ClassSkills skill = readFromForm();
 
+    if(changeSkill){
+        if(selectedSkill.isValid() && !selectedSkill.getIdentMap().isEmpty())
+            skill.setIdentMap( selectedSkill.getIdentMap() );
+    }
+
+
     m_skillMap.insert(skill.getKey(), skill);
     emit saveSkillsMap(skillMap());
 
@@ -212,11 +222,56 @@ void FormSkills::deleteSkillProjektButtonClicked()
     }
 }
 
+void FormSkills::settingIdentButtonClicked()
+{
+
+    // If identMap was set but the ident of questions was changed
+    if(!selectedSkill.getIdentMap().isEmpty() )
+    {
+        QStringList list = selectedSkill.getIdentifierList();
+        bool different = false;
+        foreach (QString s, selectedSkill.getIdentMap().keys())
+        {
+            if(!list.contains(s))
+                different = true;
+        }
+
+        if(different)
+        {
+
+            double fac = 1.0 / list.size();
+            QMap<QString, double> map;
+            for(int i = 0; i < list.size(); i++)
+                map.insert(list.at(i), fac);
+
+            selectedSkill.setIdentMap(map);
+        }
+    }
+
+    // If identMap was never set
+    if(selectedSkill.getIdentMap().isEmpty() && !selectedSkill.getIdentifierList().isEmpty())
+    {
+        QStringList list = selectedSkill.getIdentifierList();
+        double fac = 1.0 / list.size();
+        QMap<QString, double> map;
+        for(int i = 0; i < list.size(); i++)
+            map.insert(list.at(i), fac);
+        selectedSkill.setIdentMap(map);
+    }
+
+    FormQuestionIdentSettings *dlg = new FormQuestionIdentSettings(selectedSkill.getIdentMap(), this);
+    int result = dlg->exec();
+    if(result == FormQuestionIdentSettings::Rejected)
+        return;
+
+    selectedSkill.setIdentMap( dlg->identMap() );
+    m_skillMap.insert(selectedSkill.getKey(), selectedSkill);
+}
+
 /// !brief Import the selected projects from
 /// projectTable into the skillProjectTable
 void FormSkills::importProjectButtonClicked()
 {
-
 
     if(createSkill)
         setupSkillProjectTable( getSelectedProjects() );
@@ -234,20 +289,7 @@ void FormSkills::importProjectButtonClicked()
         setupSkillProjectTable(pMap);
     }
 
-    // Check for identifier questions
-    QStringList identList;
-    foreach (ClassProjekt pro, getSelectedProjects().values())
-    {
-        QStringList list = pro.identifierList();
-        if(!list.isEmpty())
-        {
-            foreach (QString s, list)
-            {
-                if(!identList.contains(s))
-                    identList << s;
-            }
-        }
-    }
+    updateIdentQuestion(selectedSkill);
 
 }
 
@@ -286,6 +328,8 @@ void FormSkills::skillTableItemClicked(QTableWidgetItem *item)
 
     ui->deleteSkillProjektButton->setEnabled(false);
     ui->importProjekteButton->setEnabled(false);
+
+    updateIdentQuestion(selectedSkill);
 }
 
 void FormSkills::projektTableItemClicked(QTableWidgetItem *)
@@ -346,6 +390,14 @@ void FormSkills::skillProjektTableCellClicked(int row, int column)
         return;
     }
 
+}
+
+void FormSkills::kennungTextChanged(const QString &text)
+{
+    if(changeSkill && !createSkill)
+        return;
+
+    ui->kennungEdit->setText( text );
 }
 
 
@@ -417,6 +469,20 @@ ClassSkills FormSkills::readFromForm()
     skill.setProjektMap( getSkillProjectMap() );
 
     return skill;
+}
+
+void FormSkills::updateIdentQuestion(ClassSkills skill)
+{
+    if(!changeSkill && !createSkill)
+        return;
+
+    // Check for identifier questions
+    QStringList identList = skill.getIdentifierList();
+    if(!identList.isEmpty())
+        ui->settingIdentButton->setEnabled(true);
+    else
+        ui->settingIdentButton->setEnabled(false);
+
 }
 
 /// !brief Returns a list of identifiers
@@ -1298,7 +1364,6 @@ void FormSkills::setFormReadOnly(bool status)
     else {
         ui->settingIdentButton->setEnabled(false);
     }
-
 }
 
 void FormSkills::clearForm()
