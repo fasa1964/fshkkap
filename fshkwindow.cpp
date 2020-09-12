@@ -1086,7 +1086,8 @@ void FSHKWindow::readDatas(const QString &filename)
         {
             ClassProjekt pro;
             in >> pro;
-            projectMap.insert(pro.getKey(), pro);
+            if(pro.isValid())
+                projectMap.insert(pro.getKey(), pro);
         }
         if(filename == "Pruefungen.dat")
         {
@@ -1136,9 +1137,12 @@ bool FSHKWindow::saveDatas(const QString &filename)
     if(filename == "Projekte.dat")
     {
         QMapIterator<QString, ClassProjekt> it(projectMap);
-        while (it.hasNext()) {
+        while (it.hasNext())
+        {
             it.next();
-            out << it.value();
+            ClassProjekt pro = it.value();
+            if(pro.isValid())
+                out << it.value();
         }
     }
     if(filename == "Pruefungen.dat")
