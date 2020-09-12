@@ -228,7 +228,8 @@ double ClassSkills::getIdentFactor(const QString &key)
 double ClassSkills::getIdentPercent(const QString &key)
 {
     int mp = 0;
-    double point;
+    int point = 0;
+    double percent = 0.0;
 
     foreach (ClassProjekt p, getProjektMap().values())
     {
@@ -239,7 +240,9 @@ double ClassSkills::getIdentPercent(const QString &key)
         }
     }
 
-    return  point * 100.0 / mp;
+    percent = point * 100.0 / mp;
+
+    return percent;
 }
 
 
