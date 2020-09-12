@@ -334,11 +334,9 @@ void FormEvaluation::closeButtonClicked()
                                  "Wenn sie jetzt schließen gehen die eingegebenen Daten verloren!",
                                   QMessageBox::Save | QMessageBox::Cancel);
          if(result == QMessageBox::Save)
-            emit saveApprenticeMap(m_apprenticeMap);
+             saveButtonClicked();
     }
 
-    dirty = false;
-    ui->saveButton->setEnabled(false);
     close();
 }
 
@@ -347,6 +345,10 @@ void FormEvaluation::saveButtonClicked()
     emit saveApprenticeMap(m_apprenticeMap);
     ui->saveButton->setEnabled(false);
     dirty = false;
+
+    if(ui->evaluatedCheckBox->isChecked())
+        ui->factorBox->setEnabled(false);
+
 }
 
 /// !brief Includes all apprentice keys sorted by years
@@ -432,6 +434,10 @@ void FormEvaluation::evaluatedCheckBoxChanged(int status)
         selectedProjekt.setEvaluated(false);
         ui->factorBox->setEnabled(true);
         storeValues();
+    }
+
+    if(status == Qt::Checked  && selectedProjekt.getEvaluated() == true){
+        ui->factorBox->setEnabled(false);
     }
 }
 
@@ -652,9 +658,10 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
     // key, percent , factor>
     QMap<QString, double> identifierResultMap;
     QMap<QString, double> identifierFactorMap;
-    QMap<QString, QPair<double, double>> calculatedMap;
+    QMap<double, double> calculatedMap;
 
     QFont topItemFont;
+    double total = 0.0;
 
     // Calculate results
     QMapIterator<QString, ClassSkills> it(appr.getSkillMap());
@@ -672,7 +679,18 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
         // Shows the percent of skill, calculated by project with factor
         topItem->setText(1, QString::number( skillPercent(skill),'g',3)+"%");
         setItemColor(topItem, skillPercent(skill) );
-        topItem->setText(2, QString::number( skill.getWert() ,'g',3)+"%");
+
+        double skillFactor = skill.getWert() / 100.0;
+
+        if(appr.getSkillMap().size() == 1 && skillFactor < 1.0)
+        {
+            skillFactor = 1.0;
+            QString s = "100% (" + QString::number( skill.getWert() ,'g',3)+"%)";
+            topItem->setText(2, s);
+        }
+        else
+            topItem->setText(2, QString::number( skill.getWert() ,'g',3)+"%");
+
         topItem->setText(3, skill.getEvaluationText( skill.getEvaluationIndex() ));
 
         // Set top item font
@@ -729,10 +747,12 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
             ui->resultTreeWidget->resizeColumnToContents(0);
         }
 
+
+        total += skillPercent(skill) * skillFactor;
     }
 
 
-    double total = 0.0;
+
 
 
 
