@@ -263,6 +263,7 @@ void FormAllocate::updateApprenticeTable(QTableWidget *widget, Qt::CheckState st
     widget->resizeColumnToContents(2);
     widget->resizeColumnToContents(4);
     widget->resizeColumnToContents(5);
+    widget->resizeRowsToContents();
 
 }
 
