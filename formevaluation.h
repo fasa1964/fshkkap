@@ -80,7 +80,7 @@ private:
 
     // Test result item map
     double apprenticePercent(const ClassLehrling &);
-    double skillPercent(const ClassSkills &skill);
+    double skillPercent(ClassSkills skill);
     double projectPercent(const ClassProjekt &pro);
     int projectPoints(const ClassProjekt &pro);
 
