@@ -258,6 +258,36 @@ double ClassProjekt::getPercentIdent(const QString &id)
     return points * 100.0 / maxPoint;
 }
 
+int ClassProjekt::getPointsIdent(const QString &id)
+{
+    int points = 0;
+
+    QMapIterator<int, ClassFrage> it(questionMap());
+    while (it.hasNext()) {
+        it.next();
+        ClassFrage q = it.value();
+        if(q.identifier() == id)
+            points += q.points();
+    }
+
+    return points;
+}
+
+int ClassProjekt::getMaxPointsIdent(const QString &id)
+{
+    int maxPoint = 0;
+
+    QMapIterator<int, ClassFrage> it(questionMap());
+    while (it.hasNext()) {
+        it.next();
+        ClassFrage q = it.value();
+        if(q.identifier() == id)
+            maxPoint += q.maxPoints();
+    }
+
+    return maxPoint;
+}
+
 QString ClassProjekt::getDescrition() const
 {
     return m_descrition;

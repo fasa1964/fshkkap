@@ -72,6 +72,8 @@ public:
 
     // Test
     double getPercentIdent(const QString &id);
+    int getPointsIdent(const QString &id);
+    int getMaxPointsIdent(const QString &id);
 
     QString getDescrition() const;
     void setDescrition(const QString &descrition);
