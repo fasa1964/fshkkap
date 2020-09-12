@@ -219,7 +219,7 @@ void FormEvaluation::setApprenticeMap(const QMap<QString, ClassLehrling> &appren
 {
     m_apprenticeMap = apprenticeMap;
     setupApprYearBox();
-    setupResultTreeWidget(selectedApprentice);
+    updateResultTreeWidget(selectedApprentice);
 }
 
 //void FormEvaluation::setRecoverButtonEnable(bool status, const QStringList &skillKeys)
@@ -337,6 +337,7 @@ void FormEvaluation::closeButtonClicked()
              saveButtonClicked();
     }
 
+    emit formEvaluationClosed();
     close();
 }
 
@@ -388,7 +389,11 @@ void FormEvaluation::azubiListBoxChanged(const QString &text)
     ui->countSkillBox->setValue( selectedApprentice.getSkillMap().size() );
     ui->skillListBox->addItems( selectedApprentice.getSkillMap().keys() );
 
-    setupResultTreeWidget(selectedApprentice);
+    updateResultTreeWidget(selectedApprentice);
+
+    if(selectedApprentice.getSkillTotalPercent() != 100){
+        QMessageBox::information(this, tr("Achtung"), tr("Die Prüfungen müssen insgesamt 100% betragen."));
+    }
 }
 
 /// !brief Includes the skills from selected apprentice
@@ -641,13 +646,13 @@ void FormEvaluation::storeValues()
     selectedApprentice.insertSkill(selectedSkill);
     m_apprenticeMap.insert(selectedApprentice.getKey(), selectedApprentice);
 
-    setupResultTreeWidget(selectedApprentice);
+    updateResultTreeWidget(selectedApprentice);
 
     dirty = true;
     ui->saveButton->setEnabled(true);
 }
 
-void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
+void FormEvaluation::updateResultTreeWidget(const ClassLehrling &appr)
 {
     ui->resultTreeWidget->clear();
 
@@ -710,8 +715,8 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
                 QTreeWidgetItem *childItem = new QTreeWidgetItem(QStringList() << iList.at(i));
                 topItem->addChild(childItem);
 
-                childItem->setText(1, QString::number( skill.getIdentPercent( iList.at(i) ) ,'g',3)+"%");
-                childItem->setText(2, QString::number( skill.getIdentFactor( iList.at(i)) ,'g',3));
+                childItem->setText(1, QString::number( skill.getIdentPercent( iList.at(i) ) ,'g', 3) + "%" );
+                childItem->setText(2, QString::number( skill.getIdentFactor( iList.at(i)) ,'g', 3));
                 setItemColor(childItem,  skill.getIdentPercent( iList.at(i) ) );
 
             }
@@ -933,7 +938,7 @@ void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
 
 //}
 
-//void FormEvaluation::setupResultTreeWidget(const ClassLehrling &appr)
+//void FormEvaluation::updateResultTreeWidget(const ClassLehrling &appr)
 //{
 //    ui->resultTreeWidget->clear();
 

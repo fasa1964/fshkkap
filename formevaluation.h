@@ -32,6 +32,7 @@ public:
 
 signals:
      void saveApprenticeMap(QMap<QString, ClassLehrling> apprMap);
+     void formEvaluationClosed();
 //     void recoverAll();
 
 private slots:
@@ -84,7 +85,7 @@ private:
     int projectPoints(const ClassProjekt &pro);
 
     void storeValues();
-    void setupResultTreeWidget(const ClassLehrling &appr);
+    void updateResultTreeWidget(const ClassLehrling &appr);
 //    void setupProjectValue();
 //    void setupQuestionTable(ClassProjekt pro);
 //    void updateSkillBox(const ClassLehrling &azu);
