@@ -253,7 +253,7 @@ void FormBetrieb::updateCompanyTable(const QMap<int, ClassBetrieb> bMap)
        ui->companyTableWidget->setItem(row,0, itemNr);
        ui->companyTableWidget->setItem(row,1, itemName);
 
-       itemName->setFlags(Qt::ItemIsEnabled);
+       itemName->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
        itemNr->setFlags(Qt::ItemIsEnabled);
 
        row++;
@@ -337,8 +337,12 @@ void FormBetrieb::setCompanyToForm(const ClassBetrieb &company)
 
     if(!company.azubiMap().isEmpty())
        updateApprenticeTable(company.azubiMap());
-    else
-       ui->apprenticeTableWidget->clear();
+    else{
+        ui->apprenticeTableWidget->setRowCount(0);
+        QStringList headers;
+        headers << "Kennung" << "Klasse";
+        ui->apprenticeTableWidget->setHorizontalHeaderLabels(headers);
+    }
 
 
     ui->saveButton->setEnabled(false);
