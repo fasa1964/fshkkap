@@ -38,6 +38,7 @@ signals:
     void apprenticeWithoutCompany(const QString &apprKey);
     void apprenticeHasCompany(const QString &company, const QString &apprenticeKey);
     void outsourceApprentice();
+    void removeFromCompany(const QString &oldApprKey, const QString &company);
 
 private slots:
 

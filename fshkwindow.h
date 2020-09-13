@@ -84,6 +84,7 @@ private slots:
     void apprenticeWithoutCompany(const QString &apprKey);
     void apprenticeAssociatedCompany(const QString &company, const QString &apprenticeKey);
     void outsourceApprentice();
+    void removeFromCompany(const QString &oldApprKey, const QString &company);
 
     // Signals from FormProject
     void saveProjectMap(const QMap<QString, ClassProjekt> &pMap);

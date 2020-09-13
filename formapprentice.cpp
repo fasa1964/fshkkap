@@ -146,12 +146,18 @@ void FormLehrling::saveButtonClicked()
     }
 
     // For keeping the skills
-    if(changeData){
+    if(changeData)
+    {
         appr.setSkillMap(seletedApprentice.getSkillMap());
-        // Importent
-        if(appr.nr() != seletedApprentice.nr()){ // Check the number
-            // if the number not equal remove the selectedApprentice
+        // Important check the number
+        if(appr.nr() != seletedApprentice.nr())
+        {
+            // if the number was changed remove the selectedApprentice
             // so it will not make a copy
+            // if company exist remove from company
+            if(!seletedApprentice.company().isEmpty())
+                emit removeFromCompany(seletedApprentice.getKey(), seletedApprentice.company());
+
             m_apprenticeMap.remove(seletedApprentice.getKey());
         }
     }

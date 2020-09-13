@@ -48,6 +48,7 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     connect(formApprentice, &FormLehrling::apprenticeWithoutCompany, this, &FSHKWindow::apprenticeWithoutCompany);      // Works
     connect(formApprentice, &FormLehrling::apprenticeHasCompany , this, &FSHKWindow::apprenticeAssociatedCompany );     // Works
     connect(formApprentice, &FormLehrling::outsourceApprentice , this, &FSHKWindow::outsourceApprentice );
+    connect(formApprentice, &FormLehrling::removeFromCompany , this, &FSHKWindow::removeFromCompany );
 
     formProjekt = new FormProjekt(this);
     formProjekt->hide();
@@ -249,6 +250,14 @@ void FSHKWindow::apprenticeAssociatedCompany(const QString &company, const QStri
 void FSHKWindow::outsourceApprentice()
 {
     QMessageBox::information(this, tr("Info"), tr("Not available yet!"));
+}
+
+void FSHKWindow::removeFromCompany(const QString &oldApprKey, const QString &company)
+{
+    ClassBetrieb comp =getCompany(company);
+    comp.removeApprentice( oldApprKey );
+    companyMap.insert(comp.nr(), comp);
+    saveDatas("Betriebe.dat");
 }
 
 /// Signals from FormProject
