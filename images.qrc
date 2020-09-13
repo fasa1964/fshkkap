@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>FSHKIcon.svg</file>
-        <file>ProjectIcon.png</file>
         <file>images/Badge.svg</file>
         <file>images/Document.svg</file>
         <file>images/FSHKIcon.svg</file>
