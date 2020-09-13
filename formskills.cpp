@@ -32,6 +32,8 @@ FormSkills::FormSkills(QWidget *parent) :
     connect(ui->importProjekteButton, &QPushButton::clicked, this, &FormSkills::importProjectButtonClicked);
     connect(ui->sortKennunBox, &QComboBox::currentTextChanged, this, &FormSkills::sortProjectBoxTextChanged);
     connect(ui->kennungBox, &QComboBox::currentTextChanged, this, &FormSkills::kennungTextChanged);
+    connect(ui->criteriaBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+          [=](int index){ criteriaBoxChanged(index); });
     connect(ui->skillProjektTable, &QTableWidget::itemClicked, this, &FormSkills::skillProjektTableItemClicked);
     connect(ui->projektTable, &QTableWidget::itemClicked, this, &FormSkills::projektTableItemClicked);
 
@@ -299,10 +301,13 @@ void FormSkills::criteriaBoxChanged(int index)
     if(!changeSkill && !createSkill)
         return;
 
+    if(index == 1 && selectedSkill.getIdentifierList().isEmpty())
+    {
 
             QMessageBox::information(this, tr("Prüfung"), tr("Keiner der Fragen, von den zugeordneten Projekte, besitzt eine Kennung!\n"
                                                              "Daher kann auch keine Auswertung nach Kennung (Fragen) stattfinden!"));
             ui->criteriaBox->setCurrentIndex(0);
+    }
 
 }
 
@@ -394,36 +399,12 @@ void FormSkills::skillProjektTableCellClicked(int row, int column)
 
 void FormSkills::kennungTextChanged(const QString &text)
 {
-    if(changeSkill && !createSkill)
+    if(!changeSkill && !createSkill)
         return;
 
     ui->kennungEdit->setText( text );
 }
 
-
-
-//void FormSkills::skillProjektTableCellClicked(int row, int column)
-//{
-//    if(!changeSkill)
-//        return;
-
-//    if(column != 3)
-//        return;
-
-//    bool ok = true;
-//    QString text = ui->skillProjektTable->item(row, 3)->text();
-//    foreach (QChar c, text) {
-//        if(!c.isDigit() )
-//            ok = false;
-//    }
-
-//    if(!ok){
-//        QMessageBox::information(this, tr("Eingabe-Fehler"), tr("Bitte nur Zahlen eingeben!") );
-//        return;
-//    }
-
-
-//}
 
 void FormSkills::sortProjectBoxTextChanged(const QString &text)
 {
