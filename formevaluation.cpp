@@ -415,10 +415,7 @@ void FormEvaluation::azubiProjectBoxChanged(const QString &text)
 
     ui->projectLabel->setText(selectedProjekt.name());
 
-    if(selectedProjekt.percent() >= 50.0)
-        setTextColor(ui->percentBox, Qt::darkGreen);
-    else
-        setTextColor(ui->percentBox, Qt::red);
+    setTextColor(ui->percentBox, selectedProjekt.percent());
 
     ui->percentBox->setValue( selectedProjekt.percent() );
     ui->evaluatedCheckBox->setChecked( selectedProjekt.getEvaluated() );
@@ -800,7 +797,7 @@ void FormEvaluation::setTextColor(QWidget *widget, double percent)
     QColor c;
 
     pal = widget->palette();
-    if(percent < 50)
+    if(percent < 49.5)
         c = Qt::red;
     else
         c = Qt::darkGreen;
