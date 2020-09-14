@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QPushButton>
+#include <QtPrintSupport/QPrinter>
 
 #include <appwidget.h>
 
