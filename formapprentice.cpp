@@ -108,6 +108,33 @@ void FormLehrling::deleteSkillButtonClicked()
     seletedApprentice = readFromForm();
     seletedApprentice.setSkillMap(sMap);
     setApprenticeToForm(seletedApprentice);
+
+    int deleteAll = QMessageBox::question(this, tr("Löschung von Prüfungen"), tr("Soll die Prüfung: ") +
+                  key + tr("\nvon allen Auszubildenden aus diesem Lehrjahr gelöscht werden?"), QMessageBox::Cancel | QMessageBox::Ok);
+
+    if(deleteAll == QMessageBox::Cancel)
+        return;
+
+    bool dataChanged = false;
+    QDate dt = seletedApprentice.apprenticeshipDate();
+    foreach (ClassLehrling a, apprenticeMap().values())
+    {
+        if(a.apprenticeshipDate() == dt)
+        {
+            if(a.getSkill(key).isValid())
+            {
+                QMap<QString, ClassSkills> sMap = a.getSkillMap();
+                sMap.remove(key);
+                a.setSkillMap(sMap);
+                m_apprenticeMap.insert(a.getKey(), a);
+                dataChanged = true;
+            }
+        }
+    }
+
+    if(dataChanged)
+        saveApprenticeMap(m_apprenticeMap);
+
 }
 
 void FormLehrling::changeButtonClicked()
@@ -181,6 +208,7 @@ void FormLehrling::saveButtonClicked()
     ui->deleteButton->setEnabled(true);
     ui->createButton->setEnabled(true);
     ui->saveButton->setEnabled(false);
+    ui->deleteSkillButton->setEnabled(false);
     setFormReadOnly(true);
 }
 
