@@ -111,9 +111,6 @@ QMap<QString, ClassSkills> FormAllocate::skillMap() const
 void FormAllocate::setSkillMap(const QMap<QString, ClassSkills> &skillMap)
 {
     m_skillMap = skillMap;
-//    ui->sortSkillBox->clear();
-//    ui->sortSkillBox->addItems( getIdientifierList() );
-
     setupSkillTable(skillMap);
 }
 
@@ -132,8 +129,10 @@ void FormAllocate::setApprenticeMap(const QMap<QString, ClassLehrling> &apprenti
 void FormAllocate::sortApprenticeTable()
 {
 
+    // Shows all apprentice
     updateApprenticeTable(ui->apprenticeTableWidget, Qt::Unchecked, apprenticeMap());
 
+    // Sort the apprentice by year
     for(int i = 1; i < 6; i++)
     {
         QMap<QString, ClassLehrling> sortMap;
@@ -205,16 +204,19 @@ void FormAllocate::updateApprenticeTable(QTableWidget *widget, Qt::CheckState st
         QString ap = "";
         bool skillIsEvaluated = false;
 
-        if(it.value().getSkillMap().size() > 0){
-            foreach(ClassSkills skill, it.value().getSkillMap().values()){
+        if(it.value().getSkillMap().size() > 0)
+        {
+            foreach(ClassSkills skill, it.value().getSkillMap().values())
+            {
 
                 ap.append(skill.getKey());
-                if(skill.isEvaluated()){
+                if(skill.isEvaluated())
+                {
                     ap.append("!");
                     skillIsEvaluated = true;
                 }
                 ap.append("\n");
-           }
+            }
         }
 
         QTableWidgetItem *itemNr = new QTableWidgetItem( QString::number(appr.nr(),10));
@@ -245,17 +247,18 @@ void FormAllocate::updateApprenticeTable(QTableWidget *widget, Qt::CheckState st
         itemAP->setData(Qt::FontRole, QFont(tableFont.family(),8));
         itemMarker->setCheckState(state);
 
-        if(skillIsEvaluated){
+        if(skillIsEvaluated)
+        {
            itemAP->setTextColor(Qt::darkGreen);
            itemAP->setToolTip(tr("Achtung bereits ausgewertet!\nBei neuer Zuordnung gehen alle ausgewerteten Daten verloren."));
-       }else{
+        }
+        else
+        {
            itemAP->setTextColor(Qt::black);
            itemAP->setToolTip(tr("Zugeordente AP's"));
-       }
-
+        }
 
         row++;
-
     }
 
     widget->resizeColumnToContents(0);
