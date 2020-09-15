@@ -391,9 +391,9 @@ void FormEvaluation::azubiListBoxChanged(const QString &text)
 
     updateResultTreeWidget(selectedApprentice);
 
-    if(selectedApprentice.getSkillTotalPercent() != 100){
-        QMessageBox::information(this, tr("Achtung"), tr("Die Prüfungen müssen insgesamt 100% betragen."));
-    }
+//    if(selectedApprentice.getSkillTotalPercent() != 100){
+//        QMessageBox::information(this, tr("Achtung"), tr("Die Prüfungen müssen insgesamt 100% betragen."));
+//    }
 }
 
 /// !brief Includes the skills from selected apprentice
@@ -675,11 +675,6 @@ void FormEvaluation::updateResultTreeWidget(const ClassLehrling &appr)
     QStringList headers;
     headers << "Titel" << "Ergebnis in %" << "Wert/Faktor" << "Auswertung nach";
     ui->resultTreeWidget->setHeaderLabels(headers);
-
-    // key, percent , factor>
-    QMap<QString, double> identifierResultMap;
-    QMap<QString, double> identifierFactorMap;
-    QMap<double, double> calculatedMap;
 
     QFont topItemFont;
     double total = 0.0;
