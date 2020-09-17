@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1237</width>
-    <height>647</height>
+    <width>1239</width>
+    <height>694</height>
    </rect>
   </property>
   <property name="font">
@@ -175,100 +175,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item row="3" column="0">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="2" colspan="2">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="4">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="recoverButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Wiederherstellung</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="saveButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="palette">
-        <palette>
-         <active>
-          <colorrole role="ButtonText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>170</red>
-             <green>0</green>
-             <blue>0</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </active>
-         <inactive>
-          <colorrole role="ButtonText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>170</red>
-             <green>0</green>
-             <blue>0</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </inactive>
-         <disabled>
-          <colorrole role="ButtonText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>165</red>
-             <green>167</green>
-             <blue>169</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </disabled>
-        </palette>
-       </property>
-       <property name="text">
-        <string>S&amp;peichern</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="closeButton">
-       <property name="text">
-        <string>&amp;Schließen</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item row="1" column="0">
     <widget class="QFrame" name="frame">
@@ -644,6 +550,100 @@
      </layout>
     </widget>
    </item>
+   <item row="3" column="2" colspan="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="4">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="recoverButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Wiederherstellung</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="saveButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>170</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>170</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>165</red>
+             <green>167</green>
+             <blue>169</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="text">
+        <string>S&amp;peichern</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton">
+       <property name="text">
+        <string>&amp;Schließen</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item row="3" column="1">
     <spacer name="horizontalSpacer_4">
      <property name="orientation">
@@ -656,6 +656,60 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="0" column="0" colspan="5">
+    <widget class="QLabel" name="label">
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>0</green>
+           <blue>127</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>0</green>
+           <blue>127</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>165</red>
+           <green>167</green>
+           <blue>169</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Auswertung</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </item>
    <item row="1" column="1" rowspan="2" colspan="4">
     <widget class="QFrame" name="frame_2">
@@ -829,13 +883,6 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Nr:</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="4">
        <widget class="QDoubleSpinBox" name="totalPercentBox">
         <property name="font">
@@ -866,10 +913,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
-       <widget class="QLabel" name="label_8">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>Gesamt:</string>
+         <string>Nr:</string>
         </property>
        </widget>
       </item>
@@ -926,6 +973,13 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Gesamt:</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0" colspan="7">
        <widget class="QTreeWidget" name="resultTreeWidget">
         <property name="sizePolicy">
@@ -946,61 +1000,81 @@
         </column>
        </widget>
       </item>
+      <item row="2" column="0" colspan="7">
+       <widget class="QFrame" name="frameAttention">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>90</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <widget class="QLabel" name="labelIcon">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>8</y>
+           <width>85</width>
+           <height>74</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>84</width>
+           <height>74</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QLabel" name="labelMessage">
+         <property name="geometry">
+          <rect>
+           <x>110</x>
+           <y>10</y>
+           <width>501</width>
+           <height>70</height>
+          </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>70</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+      </item>
      </layout>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="5">
-    <widget class="QLabel" name="label">
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>0</green>
-           <blue>127</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>0</green>
-           <blue>127</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="WindowText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>165</red>
-           <green>167</green>
-           <blue>169</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Auswertung</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
     </widget>
    </item>
   </layout>

@@ -17,6 +17,8 @@ FormEvaluation::FormEvaluation(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->frameAttention->hide();
+
     dirty = false;
     selectedApprentice = ClassLehrling();
     selectedSkill = ClassSkills();
@@ -385,15 +387,35 @@ void FormEvaluation::azubiListBoxChanged(const QString &text)
     ui->nrBox->setValue( selectedApprentice.nr() );
     ui->azuNameEdit->setText( selectedApprentice.firstname() + " " + selectedApprentice.surname());
 
-    //selectedSkillMap = selectedApprentice.getSkillMap();
     ui->countSkillBox->setValue( selectedApprentice.getSkillMap().size() );
     ui->skillListBox->addItems( selectedApprentice.getSkillMap().keys() );
 
     updateResultTreeWidget(selectedApprentice);
 
-//    if(selectedApprentice.getSkillTotalPercent() != 100){
-//        QMessageBox::information(this, tr("Achtung"), tr("Die Prüfungen müssen insgesamt 100% betragen."));
-//    }
+    if(selectedApprentice.getSkillTotalPercent() != 100 || selectedApprentice.getSkillMap().isEmpty())
+    {
+        QString message;
+        if(selectedApprentice.getSkillMap().isEmpty())
+        {
+            message = "Eine Auswertung ist nicht möglich, da keine Prüfung zugeordnet wurde.";
+            ui->labelIcon->setPixmap(QPixmap(":/images/Attention.svg"));
+        }
+        else
+        {
+            message = "Achtung, die Gewichtung der gesamten Prüfung muss insgesamt 100% betragen. "
+                      "Das ist hier nicht der Fall. Korrigieren sie did Wertung bzw. Faktor einer Prüfung!";
+            setTextColor(ui->labelMessage, 10);
+            ui->labelIcon->setPixmap(QPixmap(":/images/AttentionPercent.svg"));
+        }
+
+        ui->labelMessage->setText(message);
+        ui->frameAttention->show();
+
+    }
+    else
+    {
+        ui->frameAttention->hide();
+    }
 }
 
 /// !brief Includes the skills from selected apprentice
