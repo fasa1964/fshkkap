@@ -7,5 +7,7 @@
         <file>images/House.svg</file>
         <file>images/SplashPixmap.svg</file>
         <file>images/Wrench.svg</file>
+        <file>images/Attention.svg</file>
+        <file>images/AttentionPercent.svg</file>
     </qresource>
 </RCC>
