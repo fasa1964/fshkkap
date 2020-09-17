@@ -34,6 +34,7 @@ signals:
     void projektAdded(const ClassProjekt &projekt);
     void projektRemoved(const QString  &proKey);
     void invalidDateTime();
+    void printProject(const ClassProjekt &pro);
 
 private slots:
     void closeForm();
@@ -41,6 +42,7 @@ private slots:
     void saveButtonClicked();
     void changeButtonClicked();
     void deleteButtonClicked();
+    void printButtonClicked();
     void openFileButtonClicked();
 
     void addFrageButtonClicked();

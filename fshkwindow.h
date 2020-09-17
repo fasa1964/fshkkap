@@ -89,6 +89,7 @@ private slots:
 
     // Signals from FormProject
     void saveProjectMap(const QMap<QString, ClassProjekt> &pMap);
+    void printProject(const ClassProjekt &pro);
     void projectRemoved(const QString &proKey);
     void projectAdded(const ClassProjekt &pro);
     void projectChanged(const ClassProjekt &pro);

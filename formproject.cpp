@@ -29,6 +29,7 @@ FormProjekt::FormProjekt(QWidget *parent) :
     connect(ui->addFrageButton, &QToolButton::clicked, this, &FormProjekt::addFrageButtonClicked);
     connect(ui->removeFrageButton, &QToolButton::clicked, this, &FormProjekt::removeFrageButtonClicked);
     connect(ui->openFilelButton , &QToolButton::clicked, this, &FormProjekt::openFileButtonClicked );
+    connect(ui->printButton , &QToolButton::clicked, this, &FormProjekt::printButtonClicked );
 
     connect(ui->anzahlFragenBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
          [=](int i){ anzahlFragenChanged(i); });
@@ -226,6 +227,12 @@ void FormProjekt::deleteButtonClicked()
 
 }
 
+void FormProjekt::printButtonClicked()
+{
+    if(selectedProjekt.isValid())
+        emit printProject(selectedProjekt);
+}
+
 void FormProjekt::openFileButtonClicked()
 {
     QString s = QFileDialog::getOpenFileName(this, tr("Dateipfad"), tr("Dateipfad zum hinterlegtem Dokument!"));
@@ -298,6 +305,7 @@ void FormProjekt::projekteTableClicked(QTableWidgetItem *item)
     ui->changeButton->setEnabled(true);
     ui->deleteButton->setEnabled(true);
     ui->createButton->setEnabled(true);
+    ui->printButton->setEnabled(true);
     ui->saveButton->setEnabled(false);
     changeProjekt = false;
     createProjekt = false;
