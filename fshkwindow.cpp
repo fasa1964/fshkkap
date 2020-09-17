@@ -7,6 +7,8 @@
 #include <QFile>
 #include <QFileDevice>
 #include <QDataStream>
+#include <QPrintDialog>
+#include <QPrinter>
 #include <QFont>
 
 #include <QDebug>
@@ -57,6 +59,7 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     connect(formProjekt, &FormProjekt::projektRemoved, this, &FSHKWindow::projectRemoved);      // Works
     connect(formProjekt, &FormProjekt::projektAdded, this, &FSHKWindow::projectAdded);          // Works
     connect(formProjekt, &FormProjekt::projektChanged, this, &FSHKWindow::projectChanged);      // Works
+    connect(formProjekt, &FormProjekt::printProject, this, &FSHKWindow::printProject);
 
     formSkill = new FormSkills(this);
     formSkill->hide();
@@ -268,6 +271,15 @@ void FSHKWindow::saveProjectMap(const QMap<QString, ClassProjekt> &pMap)
     saveDatas("Projekte.dat");
     setupMenu();
  //   updateProjektData();
+
+}
+
+void FSHKWindow::printProject(const ClassProjekt &pro)
+{
+    QPrinter printer;
+    QPrintDialog printDialog(printer, 0);
+    if(printDialog.exec() == QDialog::Accepted )
+        qDebug() << "printing";
 
 }
 
