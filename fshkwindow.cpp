@@ -9,6 +9,7 @@
 #include <QDataStream>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QPainter>
 #include <QFont>
 
 #include <QDebug>
@@ -276,10 +277,54 @@ void FSHKWindow::saveProjectMap(const QMap<QString, ClassProjekt> &pMap)
 
 void FSHKWindow::printProject(const ClassProjekt &pro)
 {
+    ClassProjekt p = pro;
+    QPainter painter;
+    QFont font = painter.font();
+    QFontMetricsF fm(font);
+
+//    qDebug() << fm.width("Hallo");
+//    qDebug() << fm.height();
+
     QPrinter printer;
-    QPrintDialog printDialog(printer, 0);
-    if(printDialog.exec() == QDialog::Accepted )
-        qDebug() << "printing";
+    QPrintDialog printDialog(&printer, nullptr);
+    if(printDialog.exec() == QDialog::Rejected )
+        return;
+
+    printer.setDocName( p.getKey() );
+
+    if(!painter.begin(&printer))
+    {
+        QMessageBox::information(this, tr("Drucken"), tr("Drucker oder Datei nicht auffindbar!"));
+        return;
+    }
+
+    qreal pageWidthMM = printer.pageSizeMM().width();
+    qreal pageHeightMM = printer.pageSizeMM().height();
+    qreal pageWidth = pixel(pageWidthMM);
+    qreal pageHeight = pixel(pageHeightMM);
+
+
+    QString head = "SHK Innung Goslar";
+    QString date = QDate::currentDate().toString("dd.MM.yyyy");
+
+    QString caption = p.name() + " " + p.identifier();
+
+    font.setPixelSize(15);
+    font.setBold(true);
+    painter.setFont(font);
+
+
+    painter.drawText( pixel(25), pixel(25), head);
+    painter.drawText( pageWidth - pixel(20) - fm.width(date)  , pixel(25), date);
+
+    painter.drawText(pixel(25), pixel(50), caption);
+
+
+
+
+    painter.end();
+
+
 
 }
 
@@ -1111,6 +1156,19 @@ bool FSHKWindow::saveDatas(const QString &filename)
 
     file.close();
     return true;
+}
+
+qreal FSHKWindow::pixel(qreal millimeter)
+{
+    // 1 mm = 3.7795275591 pixel
+    return millimeter * 3.7795275591;
+
+}
+
+qreal FSHKWindow::millimeter(qreal pix)
+{
+    // 1 pixel = 0.2645833333 millimeter
+    return pix * 0.2645833333;
 }
 
 QDateTime FSHKWindow::lastFileModified(const QString &filename)

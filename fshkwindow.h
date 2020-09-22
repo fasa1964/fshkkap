@@ -162,6 +162,9 @@ private:
     QMap<QString, QVariant> appSettingsMap;
 
 
+    qreal pixel(qreal millimeter);
+    qreal millimeter(qreal pix);
+
     void readSettings();
     void writeSettings();
 };
