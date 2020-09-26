@@ -161,10 +161,15 @@ private:
     // Values for app settings
     QMap<QString, QVariant> appSettingsMap;
 
+    // Printer function
+    void setFontAttribute(int size, bool bold , QColor col, QPainter *p);
+    qreal textWidth(const QString &text, const QPainter &p);
+    QStringList splitText(const QString &text, qreal maxLength , const QPainter &p);
+    qreal lineLength(qreal x1, qreal x2);
+    qreal pixel(qreal millimeter, const QPrinter &p);
+    qreal millimeter(qreal pix, const QPrinter &p );
 
-    qreal pixel(qreal millimeter);
-    qreal millimeter(qreal pix);
-
+    // General app settings
     void readSettings();
     void writeSettings();
 };

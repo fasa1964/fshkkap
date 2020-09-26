@@ -11,7 +11,9 @@
 #include <QPrinter>
 #include <QPainter>
 #include <QFont>
-
+#include <QPageSize>
+#include <QPageLayout>
+#include <QtMath>
 #include <QDebug>
 
 FSHKWindow::FSHKWindow(QWidget *parent) :
@@ -282,9 +284,6 @@ void FSHKWindow::printProject(const ClassProjekt &pro)
     QFont font = painter.font();
     QFontMetricsF fm(font);
 
-//    qDebug() << fm.width("Hallo");
-//    qDebug() << fm.height();
-
     QPrinter printer;
     QPrintDialog printDialog(&printer, nullptr);
     if(printDialog.exec() == QDialog::Rejected )
@@ -292,38 +291,137 @@ void FSHKWindow::printProject(const ClassProjekt &pro)
 
     printer.setDocName( p.getKey() );
 
+
+    QSizeF pageSize =  printer.pageSizeMM();
+    QMarginsF margin( pixel(20, printer), pixel(15, printer) , pixel(10, printer), pixel(15, printer));
+    qDebug() << printer.setPageMargins(margin);
+    qDebug() << printer.pageLayout();
+
+
     if(!painter.begin(&printer))
     {
         QMessageBox::information(this, tr("Drucken"), tr("Drucker oder Datei nicht auffindbar!"));
         return;
     }
 
-    qreal pageWidthMM = printer.pageSizeMM().width();
-    qreal pageHeightMM = printer.pageSizeMM().height();
-    qreal pageWidth = pixel(pageWidthMM);
-    qreal pageHeight = pixel(pageHeightMM);
-
-
+    // Info of trade union
     QString head = "SHK Innung Goslar";
+    setFontAttribute(14, true, Qt::blue, &painter);
+    painter.drawText(0, 0, head);
+
+    // Print current date
     QString date = QDate::currentDate().toString("dd.MM.yyyy");
+    setFontAttribute(10, false, Qt::black, &painter);
+    painter.drawText( pixel(pageSize.width(), printer) - textWidth(date, painter) - margin.right(), 0, date);
 
+    // Print line
+    setFontAttribute(1, false, Qt::black, &painter);
+    QPointF point1(0, pixel(6, printer));
+    QPointF point2( pixel( pageSize.width(), printer) - margin.right(), pixel(6, printer));
+    painter.drawLine( point1, point2 );
+
+    // Project name and description
     QString caption = p.name() + " " + p.identifier();
+    setFontAttribute(12, false, Qt::black, &painter);
+    painter.drawText(0, pixel(13, printer) , caption);
 
-    font.setPixelSize(15);
-    font.setBold(true);
-    painter.setFont(font);
-
-
-    painter.drawText( pixel(25), pixel(25), head);
-    painter.drawText( pageWidth - pixel(20) - fm.width(date)  , pixel(25), date);
-
-    painter.drawText(pixel(25), pixel(50), caption);
+    setFontAttribute(10, false, Qt::black, &painter);
+    QString cdt = p.createTime();
+    painter.drawText( pixel(pageSize.width(), printer) - margin.right() - textWidth(cdt, painter), pixel(13.0, printer), cdt);
 
 
+    QString description = p.getDescrition();
+    setFontAttribute(10, false, Qt::black, &painter);
+    painter.drawText(0, pixel(20, printer), description);
 
+    QString mp = "Max. Punkte";
+    QString p1 = "Prüfer 1";
+    QString p2 = "Prüfer 2";
+    QString p3 = "Prüfer 3";
+
+    // Calculate column
+    qreal w = pixel( pageSize.width(), printer ) - margin.right();
+    qreal columnOne = w - (textWidth(p3, painter) * 3) - textWidth(mp, painter) - pixel(6, printer);
+    qreal columnTwo = w - (textWidth(p3, painter) * 3) - pixel(4, printer);
+    qreal columnThree = w - (textWidth(p3, painter) * 2) - pixel(2,printer) ;
+    qreal columnFour = w - textWidth(p3, painter);
+
+    painter.drawLine(columnFour, pixel(30, printer), columnFour, pixel(pageSize.height(), printer) - margin.bottom());
+    painter.drawLine(columnThree, pixel(30, printer), columnThree, pixel(pageSize.height(), printer) - margin.bottom());
+    painter.drawLine(columnTwo, pixel(30, printer), columnTwo, pixel(pageSize.height(), printer) - margin.bottom());
+    painter.drawLine(columnOne, pixel(30, printer), columnOne, pixel(pageSize.height(), printer) - margin.bottom());
+
+    painter.drawText( columnOne, pixel(30,printer), mp );
+    painter.drawText( columnTwo, pixel(30,printer), p1 );
+    painter.drawText( columnThree, pixel(30,printer), p2 );
+    painter.drawText( columnFour, pixel(30,printer), p3 );
+
+    qreal row = pixel(10, printer);
+    qreal xp1 = textWidth( QString::number( p.questionMap().last().questionNr(), 10)+". ", painter);
+    qreal maxRowLength =  lineLength(xp1, columnOne) - pixel(3, printer);
+    int maxRow = qFloor((pixel(pageSize.height(), printer) - margin.bottom() - margin.top() - pixel(30, printer)) / row);
+    int rowCounter = 0;
+
+    qreal startPosY = pixel(40, printer);   // Start Y-Pos to print questions
+//    qDebug() << maxRowLength;
+//    qDebug() << row;
+//    qDebug() << pixel(pageSize.height(), printer);
+
+
+    QMapIterator<int, ClassFrage> it(p.questionMap());
+    while (it.hasNext())
+    {
+        it.next();
+
+        ClassFrage question = it.value();
+
+        QString nr = QString::number(question.questionNr(),10)+".";     // question nr
+        QString qu = question.question();                               // question text
+        QString mp = QString::number( question.maxPoints(), 10);        // question max points
+        QString id = question.identifier();
+
+        painter.drawText(0,   startPosY, nr);
+
+        if(!id.isEmpty())
+            qu = qu + " (" + id + ")";
+
+        if( textWidth(qu, painter) >= maxRowLength)
+        {
+            QStringList list = splitText(qu, maxRowLength, painter);
+
+            foreach (QString s, list)
+            {
+                painter.drawText(xp1, startPosY, s);
+                startPosY = startPosY + pixel(7, printer);
+            }
+
+            startPosY = startPosY - pixel(7, printer);
+        }
+        else
+            painter.drawText(xp1, startPosY, qu);
+
+        painter.drawText(columnOne, startPosY, mp);
+
+        // Print rectangle for points
+        painter.drawRect( columnTwo,   startPosY - pixel(5,printer), pixel(15,printer), pixel(8,printer) );
+        painter.drawRect( columnThree, startPosY - pixel(5,printer), pixel(15,printer), pixel(8,printer) );
+        painter.drawRect( columnFour,  startPosY - pixel(5, printer), pixel(15,printer), pixel(8,printer) );
+
+
+        startPosY = startPosY + row;
+        rowCounter++;
+
+        if(rowCounter >= maxRow)
+        {
+            rowCounter = 0;
+            startPosY = pixel(40, printer);
+            printer.newPage();
+
+        }
+
+    }
 
     painter.end();
-
 
 
 }
@@ -1158,17 +1256,79 @@ bool FSHKWindow::saveDatas(const QString &filename)
     return true;
 }
 
-qreal FSHKWindow::pixel(qreal millimeter)
+void FSHKWindow::setFontAttribute(int size, bool bold, QColor col, QPainter *p)
 {
-    // 1 mm = 3.7795275591 pixel
-    return millimeter * 3.7795275591;
+    QFont font = p->font();
+    QPen pen = p->pen();
+
+    font.setPointSize(size);
+    font.setBold(bold);
+    pen.setColor(col);
+
+    p->setFont(font);
+    p->setPen(pen);
+}
+
+qreal FSHKWindow::textWidth(const QString &text, const QPainter &p)
+{
+    QFontMetricsF fm(p.font());
+    return fm.width(text);
+}
+
+QStringList FSHKWindow::splitText(const QString &text, qreal maxLength, const QPainter &p)
+{
+    QStringList list = text.split(" ");
+
+    QStringList textList;
+    QString string = "";
+
+
+    foreach (QString s, list)
+    {
+        if( textWidth(string+s+" ", p) < maxLength)
+        {
+            string.append(s);
+            string.append(" ");
+
+            /*if(list.last() == s)
+                textList << string*/;
+        }
+        else
+        {
+            textList << string;
+            string.clear();
+            string.append(s);
+            string.append(" ");
+        }
+    }
+
+    textList << string;
+
+
+    return textList;
 
 }
 
-qreal FSHKWindow::millimeter(qreal pix)
+qreal FSHKWindow::lineLength(qreal x1, qreal x2)
 {
-    // 1 pixel = 0.2645833333 millimeter
-    return pix * 0.2645833333;
+    QPointF p1; p1.setX(x1); p1.setY(0);
+    QPointF p2; p2.setX(x2); p2.setY(0);
+    QLineF l(p1, p2);
+
+    return l.length();
+}
+
+qreal FSHKWindow::pixel(qreal millimeter, const QPrinter &p)
+{
+    qreal fac = p.width() / p.widthMM();
+    return fac * millimeter;
+}
+
+
+qreal FSHKWindow::millimeter(qreal pix, const QPrinter &p)
+{
+    qreal fac = p.widthMM() / p.width();
+    return pix * fac;
 }
 
 QDateTime FSHKWindow::lastFileModified(const QString &filename)
