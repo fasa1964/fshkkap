@@ -60,6 +60,10 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionInfo">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/Info.svg</normaloff>:/images/Info.svg</iconset>
+   </property>
    <property name="text">
     <string>&amp;Info</string>
    </property>
@@ -68,6 +72,10 @@
    </property>
   </action>
   <action name="actionBeenden">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/Close.svg</normaloff>:/images/Close.svg</iconset>
+   </property>
    <property name="text">
     <string>&amp;Beenden</string>
    </property>
@@ -124,6 +132,10 @@
    </property>
   </action>
   <action name="actionAllocate">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/Assign.svg</normaloff>:/images/Assign.svg</iconset>
+   </property>
    <property name="text">
     <string>Zuordnen</string>
    </property>
@@ -132,6 +144,10 @@
    </property>
   </action>
   <action name="actionEvaluation">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/Evaluation.svg</normaloff>:/images/Evaluation.svg</iconset>
+   </property>
    <property name="text">
     <string>Auswerten</string>
    </property>

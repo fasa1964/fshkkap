@@ -9,5 +9,9 @@
         <file>images/Wrench.svg</file>
         <file>images/Attention.svg</file>
         <file>images/AttentionPercent.svg</file>
+        <file>images/Assign.svg</file>
+        <file>images/Close.svg</file>
+        <file>images/Evaluation.svg</file>
+        <file>images/Info.svg</file>
     </qresource>
 </RCC>
