@@ -12,8 +12,13 @@ class DialogInfo : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogInfo(QWidget *parent = 0);
+    explicit DialogInfo(const QString &appname, const QString &appversion, QWidget *parent = 0);
     ~DialogInfo();
+
+private slots:
+    void qtButtonClicked();
+    void updateButtonClicked();
+
 
 private:
     Ui::DialogInfo *ui;
