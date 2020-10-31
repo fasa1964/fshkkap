@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QtPrintSupport/QPrinter>
+#include <QtMath>
 
 #include <appwidget.h>
 
@@ -24,6 +25,7 @@
 #include <formevaluation.h>
 
 #include <dialogapprenticelist.h>
+#include <QFileInfo>
 
 namespace Ui {
 class FSHKWindow;
@@ -40,6 +42,7 @@ public:
     static int grade(double percent){
 
         int gradeValue = 0;
+        percent = qRound(percent);
         if(percent <= 100.0 && percent >= 92.0 )
             gradeValue = 1;
 
@@ -59,6 +62,11 @@ public:
             gradeValue = 6;
 
         return gradeValue;
+    }
+
+    QString filepath(const QString &file){
+        QFileInfo fi(file);
+        return fi.absoluteFilePath();
     }
 
 private slots:
@@ -84,7 +92,7 @@ private slots:
     void saveApprenticeMap(const QMap<QString, ClassLehrling> &aMap);
     void apprenticeWithoutCompany(const QString &apprKey);
     void apprenticeAssociatedCompany(const QString &company, const QString &apprenticeKey);
-    void outsourceApprentice();
+    void printApprentice(const QList<ClassLehrling> &apprenticeList);
     void removeFromCompany(const QString &oldApprKey, const QString &company);
 
     // Signals from FormProject

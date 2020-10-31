@@ -16,6 +16,10 @@
 #include <QtMath>
 #include <QDebug>
 
+
+#include <dialoginfo.h>
+#include <classprinting.h>
+
 FSHKWindow::FSHKWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::FSHKWindow)
@@ -52,7 +56,7 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     connect(formApprentice, &FormLehrling::saveApprenticeMap, this, &FSHKWindow::saveApprenticeMap);    // Works
     connect(formApprentice, &FormLehrling::apprenticeWithoutCompany, this, &FSHKWindow::apprenticeWithoutCompany);      // Works
     connect(formApprentice, &FormLehrling::apprenticeHasCompany , this, &FSHKWindow::apprenticeAssociatedCompany );     // Works
-    connect(formApprentice, &FormLehrling::outsourceApprentice , this, &FSHKWindow::outsourceApprentice );
+    connect(formApprentice, &FormLehrling::printApprentice , this, &FSHKWindow::printApprentice );
     connect(formApprentice, &FormLehrling::removeFromCompany , this, &FSHKWindow::removeFromCompany );
 
     formProjekt = new FormProjekt(this);
@@ -108,7 +112,8 @@ void FSHKWindow::actionCloseClicked()
 
 void FSHKWindow::actionInfoClicked()
 {
-    QMessageBox::information(this, tr("Info"), tr("Not available yet!"));
+    DialogInfo *infoDlg = new DialogInfo(qApp->applicationName(), "Version " + qApp->applicationVersion(), this);
+    infoDlg->exec();
 }
 
 void FSHKWindow::actionCompanyClicked()
@@ -253,9 +258,26 @@ void FSHKWindow::apprenticeAssociatedCompany(const QString &company, const QStri
     saveDatas("Betriebe.dat");
 }
 
-void FSHKWindow::outsourceApprentice()
+void FSHKWindow::printApprentice(const QList<ClassLehrling> &apprenticeList)
 {
-    QMessageBox::information(this, tr("Info"), tr("Not available yet!"));
+//    foreach (ClassLehrling appr, apprenticeList) {
+//        qDebug() << appr.surname();
+//    }
+
+    ClassPrinting *print = new ClassPrinting(this);
+
+    if(!print->setupPrinter(QPageLayout::Landscape))
+        return;
+
+    print->setCaption("SHK Innung Goslar");
+    print->setText( "Liste:" );
+    print->setDocName("Lehrlings List");
+    print->setDescription("Auszubildende:");
+    print->setFilepath( FSHKWindow::filepath("Lehrlinge.dat"));
+    print->setApprenticeList( apprenticeList );
+
+    if(!print->print())
+        QMessageBox::information(this, tr("Drucken"), tr("Drucken ist fehlgeschlagen!"));
 }
 
 void FSHKWindow::removeFromCompany(const QString &oldApprKey, const QString &company)
@@ -273,156 +295,24 @@ void FSHKWindow::saveProjectMap(const QMap<QString, ClassProjekt> &pMap)
     projectMap = pMap;
     saveDatas("Projekte.dat");
     setupMenu();
- //   updateProjektData();
-
 }
 
 void FSHKWindow::printProject(const ClassProjekt &pro)
 {
-    ClassProjekt p = pro;
-    QPainter painter;
-    QFont font = painter.font();
-    QFontMetricsF fm(font);
 
-    QPrinter printer;
-    QPrintDialog printDialog(&printer, nullptr);
-    if(printDialog.exec() == QDialog::Rejected )
+    ClassPrinting *print = new ClassPrinting(this);
+
+    if( !print->setupPrinter( QPageLayout::Portrait ) )
         return;
 
-    printer.setDocName( p.getKey() );
+    print->setCaption("SHK Innung Goslar");
+    print->setText( "Bewertung:" );
+    print->setDocName(pro.name());
+    print->setProject(pro);
+    print->setDescription(pro.getDescrition());
+    print->setFilepath( FSHKWindow::filepath("Projekte.dat"));
 
-
-    QSizeF pageSize =  printer.pageSizeMM();
-    QMarginsF margin( pixel(20, printer), pixel(15, printer) , pixel(10, printer), pixel(15, printer));
-    qDebug() << printer.setPageMargins(margin);
-    qDebug() << printer.pageLayout();
-
-
-    if(!painter.begin(&printer))
-    {
-        QMessageBox::information(this, tr("Drucken"), tr("Drucker oder Datei nicht auffindbar!"));
-        return;
-    }
-
-    // Info of trade union
-    QString head = "SHK Innung Goslar";
-    setFontAttribute(14, true, Qt::blue, &painter);
-    painter.drawText(0, 0, head);
-
-    // Print current date
-    QString date = QDate::currentDate().toString("dd.MM.yyyy");
-    setFontAttribute(10, false, Qt::black, &painter);
-    painter.drawText( pixel(pageSize.width(), printer) - textWidth(date, painter) - margin.right(), 0, date);
-
-    // Print line
-    setFontAttribute(1, false, Qt::black, &painter);
-    QPointF point1(0, pixel(6, printer));
-    QPointF point2( pixel( pageSize.width(), printer) - margin.right(), pixel(6, printer));
-    painter.drawLine( point1, point2 );
-
-    // Project name and description
-    QString caption = p.name() + " " + p.identifier();
-    setFontAttribute(12, false, Qt::black, &painter);
-    painter.drawText(0, pixel(13, printer) , caption);
-
-    setFontAttribute(10, false, Qt::black, &painter);
-    QString cdt = p.createTime();
-    painter.drawText( pixel(pageSize.width(), printer) - margin.right() - textWidth(cdt, painter), pixel(13.0, printer), cdt);
-
-
-    QString description = p.getDescrition();
-    setFontAttribute(10, false, Qt::black, &painter);
-    painter.drawText(0, pixel(20, printer), description);
-
-    QString mp = "Max. Punkte";
-    QString p1 = "Prüfer 1";
-    QString p2 = "Prüfer 2";
-    QString p3 = "Prüfer 3";
-
-    // Calculate column
-    qreal w = pixel( pageSize.width(), printer ) - margin.right();
-    qreal columnOne = w - (textWidth(p3, painter) * 3) - textWidth(mp, painter) - pixel(6, printer);
-    qreal columnTwo = w - (textWidth(p3, painter) * 3) - pixel(4, printer);
-    qreal columnThree = w - (textWidth(p3, painter) * 2) - pixel(2,printer) ;
-    qreal columnFour = w - textWidth(p3, painter);
-
-    painter.drawLine(columnFour, pixel(30, printer), columnFour, pixel(pageSize.height(), printer) - margin.bottom());
-    painter.drawLine(columnThree, pixel(30, printer), columnThree, pixel(pageSize.height(), printer) - margin.bottom());
-    painter.drawLine(columnTwo, pixel(30, printer), columnTwo, pixel(pageSize.height(), printer) - margin.bottom());
-    painter.drawLine(columnOne, pixel(30, printer), columnOne, pixel(pageSize.height(), printer) - margin.bottom());
-
-    painter.drawText( columnOne, pixel(30,printer), mp );
-    painter.drawText( columnTwo, pixel(30,printer), p1 );
-    painter.drawText( columnThree, pixel(30,printer), p2 );
-    painter.drawText( columnFour, pixel(30,printer), p3 );
-
-    qreal row = pixel(10, printer);
-    qreal xp1 = textWidth( QString::number( p.questionMap().last().questionNr(), 10)+". ", painter);
-    qreal maxRowLength =  lineLength(xp1, columnOne) - pixel(3, printer);
-    int maxRow = qFloor((pixel(pageSize.height(), printer) - margin.bottom() - margin.top() - pixel(30, printer)) / row);
-    int rowCounter = 0;
-
-    qreal startPosY = pixel(40, printer);   // Start Y-Pos to print questions
-//    qDebug() << maxRowLength;
-//    qDebug() << row;
-//    qDebug() << pixel(pageSize.height(), printer);
-
-
-    QMapIterator<int, ClassFrage> it(p.questionMap());
-    while (it.hasNext())
-    {
-        it.next();
-
-        ClassFrage question = it.value();
-
-        QString nr = QString::number(question.questionNr(),10)+".";     // question nr
-        QString qu = question.question();                               // question text
-        QString mp = QString::number( question.maxPoints(), 10);        // question max points
-        QString id = question.identifier();
-
-        painter.drawText(0,   startPosY, nr);
-
-        if(!id.isEmpty())
-            qu = qu + " (" + id + ")";
-
-        if( textWidth(qu, painter) >= maxRowLength)
-        {
-            QStringList list = splitText(qu, maxRowLength, painter);
-
-            foreach (QString s, list)
-            {
-                painter.drawText(xp1, startPosY, s);
-                startPosY = startPosY + pixel(7, printer);
-            }
-
-            startPosY = startPosY - pixel(7, printer);
-        }
-        else
-            painter.drawText(xp1, startPosY, qu);
-
-        painter.drawText(columnOne, startPosY, mp);
-
-        // Print rectangle for points
-        painter.drawRect( columnTwo,   startPosY - pixel(5,printer), pixel(15,printer), pixel(8,printer) );
-        painter.drawRect( columnThree, startPosY - pixel(5,printer), pixel(15,printer), pixel(8,printer) );
-        painter.drawRect( columnFour,  startPosY - pixel(5, printer), pixel(15,printer), pixel(8,printer) );
-
-
-        startPosY = startPosY + row;
-        rowCounter++;
-
-        if(rowCounter >= maxRow)
-        {
-            rowCounter = 0;
-            startPosY = pixel(40, printer);
-            printer.newPage();
-
-        }
-
-    }
-
-    painter.end();
-
+    print->print();
 
 }
 
@@ -449,117 +339,6 @@ void FSHKWindow::projectRemoved(const QString &proKey)
         return;
 
     updateApprenticeSkillData(skillKeyList, proKey, "remove");
-
-//    QMap<QString, QVariant> azuSkillMap;
-//    foreach (ClassLehrling azu, apprenticeMap.values())
-//    {
-//        for(int i = 0; i < skillKeyList.size(); i++)
-//        {
-//            if(azu.containsSkill(skillKeyList.at(i)))
-//            {
-//                if(azu.isSkillEvaluated(skillKeyList.at(i)))
-//                    azuSkillMap.insert(azu.getKey(), "evaluatedSkill");
-//                else
-//                    azuSkillMap.insert(azu.getKey(), "cleanSkill");
-//            }
-//        }
-//    }
-
-//    if(azuSkillMap.isEmpty())
-//        return;
-
-//    int result = QMessageBox::question(this, tr("Prüfungen"), tr("Die geänderte Prüfung wurde einige Auszubildenden zugeordnet."
-//                                    "Sollen die Prüfungen auch geändert werden?"), QMessageBox::No | QMessageBox::Yes);
-
-//    if(result == QMessageBox::No)
-//        return;
-
-//    QStringList azuKeyList;
-//    azuKeyList << azuSkillMap.keys("cleanSkill");
-
-//    if(!azuSkillMap.keys("evaluatedSkill").isEmpty())
-//    {
-//        QString title = "Auszubildende mit geänderten Prüfungen";
-//        QString message = "Bei den unten aufgeführten Auszubildenden wurde die Prüfung bereits "
-//                          "ganz oder teils ausgewertet. Durch die Änderung können Ausgewertete Daten verloren gehen!";
-
-//        DialogApprenticeList *dlg = new  DialogApprenticeList( title, message, azuSkillMap.keys("evaluatedSkill") ,this);
-
-//        if(dlg->exec() == QDialog::Accepted)
-//            azuKeyList << azuSkillMap.keys("evaluatedSkill");;
-
-//    }
-
-
-//    foreach (QString key, azuKeyList)
-//    {
-//        ClassLehrling appr = apprenticeMap.value(key);
-//        for(int i = 0; i < skillKeyList.size(); i++)
-//        {
-//            if(!appr.isSkillEvaluated(skillKeyList.at(i)))
-//                appr.insertSkill( skillMap.value(skillKeyList.at(i)));
-//            else {
-//                ;
-//            }
-
-//            apprenticeMap.insert(appr.getKey(), appr);
-//        }
-//    }
-
-
-
-//    saveDatas("Lehrlinge.dat");
-
-
-//    // Remove project from skill if skill has same identifier
-//    // Returns the changed skills key
-//    QStringList skillList = removeProjectFromSkill(pro);
-
-//    // Check if any apprentice has this changed skill
-//    bool apprenticeDataChanged = false;
-//    ClassProjekt project = pro;
-//    foreach (QString skey, skillList)
-//    {
-
-//        QMap<QString, QVariant> keyMap = getApprenticeKeyMap( skey );
-
-//        // All apprentices with the changed skill (not evaluated)
-//        QStringList cleanList = keyMap.keys("cleanSkill");
-//        foreach (QString apprKey, cleanList){
-
-//            ClassLehrling appr = apprenticeMap.value(apprKey);
-//            if(appr.removeProject( project.getKey() ))
-//                apprenticeMap.insert(appr.getKey(), appr);
-//        }
-
-//        // All apprentices with the changed skill (evaluated)
-//        QStringList evaluatedList = keyMap.keys("evaluatedSkill");
-//        if(!evaluatedList.isEmpty())
-//        {
-//            QString title = "Auszubildende mit Prüfungen";
-//            QString message = "Bei den unten aufgeführten Auszubildenden wurde die Prüfung bereits "
-//                              "ganz oder teils ausgewertet. Ausgewertete Daten könnten verloren gehen!";
-//            DialogApprenticeList *dlg = new  DialogApprenticeList(title,message, evaluatedList ,this);
-//            if(dlg->exec() == QDialog::Accepted)
-//            {
-//                foreach (QString apprKey, evaluatedList)
-//                {
-//                    ClassLehrling appr = apprenticeMap.value(apprKey);
-//                    if(appr.removeProject( project.getKey() ))
-//                        apprenticeMap.insert(appr.getKey(), appr);
-//                }
-
-//            }
-//        }
-
-//        if(!cleanList.isEmpty() || !evaluatedList.isEmpty())
-//            apprenticeDataChanged = true;
-
-//    }
-
-//    if(apprenticeDataChanged)
-//        saveDatas("Lehrlinge.dat");
-
 
 }
 
@@ -1306,7 +1085,6 @@ QStringList FSHKWindow::splitText(const QString &text, qreal maxLength, const QP
 
 
     return textList;
-
 }
 
 qreal FSHKWindow::lineLength(qreal x1, qreal x2)
