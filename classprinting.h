@@ -9,13 +9,18 @@
 #include <QMarginsF>
 #include <QMap>
 
+#include <classprojekt.h>
+#include <classskills.h>
+#include <classlehrling.h>
+
 class ClassPrinting : public QObject
 {
     Q_OBJECT
 public:
     explicit ClassPrinting(QObject *parent = nullptr);
 
-    bool setupPrinter();
+    bool setupPrinter(QPageLayout::Orientation layout);
+
     void setText(const QString &value);
     QString getText() const;
 
@@ -34,11 +39,16 @@ public:
     QString getDescription() const;
     void setDescription(const QString &value);
 
-    void setColumn(int nr, qreal width);
-    void setColumnText(int nr, const QString &text);
-    void setColumnRect(int nr, const QRectF &rect);
-
     bool print();
+
+    ClassProjekt getProject() const;
+    void setProject(const ClassProjekt &project);
+
+    QString getFilepath() const;
+    void setFilepath(const QString &value);
+
+    QList<ClassLehrling> getApprenticeList() const;
+    void setApprenticeList(const QList<ClassLehrling> &apprenticeList);
 
 signals:
     void aborted();
@@ -52,32 +62,56 @@ private:
     QString projectName;
     QString createdDate;
     QString description;
+    QString filepath;
 
     QPrinter printer;
     QMarginsF margin;
+    int maxPage;
+    int currentPage;
+    qreal originPenSize;
 
-    QMap<int, qreal> columnMap;
-    QMap<int, QString> columnText;
-    QMap<int, QRectF> columnRect;
+    QMap<int, QPointF> rowMap;
+    void setupRowMap(const QPainter &p);
 
+    ClassProjekt m_project;
+    QMap<int, QPointF> columnPos;
+    QMap<int, QString> columnHeaderText;
+
+
+    QList<ClassLehrling> m_apprenticeList;
 
     qreal pageLeft();
+    qreal pageRight();
     qreal pageTop();
     qreal pageBottom();
     qreal pageWidth();
     qreal pageHeight();
+    QRectF pageRect();
 
-    QRectF headerFrame();
+    QRectF captionFrame();
     QRectF feetFrame();
     QRectF pageFrame();
 
     QString getCurrentDate();
 
-    qreal pixel(qreal millimeter, const QPrinter &p);
-    void setFontAttribute(int size, bool bold, QColor col, QPainter *p);
+    qreal pixel(qreal millimeter);
+    void setFontAttribute(int fontSize, qreal penWidth, bool bold, QColor col, QPainter *p);
 
     qreal textHeight(const QPainter &p);
     qreal textWidth(const QString &text, const QPainter &p);
+    void setPenSize(qreal size, QPainter *p);
+
+
+    QStringList splitText(const QString &text, qreal maxLength, const QPainter &p);
+    int calculateRows(const QStringList &textList, qreal rowWidth, const QPainter &p);
+    QStringList textList(const ClassProjekt &pro);
+
+    void printPageFrames(QPainter *p);
+    void printPageInfoText(QPainter *p);
+    void printProjectInfoText(QPainter *p);
+    void printProjectText(QPainter *p);
+    void printApprenticeList(QPainter *p);
+    bool setupNewPage(QPainter *p);
 
 };
 
