@@ -205,6 +205,7 @@ QStringList ClassSkills::projectKeyList()
     return keyList;
 }
 
+
 QMap<QString, double> ClassSkills::getIdentMap() const
 {
     return identMap;

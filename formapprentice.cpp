@@ -28,7 +28,7 @@ FormLehrling::FormLehrling(QWidget *parent) :
     connect(ui->changeButton, &QPushButton::clicked, this, &FormLehrling::changeButtonClicked);
     connect(ui->saveButton, &QPushButton::clicked, this, &FormLehrling::saveButtonClicked);
     connect(ui->companyViewButton, &QToolButton::clicked, this, &FormLehrling::companyViewButtonClicked);
-    connect(ui->outsourceButton, &QToolButton::clicked, this, &FormLehrling::outsourceButtonClicked);
+    connect(ui->printButton, &QToolButton::clicked, this, &FormLehrling::printButtonClicked);
 
     connect(ui->klasseBox, &QComboBox::currentTextChanged, this, &FormLehrling::klasseBoxTextChanged);
 
@@ -212,9 +212,15 @@ void FormLehrling::saveButtonClicked()
     setFormReadOnly(true);
 }
 
-void FormLehrling::outsourceButtonClicked()
+void FormLehrling::printButtonClicked()
 {
-    emit outsourceApprentice();
+    QList<ClassLehrling> aList;
+    int index = ui->tabWidget->currentIndex();
+    if(index == 0)
+        aList = apprenticeMap().values();
+    else
+        aList = getApprenticeMap(index).values();
+    emit printApprentice(aList);
 }
 
 /// !brief For selecting a company

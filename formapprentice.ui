@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1245</width>
-    <height>628</height>
+    <width>1149</width>
+    <height>635</height>
    </rect>
   </property>
   <property name="font">
@@ -570,12 +570,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="outsourceButton">
+       <widget class="QPushButton" name="printButton">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
-         <string>&amp;Auslagern</string>
+         <string>Liste &amp;drucken</string>
         </property>
        </widget>
       </item>

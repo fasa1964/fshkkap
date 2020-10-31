@@ -73,6 +73,7 @@ public:
     bool removeProject( const QString &proKey );
     QStringList projectKeyList();
 
+
 private:
 
     int m_nr;
@@ -85,8 +86,6 @@ private:
 
     QMap<QString, ClassProjekt> projektMap;
     QMap<QString, double> identMap;
-
-
 };
 
 QDataStream &operator<<(QDataStream &out, const ClassSkills &dat);
