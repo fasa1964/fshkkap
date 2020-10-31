@@ -24,14 +24,21 @@ FormEvaluation::FormEvaluation(QWidget *parent) :
     selectedSkill = ClassSkills();
     selectedProjekt = ClassProjekt();
 
+
+    apprenticeTableList = new FormApprenticeResultList(0);
+
+
     connect(ui->closeButton, &QPushButton::clicked, this, &FormEvaluation::closeButtonClicked);
     connect(ui->saveButton, &QPushButton::clicked, this, &FormEvaluation::saveButtonClicked);
+    connect(ui->listButton, &QPushButton::clicked, this, &FormEvaluation::listButtonClicked);
     connect(ui->azubiSortBox, &QComboBox::currentTextChanged, this, &FormEvaluation::azubiSortBoxChanged);
     connect(ui->azubiListBox, &QComboBox::currentTextChanged, this, &FormEvaluation::azubiListBoxChanged);
     connect(ui->skillListBox, &QComboBox::currentTextChanged, this, &FormEvaluation::azubiSkillBoxChanged);
     connect(ui->projektListBox, &QComboBox::currentTextChanged, this, &FormEvaluation::azubiProjectBoxChanged);
     connect(ui->resultTreeWidget, &QTreeWidget::itemClicked, this, &FormEvaluation::resultTableItemClicked);
     connect(ui->evaluatedCheckBox, &QCheckBox::stateChanged, this, &FormEvaluation::evaluatedCheckBoxChanged);
+
+
 
 //
 //    connect(ui->recoverButton, &QPushButton::clicked, this, &FormEvaluation::recoverButtonClicked);
@@ -354,6 +361,18 @@ void FormEvaluation::saveButtonClicked()
 
 }
 
+/// !brief Show a list of results
+void FormEvaluation::listButtonClicked()
+{
+    QList<ClassLehrling> aList;
+
+    for(int i = 0; i < ui->azubiListBox->count(); i++)
+          aList << m_apprenticeMap.value( ui->azubiListBox->itemText(i) );
+
+    apprenticeTableList->setApprtenticeList(aList);
+    apprenticeTableList->show();
+}
+
 /// !brief Includes all apprentice keys sorted by years
 void FormEvaluation::azubiSortBoxChanged(const QString &text)
 {
@@ -395,26 +414,26 @@ void FormEvaluation::azubiListBoxChanged(const QString &text)
     if(selectedApprentice.getSkillTotalPercent() != 100 || selectedApprentice.getSkillMap().isEmpty())
     {
         QString message;
+        QPixmap pix;
         if(selectedApprentice.getSkillMap().isEmpty())
         {
             message = "Eine Auswertung ist nicht möglich, da keine Prüfung zugeordnet wurde.";
-            ui->labelIcon->setPixmap(QPixmap(":/images/Attention.svg"));
+            pix = QPixmap(":/images/Attention.svg");
         }
         else
         {
             message = "Achtung, die Gewichtung der gesamten Prüfung muss insgesamt 100% betragen. "
-                      "Das ist hier nicht der Fall. Korrigieren sie did Wertung bzw. Faktor einer Prüfung!";
-            setTextColor(ui->labelMessage, 10);
-            ui->labelIcon->setPixmap(QPixmap(":/images/AttentionPercent.svg"));
+                      "Das ist hier nicht der Fall. Korrigieren sie die Wertung bzw. Faktor dieser Prüfung!";
+            pix = QPixmap(":/images/AttentionPercent.svg");
         }
 
-        ui->labelMessage->setText(message);
-        ui->frameAttention->show();
+        sendMessage(message, pix, true);
+
 
     }
     else
     {
-        ui->frameAttention->hide();
+        sendMessage(QString(""), QPixmap(), false);
     }
 }
 
@@ -678,12 +697,20 @@ int FormEvaluation::projectPoints(const ClassProjekt &pro)
     return points;
 }
 
+double FormEvaluation::totalProjectPercent(const ClassSkills &skill)
+{
+    qreal percent = 0.0;
+    foreach (ClassProjekt pro, skill.getProjektMap().values()) {
+        percent += pro.getFactor() * 100.0;
+    }
+    return percent;
+}
+
 void FormEvaluation::storeValues()
 {
     selectedSkill.insertProjekt(selectedProjekt);
     selectedApprentice.insertSkill(selectedSkill);
     m_apprenticeMap.insert(selectedApprentice.getKey(), selectedApprentice);
-
     updateResultTreeWidget(selectedApprentice);
 
     dirty = true;
@@ -710,8 +737,21 @@ void FormEvaluation::updateResultTreeWidget(const ClassLehrling &appr)
         ClassSkills skill = it.value();
 
         // If skill evaluation method is project
+        double tpp = totalProjectPercent(skill);
         QTreeWidgetItem *topItem = new QTreeWidgetItem(QStringList() << it.key());
         ui->resultTreeWidget->addTopLevelItem(topItem);
+        if(tpp < 99.00 || tpp > 100.0)
+        {
+            topItem->setForeground(0, QBrush(QColor(255,0,0)));
+            topItem->setText(0, topItem->text(0).append("  !"));
+            topItem->setDisabled(true);
+            topItem->setToolTip(0,tr("Die Faktoren der Projekte müssen korrigiert werden!"));
+            QPixmap pix(":/images/AttentionPercent.svg");
+            QString message = "Prüfung: " + it.key() + " ist fehlerhaft!"
+                    "\nDie Summe der Faktoren von den Projekten müssen korrigiert werden!";
+            sendMessage( message, pix , true);
+        }
+
         ui->resultTreeWidget->expandItem(topItem);
 
         // Shows the percent of skill, calculated by project with factor
@@ -737,8 +777,6 @@ void FormEvaluation::updateResultTreeWidget(const ClassLehrling &appr)
         topItem->setFont(0,topItemFont);
         topItem->setFont(1,topItemFont);
         topItem->setFont(2,topItemFont);
-
-
 
         if(skill.getEvaluationIndex() == 1 && !skill.getIdentifierList().isEmpty())
         {
@@ -785,7 +823,6 @@ void FormEvaluation::updateResultTreeWidget(const ClassLehrling &appr)
             ui->resultTreeWidget->resizeColumnToContents(0);
         }
 
-
         total += skillPercent(skill) * skillFactor;
     }
 
@@ -795,6 +832,19 @@ void FormEvaluation::updateResultTreeWidget(const ClassLehrling &appr)
     ui->totalPercentBox->setValue( total );
     setTextColor(ui->totalPercentBox,  total );
     ui->gradeBox->setValue( FSHKWindow::grade(total) );
+
+
+    // Update the apprenticeTableList
+    if(!apprenticeTableList->isHidden())
+    {
+        QList<ClassLehrling> aList;
+
+        for(int i = 0; i < ui->azubiListBox->count(); i++)
+              aList << m_apprenticeMap.value( ui->azubiListBox->itemText(i) );
+
+        apprenticeTableList->setApprtenticeList(aList);
+    }
+
 }
 
 
@@ -830,6 +880,16 @@ void FormEvaluation::setItemColor(QTreeWidgetItem *item, double percent)
         item->setTextColor(1, Qt::red);
     else
         item->setTextColor(1, Qt::darkGreen);
+}
+
+void FormEvaluation::sendMessage(const QString &text, const QPixmap &pixmap, bool show)
+{
+    ui->labelIcon->setPixmap( pixmap );
+    ui->labelMessage->setText( text );
+    if(show)
+        ui->frameAttention->show();
+    else
+        ui->frameAttention->hide();
 }
 
 //void FormEvaluation::saveButtonClicked()

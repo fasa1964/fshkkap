@@ -10,6 +10,7 @@
 #include <classskills.h>
 #include <classfrage.h>
 
+#include <formapprenticeresultlist.h>
 
 namespace Ui {
 class FormEvaluation;
@@ -38,6 +39,7 @@ signals:
 private slots:
      void closeButtonClicked();
      void saveButtonClicked();
+     void listButtonClicked();
 
      void azubiSortBoxChanged(const QString &text);
      void azubiListBoxChanged(const QString &text);
@@ -84,8 +86,13 @@ private:
     double projectPercent(const ClassProjekt &pro);
     int projectPoints(const ClassProjekt &pro);
 
+
+    double totalProjectPercent(const ClassSkills &skill);
+
     void storeValues();
     void updateResultTreeWidget(const ClassLehrling &appr);
+
+    FormApprenticeResultList *apprenticeTableList;
 //    void setupProjectValue();
 //    void setupQuestionTable(ClassProjekt pro);
 //    void updateSkillBox(const ClassLehrling &azu);
@@ -114,6 +121,7 @@ private:
 //    void setTextColor(QWidget *widget, QColor color);
     void setTextColor(QWidget *widget, double percent);
     void setItemColor(QTreeWidgetItem *item, double percent);
+    void sendMessage(const QString &text, const QPixmap &pixmap, bool show);
 };
 
 
