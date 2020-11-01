@@ -102,6 +102,12 @@ bool ClassPrinting::print()
     setFontAttribute(10, 1.0,false, QColor(0,0,0), &painter);
     setupRowMap(painter);
 
+    // Calculate the page count
+    int rowNeeded = calculateRows( textList( getProject() ), 519, painter);
+    rowNeeded += 8; // 8 = Head rows and last rows for total result
+    maxPage = qCeil( rowNeeded / rowMap.size());
+    maxPage++;
+
     // Print the frames and the minimum nesseccery text
     setFontAttribute(10, 1, false, Qt::darkGray, &painter);
     printPageFrames(&painter);
@@ -110,11 +116,11 @@ bool ClassPrinting::print()
     // Print head project information
     if(getProject().isValid())
     {
-        // Calculate the page count
-        int rowNeeded = calculateRows( textList( getProject() ), 519, painter);
-        rowNeeded += 8; // 8 = Head rows and last rows for total result
-        maxPage = qCeil( rowNeeded / rowMap.size());
-        maxPage++;
+//        // Calculate the page count
+//        int rowNeeded = calculateRows( textList( getProject() ), 519, painter);
+//        rowNeeded += 8; // 8 = Head rows and last rows for total result
+//        maxPage = qCeil( rowNeeded / rowMap.size());
+//        maxPage++;
 
         setFontAttribute(10, 1.0, false, QColor(0,0,0), &painter);
         printProjectInfoText(&painter);
@@ -362,6 +368,7 @@ QStringList ClassPrinting::textList(const ClassProjekt &pro)
 
 void ClassPrinting::printPageFrames(QPainter *p)
 {
+    setFontAttribute(10, 1.0, false, Qt::darkGray, p);
     p->drawRect( captionFrame() );
     p->drawRect( pageFrame() );
     p->drawRect( feetFrame() );
@@ -402,6 +409,7 @@ void ClassPrinting::printPageInfoText(QPainter *p)
 void ClassPrinting::printProjectInfoText(QPainter *p)
 {
     // Print project base info
+    setFontAttribute(10, 1, false, QColor(0,0,0), p);
     QPointF row1 = rowMap.value(0);
     p->drawText(row1, getProject().getKey());
     QString dt = "Datum:";
@@ -524,9 +532,9 @@ void ClassPrinting::printProjectText(QPainter *p)
 
         if(rowNr > rowMap.size()-2)
         {
-            if(setupNewPage(p))
+            if(setupNewPage(p)){
                 rowNr = 5;
-            else
+            }else
                 ; // emit error
 
         }
@@ -664,6 +672,7 @@ bool ClassPrinting::setupNewPage(QPainter *p)
 {
     if(printer.newPage())
     {
+        currentPage++;
         printPageFrames(p);
         printPageInfoText(p);
 
