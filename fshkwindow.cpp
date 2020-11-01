@@ -14,11 +14,14 @@
 #include <QPageSize>
 #include <QPageLayout>
 #include <QtMath>
+#include <QDir>
+
 #include <QDebug>
 
 
 #include <dialoginfo.h>
 #include <classprinting.h>
+#include <dialogappsettings.h>
 
 FSHKWindow::FSHKWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -42,6 +45,10 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     appwidget->hide();
 
     setApplicationLabel();
+
+
+    dialogAppSettings = new DialogAppSettings(appSettingsMap, this);
+
 
     formCompany = new FormBetrieb(this);
     formCompany->hide();
@@ -94,6 +101,7 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     connect(ui->actionSkill, &QAction::triggered, this, &FSHKWindow::actionSkillClicked);
     connect(ui->actionAllocate, &QAction::triggered, this, &FSHKWindow::actionAllocateClicked);
     connect(ui->actionEvaluation, &QAction::triggered, this, &FSHKWindow::actionEvaluationClicked);
+    connect(ui->actionSettings, &QAction::triggered, this, &FSHKWindow::actionSettingsClicked);
 
     setupMenu();
 
@@ -173,7 +181,39 @@ void FSHKWindow::actionEvaluationClicked()
 //    if(getSkillDataIncomplete().isEmpty())
 //        formEvaluation->setRecoverButtonEnable(false, QStringList());
 //    else
-//        formEvaluation->setRecoverButtonEnable(true, getSkillDataIncomplete());
+    //        formEvaluation->setRecoverButtonEnable(true, getSkillDataIncomplete());
+}
+
+void FSHKWindow::actionSettingsClicked()
+{
+    int result = dialogAppSettings->exec();
+    if(result == QMessageBox::Accepted)
+    {
+        auto map = dialogAppSettings->verfy();
+
+        if(map.value("path").toString() != appSettingsMap.value("path").toString())
+        {
+            int ok = QMessageBox::question(this, tr("Programmverzeichnis"), tr("Das Verzeichnis des Programmes hat"
+                     " sich verändert. Soll die bereits vorhandenen Daten in das neue Verzeichnis kopiert werden?"),
+                     QMessageBox::Yes | QMessageBox::No);
+            if(ok == QMessageBox::Yes)
+            {
+                if(copyDatas(appSettingsMap.value("path").toString(), map.value("path").toString() ))
+                {
+                    appSettingsMap.insert("path", map.value("path").toString());
+                    ui->statusBar->showMessage("Daten wurden erfolgreich Kopiert", 6000);
+                }
+                else
+                {
+                    QMessageBox::information(this, tr("Kopieren"), tr("Die Daten konnten nicht ins neue"
+                             " Verzeichnis kopiert werden!\nBitte überprüfen sie ihre Schreibberechtigung!"));
+                }
+            }
+        }
+
+        appSettingsMap.insert("orgname", map.value("orgname").toString());
+
+    }
 }
 
 /// !brief This signal emitt when a form closed
@@ -269,7 +309,7 @@ void FSHKWindow::printApprentice(const QList<ClassLehrling> &apprenticeList)
     if(!print->setupPrinter(QPageLayout::Landscape))
         return;
 
-    print->setCaption("SHK Innung Goslar");
+    print->setCaption(appSettingsMap.value("orgname").toString());
     print->setText( "Liste:" );
     print->setDocName("Lehrlings List");
     print->setDescription("Auszubildende:");
@@ -305,7 +345,7 @@ void FSHKWindow::printProject(const ClassProjekt &pro)
     if( !print->setupPrinter( QPageLayout::Portrait ) )
         return;
 
-    print->setCaption("SHK Innung Goslar");
+    print->setCaption(appSettingsMap.value("orgname").toString());
     print->setText( "Bewertung:" );
     print->setDocName(pro.name());
     print->setProject(pro);
@@ -1035,6 +1075,19 @@ bool FSHKWindow::saveDatas(const QString &filename)
     return true;
 }
 
+bool FSHKWindow::copyDatas(const QString &oldPath, const QString &newPath)
+{
+    QDir::setCurrent( newPath );
+    bool status;
+
+    status = saveDatas("Betriebe.dat");
+    status = saveDatas("Lehrlinge.dat");
+    status = saveDatas("Projekte.dat");
+    status = saveDatas("Pruefungen.dat");
+
+    return status;
+}
+
 void FSHKWindow::setFontAttribute(int size, bool bold, QColor col, QPainter *p)
 {
     QFont font = p->font();
@@ -1492,11 +1545,12 @@ void FSHKWindow::readSettings()
     QRect wRect = settings.value("geometrie", QRect(0,0,930,640)).toRect();
     this->setGeometry(wRect);
 
-//    QDateTime apprFileDate = settings.value("lehrling").toDateTime();
-//    if(lastFileModified("Lehrlinge.dat") != apprFileDate)
-//        QMessageBox::information(this, "Test", "Version Lehrlinge ist veraltet!");
+    appSettingsMap.insert("orgname", settings.value("orgname","").toString());
+    appSettingsMap.insert("path", settings.value("path", QDir::currentPath() ).toString());
+    QDir::setCurrent( appSettingsMap.value("path").toString());
 
-     appSettingsMap.insert("overwriteEvaluatedSkills", false);
+    appSettingsMap.insert("overwriteEvaluatedSkills", false);
+
 }
 
 /// !brief Write the settings
@@ -1507,6 +1561,10 @@ void FSHKWindow::writeSettings()
     settings.setValue("geometrie", this->geometry());
     settings.setValue("lehrling", lastFileModified("Lehrlinge.dat"));
     settings.setValue("betrieb", lastFileModified("Betriebe.dat"));
+
+    settings.setValue("orgname", appSettingsMap.value("orgname", "").toString());
+    settings.setValue("path", appSettingsMap.value("path", QDir::currentPath() ).toString());
+
 
 
 }

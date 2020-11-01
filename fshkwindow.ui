@@ -28,6 +28,7 @@
      <string>&amp;Programm</string>
     </property>
     <addaction name="actionInfo"/>
+    <addaction name="actionSettings"/>
     <addaction name="actionBeenden"/>
    </widget>
    <widget class="QMenu" name="menuDaten">
@@ -80,7 +81,7 @@
     <string>&amp;Beenden</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+E</string>
+    <string>Ctrl+C</string>
    </property>
   </action>
   <action name="actionCompany">
@@ -104,7 +105,7 @@
     <string>&amp;Auszubildende</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+A</string>
+    <string>Ctrl+L</string>
    </property>
   </action>
   <action name="actionProjects">
@@ -146,13 +147,25 @@
   <action name="actionEvaluation">
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/images/Evaluation.svg</normaloff>:/images/Evaluation.svg</iconset>
+     <normaloff>:/images/LightBulb.svg</normaloff>:/images/LightBulb.svg</iconset>
    </property>
    <property name="text">
     <string>Auswerten</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/Settings.svg</normaloff>:/images/Settings.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Einstellungen</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
  </widget>

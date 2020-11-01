@@ -27,6 +27,9 @@
 #include <dialogapprenticelist.h>
 #include <QFileInfo>
 
+#include <dialogappsettings.h>
+
+
 namespace Ui {
 class FSHKWindow;
 }
@@ -79,6 +82,7 @@ private slots:
     void actionSkillClicked();
     void actionAllocateClicked();
     void actionEvaluationClicked();
+    void actionSettingsClicked();
 
     // Signal from Forms***
     void formHasClosed();
@@ -149,6 +153,10 @@ private:
     FormAllocate *formAllocate;
     FormEvaluation *formEvaluation;
 
+    // Values for app settings
+    DialogAppSettings *dialogAppSettings;
+    QMap<QString, QVariant> appSettingsMap;
+
     QStringList getSkillDataIncomplete();
     QDateTime lastFileModified(const QString &filename);
 
@@ -165,9 +173,7 @@ private:
     void setupMenu();
     void readDatas(const QString &filename);
     bool saveDatas(const QString &filename);
-
-    // Values for app settings
-    QMap<QString, QVariant> appSettingsMap;
+    bool copyDatas(const QString &oldPath, const QString &newPath);
 
     // Printer function
     void setFontAttribute(int size, bool bold , QColor col, QPainter *p);
