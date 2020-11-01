@@ -13,5 +13,7 @@
         <file>images/Close.svg</file>
         <file>images/Evaluation.svg</file>
         <file>images/Info.svg</file>
+        <file>images/LightBulb.svg</file>
+        <file>images/Settings.svg</file>
     </qresource>
 </RCC>
