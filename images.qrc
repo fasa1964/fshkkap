@@ -15,5 +15,11 @@
         <file>images/Info.svg</file>
         <file>images/LightBulb.svg</file>
         <file>images/Settings.svg</file>
+        <file>images/FSHKIcon.ico</file>
+        <file>FSHKIcon.ico</file>
+        <file>images/BackgroundFSHK-AP.svg</file>
+        <file>images/BackgroundApp.svg</file>
+        <file>images/FSHKIconWhitePaper.png</file>
+        <file>images/FSHKIconWhitePaper.svg</file>
     </qresource>
 </RCC>

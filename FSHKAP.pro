@@ -22,6 +22,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+RC_ICONS = FSHKIcon.ico
 
 SOURCES += \
         main.cpp \
@@ -43,7 +44,8 @@ SOURCES += \
     formquestionidentsettings.cpp \
     classprinting.cpp \
     formapprenticeresultlist.cpp \
-    dialoginfo.cpp
+    dialoginfo.cpp \
+    dialogappsettings.cpp
 
 HEADERS += \
         fshkwindow.h \
@@ -64,7 +66,8 @@ HEADERS += \
     formquestionidentsettings.h \
     classprinting.h \
     formapprenticeresultlist.h \
-    dialoginfo.h
+    dialoginfo.h \
+    dialogappsettings.h
 
 FORMS += \
         fshkwindow.ui \
@@ -79,7 +82,8 @@ FORMS += \
     dialogapprenticelist.ui \
     formquestionidentsettings.ui \
     formapprenticeresultlist.ui \
-    dialoginfo.ui
+    dialoginfo.ui \
+    dialogappsettings.ui
 
 RESOURCES += \
     images.qrc
@@ -90,4 +94,23 @@ DISTFILES += \
     images/FSHKIcon.svg \
     images/House.svg \
     images/SplashPixmap.svg \
-    images/Wrench.svg
+    images/Wrench.svg \
+    images/Assign.svg \
+    images/Attention.svg \
+    images/AttentionPercent.svg \
+    images/Badge.svg \
+    images/Close.svg \
+    images/Document.svg \
+    images/Evaluation.svg \
+    images/FSHKIcon.svg \
+    images/House.svg \
+    images/Info.svg \
+    images/LightBulb.svg \
+    images/Settings.svg \
+    images/SplashPixmap.svg \
+    images/Wrench.svg \
+    images/FSHKIcon.ico \
+    images/BackgroundFSHK-AP.svg \
+    images/FSHKIconWhitePaper.png \
+    images/BackgroundApp.svg \
+    images/FSHKIconWhitePaper.svg
