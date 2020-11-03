@@ -369,7 +369,7 @@ void FormEvaluation::listButtonClicked()
     for(int i = 0; i < ui->azubiListBox->count(); i++)
           aList << m_apprenticeMap.value( ui->azubiListBox->itemText(i) );
 
-    apprenticeTableList->setApprtenticeList(aList);
+    apprenticeTableList->setapprenticeList(aList);
     apprenticeTableList->show();
 }
 
@@ -842,7 +842,7 @@ void FormEvaluation::updateResultTreeWidget(const ClassLehrling &appr)
         for(int i = 0; i < ui->azubiListBox->count(); i++)
               aList << m_apprenticeMap.value( ui->azubiListBox->itemText(i) );
 
-        apprenticeTableList->setApprtenticeList(aList);
+        apprenticeTableList->setapprenticeList(aList);
     }
 
 }

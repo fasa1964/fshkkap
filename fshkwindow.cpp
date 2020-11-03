@@ -33,7 +33,7 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     QAction *action = new QAction(date);
     ui->menuBar->addAction(action);
 
-    setWindowIcon(QIcon(":/FSHKIcon.svg"));
+    setWindowIcon(QIcon(":/images/FSHKIcon.ico"));
     readSettings();
 
     readDatas("Betriebe.dat");
@@ -212,6 +212,7 @@ void FSHKWindow::actionSettingsClicked()
         }
 
         appSettingsMap.insert("orgname", map.value("orgname").toString());
+        appSettingsMap.insert("checkupdate", map.value("checkupdate").toBool());
 
     }
 }
@@ -1488,8 +1489,6 @@ void FSHKWindow::updateProjektData()
         saveDatas("Pruefungen.dat");
         updateApprenticeData();
     }
-
-
 }
 
 QStringList FSHKWindow::projectKeyList(const QString &identifier)
@@ -1549,8 +1548,8 @@ void FSHKWindow::readSettings()
     appSettingsMap.insert("path", settings.value("path", QDir::currentPath() ).toString());
     QDir::setCurrent( appSettingsMap.value("path").toString());
 
+    appSettingsMap.insert("checkupdate", settings.value("checkupdate",false).toBool() );
     appSettingsMap.insert("overwriteEvaluatedSkills", false);
-
 }
 
 /// !brief Write the settings
@@ -1564,7 +1563,5 @@ void FSHKWindow::writeSettings()
 
     settings.setValue("orgname", appSettingsMap.value("orgname", "").toString());
     settings.setValue("path", appSettingsMap.value("path", QDir::currentPath() ).toString());
-
-
-
+    settings.setValue("checkupdate", appSettingsMap.value("checkupdate").toBool());
 }
