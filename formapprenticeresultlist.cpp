@@ -1,11 +1,16 @@
 #include "formapprenticeresultlist.h"
 #include "ui_formapprenticeresultlist.h"
 
+#include <QBrush>
+#include <QDebug>
+
 FormApprenticeResultList::FormApprenticeResultList(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FormApprenticeResultList)
 {
     ui->setupUi(this);
+    setWindowTitle(tr("Ergebnisliste"));
+
     connect(ui->closeButton, &QPushButton::clicked, this, &FormApprenticeResultList::close);
 }
 
@@ -14,32 +19,37 @@ FormApprenticeResultList::~FormApprenticeResultList()
     delete ui;
 }
 
-QList<ClassLehrling> FormApprenticeResultList::apprtenticeList() const
+QList<ClassLehrling> FormApprenticeResultList::apprenticeList() const
 {
-    return m_apprtenticeList;
+    return m_apprenticeList;
 }
 
-void FormApprenticeResultList::setApprtenticeList(const QList<ClassLehrling> &apprtenticeList)
+void FormApprenticeResultList::setapprenticeList(const QList<ClassLehrling> &apprenticeList)
 {
-    m_apprtenticeList = apprtenticeList;
+    m_apprenticeList = apprenticeList;
     updateTableWidget();
 }
 
 void FormApprenticeResultList::updateTableWidget()
 {
-    if(apprtenticeList().isEmpty())
+    if(apprenticeList().isEmpty())
         return;
 
     QStringList headers;
     headers << "Nr." <<  "Name";
-    headers << skillNames(apprtenticeList());
+    headers << skillNames(apprenticeList());
+    headers << "Ergebnis";
 
     ui->tableWidget->setColumnCount( headers.size() );
     ui->tableWidget->setHorizontalHeaderLabels( headers );
-    ui->tableWidget->setRowCount( apprtenticeList().size() );
+    ui->tableWidget->setRowCount( apprenticeList().size() );
+
+    QFont f = ui->tableWidget->font();
+    f.setBold(true);
+    ui->tableWidget->horizontalHeaderItem(headers.size()-1)->setFont(f);
 
     int row = 0;
-    foreach (ClassLehrling appr, apprtenticeList())
+    foreach (ClassLehrling appr, apprenticeList())
     {
         QTableWidgetItem *itemNr = new QTableWidgetItem(QString::number( appr.nr(), 10));
         QTableWidgetItem *itemName = new QTableWidgetItem( appr.surname()+","+appr.firstname());
@@ -50,41 +60,44 @@ void FormApprenticeResultList::updateTableWidget()
         itemNr->setFlags(Qt::ItemIsEnabled);
         itemName->setFlags(Qt::ItemIsEnabled);
 
+        double result = 0.0;
+        QMap<double, double> resultMap;
+
         int col = 2;
         foreach (ClassSkills skill, appr.getSkillMap().values())
         {
-            if(skill.getEvaluationIndex() == 0)
-            {
-                double percent = skillPercent(skill);
-                QTableWidgetItem *itemPercent = new QTableWidgetItem( QString::number(percent, 'g', 3));
-                ui->tableWidget->setItem(row, col, itemPercent);
-                itemPercent->setFlags(Qt::ItemIsEnabled);
-            }
+            //QString skillName = skill.name();
+            double percent = skillPercent(skill);
+            QTableWidgetItem *itemPercent = new QTableWidgetItem( QString::number(percent, 'g', 3));
+            ui->tableWidget->setItem(row, col, itemPercent);
+            itemPercent->setFlags(Qt::ItemIsEnabled);
+            setupColor(itemPercent, percent);
+            resultMap.insert(percent, skill.getWert());
 
-            if(skill.getEvaluationIndex() == 1 && !skill.getIdentifierList().isEmpty()  )
-            {
-                QStringList iList = skill.getIdentifierList();
-                for(int i = 0; i < iList.size() ; i++)
-                {
-                    double percent = skill.getIdentPercent(iList.at(i));
-                    QTableWidgetItem *itemPercent = new QTableWidgetItem( QString::number(percent, 'g', 3) );
-                    ui->tableWidget->setItem(row, col, itemPercent);
-                    itemPercent->setFlags(Qt::ItemIsEnabled);
-                }
-
-
-            }
+            result += percent * (skill.getWert()/100.0);
             col++;
         }
 
-
-
+        QTableWidgetItem *itemResult = new QTableWidgetItem( QString::number(result, 'g', 3));
+        ui->tableWidget->setItem(row, col, itemResult);
+        itemResult->setFlags(Qt::ItemIsEnabled);
+        setupColor(itemResult, result);
+        itemResult->setFont(f);
         row++;
     }
-
-
     ui->tableWidget->resizeColumnsToContents();
+}
 
+void FormApprenticeResultList::setupColor(QTableWidgetItem *item, qreal percent)
+{
+    QBrush brush = item->foreground();
+
+    if(percent > 49.49)
+        brush.setColor(Qt::darkGreen);
+    else
+        brush.setColor(Qt::red);
+
+    item->setForeground(brush);
 }
 
 /// !brief Returns a list of skill names
@@ -96,29 +109,8 @@ QStringList FormApprenticeResultList::skillNames(const QList<ClassLehrling> &lis
     {
         foreach (ClassSkills skill, appr.getSkillMap().values())
         {
-            if(skill.getEvaluationIndex() != 1)
-            {
-                if(!nameList.contains( skill.name()))
-                    nameList << skill.name();
-            }
-            if(skill.getEvaluationIndex() == 1 && !skill.getIdentifierList().isEmpty() )
-            {
-                QStringList iList = skill.getIdentifierList();
-                foreach (QString s, iList)
-                {
-                    if(!nameList.contains(s))
-                        nameList << s;
-                }
-
-                foreach (ClassProjekt pro, skill.getProjektMap().values())
-                {
-                    if(pro.identifierList().isEmpty())
-                    {
-                        if( !nameList.contains( pro.name() ))
-                            nameList << pro.name();
-                    }
-                }
-            }
+            if(!nameList.contains( skill.name() ))
+                nameList << skill.name();
         }
     }
 

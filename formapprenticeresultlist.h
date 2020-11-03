@@ -2,6 +2,7 @@
 #define FORMAPPRENTICERESULTLIST_H
 
 #include <QWidget>
+#include <QTableWidgetItem>
 
 #include <classlehrling.h>
 #include <classskills.h>
@@ -18,15 +19,16 @@ public:
     explicit FormApprenticeResultList(QWidget *parent = 0);
     ~FormApprenticeResultList();
 
-    QList<ClassLehrling> apprtenticeList() const;
-    void setApprtenticeList(const QList<ClassLehrling> &apprtenticeList);
+    QList<ClassLehrling> apprenticeList() const;
+    void setapprenticeList(const QList<ClassLehrling> &apprenticeList);
 
 private:
     Ui::FormApprenticeResultList *ui;
 
-    QList<ClassLehrling> m_apprtenticeList;
+    QList<ClassLehrling> m_apprenticeList;
     void updateTableWidget();
 
+    void setupColor(QTableWidgetItem *item, qreal percent);
 
     QStringList skillNames(const QList<ClassLehrling> &list);
     double skillPercent( ClassSkills skill);

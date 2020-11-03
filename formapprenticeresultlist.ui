@@ -19,7 +19,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
+   <item row="0" column="0" colspan="3">
     <widget class="QLabel" name="captionLabel">
      <property name="font">
       <font>
@@ -37,8 +37,12 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QTableWidget" name="tableWidget"/>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="closeButton">
+     <property name="text">
+      <string>&amp;Schließen</string>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0">
     <spacer name="horizontalSpacer">
@@ -53,10 +57,13 @@
      </property>
     </spacer>
    </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QTableWidget" name="tableWidget"/>
+   </item>
    <item row="2" column="1">
-    <widget class="QPushButton" name="closeButton">
+    <widget class="QPushButton" name="printButton">
      <property name="text">
-      <string>&amp;Schließen</string>
+      <string>&amp;Drucken</string>
      </property>
     </widget>
    </item>
