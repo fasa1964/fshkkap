@@ -15,6 +15,9 @@ public:
     explicit AppWidget(const QString &NAME, const QString &VERSION, QWidget *parent = 0);
     ~AppWidget();
 
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
 private:
     Ui::AppWidget *ui;
 };
