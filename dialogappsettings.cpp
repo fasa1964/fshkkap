@@ -4,6 +4,8 @@
 #include <QIcon>
 #include <QFileDialog>
 
+#include <QDebug>
+
 DialogAppSettings::DialogAppSettings(const QMap<QString, QVariant> &map, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogAppSettings)
@@ -14,6 +16,7 @@ DialogAppSettings::DialogAppSettings(const QMap<QString, QVariant> &map, QWidget
 
     ui->orgNameEdit->setText( map.value("orgname").toString());
     ui->appPathEdit->setText( map.value("path").toString());
+    ui->checkUpdateBox->setChecked( map.value("checkupdate").toBool());
 
     connect(ui->cancelButton, &QPushButton::clicked, this, &DialogAppSettings::reject);
     connect(ui->applyButton, &QPushButton::clicked, this, &DialogAppSettings::accept);
@@ -32,6 +35,7 @@ QMap<QString, QVariant> DialogAppSettings::verfy()
 
     map.insert("orgname", ui->orgNameEdit->text());
     map.insert("path", ui->appPathEdit->text());
+    map.insert("checkupdate", ui->checkUpdateBox->isChecked());
 
     return map;
 }
