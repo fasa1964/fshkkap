@@ -3,6 +3,8 @@
 #include <QGuiApplication>
 #include <QSplashScreen>
 #include <QLocale>
+#include <QTimer>
+#include <QSettings>
 
 int main(int argc, char *argv[])
 {
@@ -11,18 +13,25 @@ int main(int argc, char *argv[])
     QGuiApplication::setApplicationName("FSHK-AP");
     QGuiApplication::setApplicationVersion("1.0");
 
-    QPixmap pix = QPixmap(":/images/SplashPixmap.svg");
 
     // testing
-//    QSplashScreen *splash = new QSplashScreen (pix);
-//    splash->setMinimumSize(500,500);
-//    splash->show();
+//    QSettings settings("FASA-Soft", "FSHK-AP");
+//    if(settings.value("checkupdate").toBool())
+//    {
+//        QPixmap pix = QPixmap(":/images/SplashPixmap.svg");
+//        QSplashScreen splash(pix, Qt::WindowStaysOnTopHint);
+//        QFont font = splash.font();
+//        font.setPointSize(10);
+//        splash.setFont(font);
+//        splash.setMinimumSize(500,500);
+//        splash.show();
 
-//    splash->showMessage("FSHK-AP startet...lade Module");
-//    app.processEvents();
+//        splash.showMessage("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+//                           "FSHK-AP suche nach udates..", Qt::AlignCenter);
+//        app.processEvents();
 
-//    splash->showMessage("FSHK-AP Module sind geladen!");
-//    app.processEvents();
+//        QTimer::singleShot(8000, &splash, &QWidget::close);
+//    }
 
     FSHKWindow window;
     window.show();
