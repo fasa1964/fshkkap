@@ -26,7 +26,7 @@ FormEvaluation::FormEvaluation(QWidget *parent) :
 
 
     apprenticeTableList = new FormApprenticeResultList(0);
-
+    connect(apprenticeTableList, &FormApprenticeResultList::printResultList, this, &FormEvaluation::printButtonClicked);
 
     connect(ui->closeButton, &QPushButton::clicked, this, &FormEvaluation::closeButtonClicked);
     connect(ui->saveButton, &QPushButton::clicked, this, &FormEvaluation::saveButtonClicked);
@@ -370,7 +370,13 @@ void FormEvaluation::listButtonClicked()
           aList << m_apprenticeMap.value( ui->azubiListBox->itemText(i) );
 
     apprenticeTableList->setapprenticeList(aList);
+    apprenticeTableList->setCaption(ui->azubiSortBox->currentText());
     apprenticeTableList->show();
+}
+
+void FormEvaluation::printButtonClicked(const QMap<int, QVariant> &map)
+{
+    emit printResultList(map);
 }
 
 /// !brief Includes all apprentice keys sorted by years
@@ -389,7 +395,27 @@ void FormEvaluation::azubiSortBoxChanged(const QString &text)
 
     if(!list.isEmpty()){
         ui->azubiListBox->clear();
-        ui->azubiListBox->addItems(  list );
+
+        // Sort by skill nr
+        QMap<int, QString> sortedMap;
+
+        for (int i = 0; i < list.size(); i++) {
+            QStringList split = list.at(i).split(".");
+            if(split.size() != 3)
+                QMessageBox::warning(this, "Fehler",  "In der Namensgebung eine Auszubildenden:"+ list.at(i) +" wurde ein Fehler bemerkt.\n"
+                                                      "Bitte korrigieren sie den Fehler!");
+            else
+            {
+                QString snr = split.last();
+                int nr = snr.toInt();
+                sortedMap.insert(nr, list.at(i));
+            }
+
+        }
+
+
+        ui->azubiListBox->addItems(  sortedMap.values() );  // is sorted by name
+        //ui->azubiListBox->addItems(  list );  // is sorted by name
         ui->countAzubiBox->setValue( list.size()  );
     }
 }
@@ -407,7 +433,10 @@ void FormEvaluation::azubiListBoxChanged(const QString &text)
     ui->azuNameEdit->setText( selectedApprentice.firstname() + " " + selectedApprentice.surname());
 
     ui->countSkillBox->setValue( selectedApprentice.getSkillMap().size() );
+
+    // Sorted by name (keys)
     ui->skillListBox->addItems( selectedApprentice.getSkillMap().keys() );
+
 
     updateResultTreeWidget(selectedApprentice);
 

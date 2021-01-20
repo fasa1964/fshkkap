@@ -34,12 +34,14 @@ public:
 signals:
      void saveApprenticeMap(QMap<QString, ClassLehrling> apprMap);
      void formEvaluationClosed();
+     void printResultList(const QMap<int, QVariant> &map);
 //     void recoverAll();
 
 private slots:
      void closeButtonClicked();
      void saveButtonClicked();
      void listButtonClicked();
+     void printButtonClicked(const QMap<int, QVariant> &map);
 
      void azubiSortBoxChanged(const QString &text);
      void azubiListBoxChanged(const QString &text);
