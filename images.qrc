@@ -21,5 +21,6 @@
         <file>images/BackgroundApp.svg</file>
         <file>images/FSHKIconWhitePaper.png</file>
         <file>images/FSHKIconWhitePaper.svg</file>
+        <file>images/EarthEye.png</file>
     </qresource>
 </RCC>
