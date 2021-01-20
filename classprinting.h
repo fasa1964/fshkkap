@@ -50,6 +50,9 @@ public:
     QList<ClassLehrling> getApprenticeList() const;
     void setApprenticeList(const QList<ClassLehrling> &apprenticeList);
 
+    QMap<int, QVariant> getResultMap() const;
+    void setResultMap(const QMap<int, QVariant> &resultMap);
+
 signals:
     void aborted();
 
@@ -79,6 +82,7 @@ private:
 
 
     QList<ClassLehrling> m_apprenticeList;
+    QMap<int, QVariant> m_resultMap;
 
     qreal pageLeft();
     qreal pageRight();
@@ -111,6 +115,7 @@ private:
     void printProjectInfoText(QPainter *p);
     void printProjectText(QPainter *p);
     void printApprenticeList(QPainter *p);
+    void printResultMap(QPainter *p);
     bool setupNewPage(QPainter *p);
 
 };

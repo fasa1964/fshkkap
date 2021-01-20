@@ -134,6 +134,13 @@ bool ClassPrinting::print()
         printApprenticeList(&painter);
     }
 
+    // Print result map
+    if(!getResultMap().isEmpty())
+    {
+        setFontAttribute(10, 1, false, QColor(0,0,0), &painter);
+        printResultMap(&painter);
+    }
+
     painter.end();
 
     return true;
@@ -177,6 +184,16 @@ void ClassPrinting::setupRowMap(const QPainter &p)
         posY += th;
         pos.setY(posY);
     }
+}
+
+QMap<int, QVariant> ClassPrinting::getResultMap() const
+{
+    return m_resultMap;
+}
+
+void ClassPrinting::setResultMap(const QMap<int, QVariant> &resultMap)
+{
+    m_resultMap = resultMap;
 }
 
 QList<ClassLehrling> ClassPrinting::getApprenticeList() const
@@ -666,6 +683,21 @@ void ClassPrinting::printApprenticeList(QPainter *p)
         }
     }
 
+}
+
+void ClassPrinting::printResultMap(QPainter *p)
+{
+    QMap<int, QVariant> rmap = getResultMap();
+    QStringList headers = rmap.value(0).toStringList();
+
+    int rowNr = 1;
+
+    foreach (QString s, headers) {
+
+        QPointF pos = rowMap.value( rowNr );
+        p->drawText(pos, s );
+
+    }
 }
 
 bool ClassPrinting::setupNewPage(QPainter *p)
