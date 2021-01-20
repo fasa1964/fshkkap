@@ -20,6 +20,7 @@ FormProjekt::FormProjekt(QWidget *parent) :
 
     selectedProjekt = ClassProjekt();
 
+    ui->fragenTableWidget->verticalHeader()->setVisible(false);
 
     connect(ui->closeButton, &QPushButton::clicked, this, &FormProjekt::closeForm);
     connect(ui->createButton, &QPushButton::clicked, this, &FormProjekt::createButtonClicked);
