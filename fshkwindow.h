@@ -112,7 +112,8 @@ private slots:
     void skillChanged(const ClassSkills &skill);
 
     // Signal from FormEvaluation
-    void recoverAll();
+    void recoverAll(); // Not in use
+    void printResultList(const QMap<int, QVariant> &map);
 
 private:
     Ui::FSHKWindow *ui;

@@ -91,6 +91,8 @@ FSHKWindow::FSHKWindow(QWidget *parent) :
     formEvaluation->hide();
     connect(formEvaluation, &FormEvaluation::saveApprenticeMap, this, &FSHKWindow::saveApprenticeMap);
     connect(formEvaluation, &FormEvaluation::formEvaluationClosed, this, &FSHKWindow::formHasClosed);
+    connect(formEvaluation, &FormEvaluation::printResultList, this, &FSHKWindow::printResultList);
+
     //connect(formEvaluation, &FormEvaluation::recoverAll, this, &FSHKWindow::recoverAll);
 
     connect(ui->actionBeenden, &QAction::triggered, this, &FSHKWindow::actionCloseClicked);
@@ -682,6 +684,32 @@ void FSHKWindow::recoverAll()
         DialogApprenticeList *dlg = new  DialogApprenticeList(title, message, dataKeys ,this);
         dlg->exec();
     }
+}
+
+void FSHKWindow::printResultList(const QMap<int, QVariant> &map)
+{
+
+    QMapIterator<int, QVariant> it(map);
+    while (it.hasNext()) {
+        it.next();
+        qDebug() << "key" << it.key();
+        qDebug() << "value" << it.value();
+
+    }
+    ClassPrinting *print = new ClassPrinting(this);
+
+    if(!print->setupPrinter(QPageLayout::Landscape))
+        return;
+
+    print->setCaption(appSettingsMap.value("orgname").toString());
+    print->setText( "Ergebnis-Liste: ");
+    print->setDocName("Lehrlings Ergebnisliste");
+    print->setDescription("Auszubildende:");
+    print->setResultMap(map);
+
+    if(!print->print())
+        QMessageBox::information(this, tr("Drucken"), tr("Drucken ist fehlgeschlagen!"));
+    qDebug() << "printing result list";
 }
 
 QStringList FSHKWindow::skillKeyList(const QString &proIdentifier)
