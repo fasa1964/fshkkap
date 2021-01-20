@@ -2,6 +2,7 @@
 #include "ui_formapprenticeresultlist.h"
 
 #include <QBrush>
+#include <fshkwindow.h>
 #include <QDebug>
 
 FormApprenticeResultList::FormApprenticeResultList(QWidget *parent) :
@@ -12,6 +13,7 @@ FormApprenticeResultList::FormApprenticeResultList(QWidget *parent) :
     setWindowTitle(tr("Ergebnisliste"));
 
     connect(ui->closeButton, &QPushButton::clicked, this, &FormApprenticeResultList::close);
+    connect(ui->printButton, &QPushButton::clicked, this, &FormApprenticeResultList::printButtonClicked);
 }
 
 FormApprenticeResultList::~FormApprenticeResultList()
@@ -30,6 +32,55 @@ void FormApprenticeResultList::setapprenticeList(const QList<ClassLehrling> &app
     updateTableWidget();
 }
 
+void FormApprenticeResultList::printButtonClicked()
+{
+    resultMap.clear();
+
+    // Read headers from table
+    QStringList headerList;
+    for(int h = 0; h < ui->tableWidget->columnCount(); h++)
+    {
+        QString header = ui->tableWidget->horizontalHeaderItem(h)->text();
+        headerList << header;
+    }
+    resultMap.insert(0, headerList);
+
+
+    for(int i = 0; i < ui->tableWidget->rowCount(); i++)
+    {
+        QMap<QString, QVariant> map;
+        int nr = ui->tableWidget->item(i,0)->text().toInt();
+
+        for(int c = 1; c < ui->tableWidget->columnCount(); c++)
+        {
+
+            QString key = ui->tableWidget->horizontalHeaderItem(c)->text();
+            QString value = ui->tableWidget->item(i,c)->text();
+            if(value.contains("%"))
+                value =  value.left( value.indexOf("%") );
+
+            map.insert(key, value);
+
+        }
+
+        resultMap.insert(nr, map);
+    }
+
+
+    emit printResultList(resultMap);
+}
+
+QString FormApprenticeResultList::caption() const
+{
+    return m_caption;
+}
+
+void FormApprenticeResultList::setCaption(const QString &caption)
+{
+    m_caption = caption;
+    ui->captionLabel->setText(caption);
+}
+
 void FormApprenticeResultList::updateTableWidget()
 {
     if(apprenticeList().isEmpty())
@@ -38,7 +89,7 @@ void FormApprenticeResultList::updateTableWidget()
     QStringList headers;
     headers << "Nr." <<  "Name";
     headers << skillNames(apprenticeList());
-    headers << "Ergebnis";
+    headers << "Ergebnis" << "Note";
 
     ui->tableWidget->setColumnCount( headers.size() );
     ui->tableWidget->setHorizontalHeaderLabels( headers );
@@ -68,7 +119,7 @@ void FormApprenticeResultList::updateTableWidget()
         {
             //QString skillName = skill.name();
             double percent = skillPercent(skill);
-            QTableWidgetItem *itemPercent = new QTableWidgetItem( QString::number(percent, 'g', 3));
+            QTableWidgetItem *itemPercent = new QTableWidgetItem( QString::number(percent, 'g', 3)+"%");
             ui->tableWidget->setItem(row, col, itemPercent);
             itemPercent->setFlags(Qt::ItemIsEnabled);
             setupColor(itemPercent, percent);
@@ -78,11 +129,21 @@ void FormApprenticeResultList::updateTableWidget()
             col++;
         }
 
-        QTableWidgetItem *itemResult = new QTableWidgetItem( QString::number(result, 'g', 3));
+        // Result in percent
+        QTableWidgetItem *itemResult = new QTableWidgetItem( QString::number(result, 'g', 3)+"%");
         ui->tableWidget->setItem(row, col, itemResult);
         itemResult->setFlags(Qt::ItemIsEnabled);
         setupColor(itemResult, result);
         itemResult->setFont(f);
+
+        col++;
+        int censor = FSHKWindow::grade(result);
+        QTableWidgetItem *itemCensor = new QTableWidgetItem( QString::number(censor));
+        ui->tableWidget->setItem(row, col, itemCensor);
+        itemCensor->setFlags(Qt::ItemIsEnabled);
+        setupColor(itemCensor, result);
+        itemCensor->setFont(f);
+
         row++;
     }
     ui->tableWidget->resizeColumnsToContents();

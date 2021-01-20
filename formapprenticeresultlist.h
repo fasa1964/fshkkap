@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTableWidgetItem>
+#include <QMap>
 
 #include <classlehrling.h>
 #include <classskills.h>
@@ -22,9 +23,20 @@ public:
     QList<ClassLehrling> apprenticeList() const;
     void setapprenticeList(const QList<ClassLehrling> &apprenticeList);
 
+
+    QString caption() const;
+    void setCaption(const QString &caption);
+
+signals:
+    void printResultList(const QMap<int, QVariant> &map);
+
+private slots:
+    void printButtonClicked();
+
 private:
     Ui::FormApprenticeResultList *ui;
 
+    QString m_caption;
     QList<ClassLehrling> m_apprenticeList;
     void updateTableWidget();
 
@@ -34,6 +46,7 @@ private:
     double skillPercent( ClassSkills skill);
     double projectPercent(const ClassProjekt &pro);
 
+    QMap<int, QVariant> resultMap;
 
 };
 
